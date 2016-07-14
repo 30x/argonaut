@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2016 Apigee Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,37 +16,144 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"errors"
+	"os"
+
+	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/client/unversioned"
+	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
+	"k8s.io/kubernetes/pkg/fields"
+	"k8s.io/kubernetes/pkg/labels"
 
 	"github.com/spf13/cobra"
 )
 
+var containerFlag string
+var tailFlag int
+
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
-	Use:   "logs",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "logs <labelSelector>",
+	Short: "retrieve all pod logs belonging to a label selector",
+	Long:  `A multi-pod log retrieval command based on a given label selector.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+An example of use:
+	$ k8s-multi-pod logs "app=hello"
+
+	OR
+
+	$ k8s-multi-pod logs "app=hello,env=test,color=red`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("logs called")
+		if len(args) < 1 {
+			fmt.Println("Missing required argument: labelSelector")
+			return
+		}
+
+		labelSelector := args[0]
+
+		fmt.Println("Retrieving logs...this could take a minute.")
+
+		// retrieve k8s client via .kube/config
+		client, err := getClient()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		err = GetMultiLogs(client, labelSelector, namespaceFlag, containerFlag, tailFlag)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		return
 	},
+}
+
+// GetMultiLogs retrieves all logs for the given label selector
+func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace string, container string, tail int) error {
+	// parse given label selector
+	selector, err := labels.Parse(labelSelector)
+	if err != nil {
+		return err
+	}
+
+	// determine namespace to query
+	if namespace == "" {
+		namespace = api.NamespaceDefault
+	}
+
+	podIntr := client.Pods(namespace)
+
+	// retrieve all pods by label selector
+	pods, err := podIntr.List(api.ListOptions{
+		FieldSelector: fields.Everything(),
+		LabelSelector: selector,
+	})
+	if err != nil {
+		return err
+	}
+
+	// notify caller that there were no pods
+	if len(pods.Items) == 0 {
+		return errors.New("No pods in namespace: " + namespace)
+	}
+
+	// iterate over pods and get logs
+	for _, pod := range pods.Items {
+		// set pod logging options
+		podLogOpts := &api.PodLogOptions{}
+		if container != "" {
+			podLogOpts.Container = container
+		}
+
+		if tail != -1 {
+			convTail := int64(tail)
+			podLogOpts.TailLines = &convTail
+		}
+
+		// get specified pod's log request and run it
+		req := podIntr.GetLogs(pod.Name, podLogOpts)
+		stream, err := req.Stream()
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("Logs for pod", pod.Name, ":")
+		// gather log request output
+		defer stream.Close()
+		_, err = io.Copy(os.Stdout, stream)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func getClient() (*unversioned.Client, error) {
+	// retrieve necessary kube config settings
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	configOverrides := &clientcmd.ConfigOverrides{}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+
+	// make a client config with kube config
+	config, err := kubeConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	// make a client out of the kube client config
+	client, err := unversioned.New(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
 func init() {
 	RootCmd.AddCommand(logsCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// logsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// logsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	logsCmd.Flags().StringVarP( &containerFlag, "container", "c", "", "target container within pods")
+	logsCmd.Flags().IntVarP(&tailFlag, "tail", "t", -1, "Lines of recent log file to display. Defaults to -1, showing all log lines.")
 }
