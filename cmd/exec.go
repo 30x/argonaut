@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2016 Apigee Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,16 +20,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var execContainerFlag string
+var stdinFlag bool
+var ttyFlag bool
+
 // execCmd represents the exec command
 var execCmd = &cobra.Command{
 	Use:   "exec",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Execute a command in a container for all matching pods.",
+	Long: `Execute a command in a container for all matching pods.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Examples:
+# Get output from running 'date' in all "app=hello" pods, using the first container by default
+k8s-multi-pod exec "app=hello" date
+
+# Get output from running 'nginx -V' for the ingress container in all "app=hello" pods
+k8s-multi-pod exec "app=hello" -c ingress -- nginx -V
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		fmt.Println("exec called")
@@ -39,14 +46,7 @@ to quickly create a Cobra application.`,
 func init() {
 	RootCmd.AddCommand(execCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// execCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// execCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	execCmd.Flags().StringVarP(&execContainerFlag, "container", "c", "", "Container name. If omitted, the first container in the pod will be chosen")
+	execCmd.Flags().BoolVarP(&stdinFlag, "stdin", "i", false, "Pass stdin to the container")
+	execCmd.Flags().BoolVarP(&ttyFlag, "tty", "t", false, "Stdin is a TTY")
 }
