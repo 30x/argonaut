@@ -15,9 +15,9 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
-	"errors"
 	"os"
 
 	"k8s.io/kubernetes/pkg/api"
@@ -35,15 +35,14 @@ var tailFlag int
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
 	Use:   "logs <labelSelector>",
-	Short: "retrieve all pod logs belonging to a label selector",
-	Long:  `A multi-pod log retrieval command based on a given label selector.
+	Short: "Print the logs for a container in all matching pods.",
+	Long: `Print the logs for a container in all matching pods. If the pod has only one container, the container name is optional.
+Examples:
+# Return snapshot logs in all "app=hello" pods with only one container
+k8s-multi-pod logs "app=hello"
 
-An example of use:
-	$ k8s-multi-pod logs "app=hello"
-
-	OR
-
-	$ k8s-multi-pod logs "app=hello,env=test,color=red`,
+# Return snapshot logs in the ingress container for all "app=hello" pods
+k8s-multi-pod logs "app=hello" -c ingress`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("Missing required argument: labelSelector")
@@ -154,6 +153,6 @@ func getClient() (*unversioned.Client, error) {
 
 func init() {
 	RootCmd.AddCommand(logsCmd)
-	logsCmd.Flags().StringVarP( &containerFlag, "container", "c", "", "target container within pods")
+	logsCmd.Flags().StringVarP(&containerFlag, "container", "c", "", "Print the logs of this container")
 	logsCmd.Flags().IntVarP(&tailFlag, "tail", "t", -1, "Lines of recent log file to display. Defaults to -1, showing all log lines.")
 }
