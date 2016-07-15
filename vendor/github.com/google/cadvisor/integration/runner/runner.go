@@ -75,7 +75,7 @@ func getAttributes(ipAddress, portStr string) (*cadvisorApi.Attributes, error) {
 func RunCommand(cmd string, args ...string) error {
 	output, err := exec.Command(cmd, args...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("command %q %q failed with error: %v and output: %q", cmd, args, err, output)
+		return fmt.Errorf("command %q %q failed with error: %v and output: %s", cmd, args, err, output)
 	}
 
 	return nil
@@ -113,7 +113,7 @@ func PushAndRunTests(host, testDir string) error {
 	portStr := strconv.Itoa(*port)
 	errChan := make(chan error)
 	go func() {
-		err = RunSshCommand("ssh", host, "--", fmt.Sprintf("sudo %s --port %s --logtostderr  &> %s/log.txt", path.Join(testDir, cadvisorBinary), portStr, testDir))
+		err = RunSshCommand("ssh", host, "--", fmt.Sprintf("sudo %s --port %s --logtostderr --docker_env_metadata_whitelist=TEST_VAR  &> %s/log.txt", path.Join(testDir, cadvisorBinary), portStr, testDir))
 		if err != nil {
 			errChan <- fmt.Errorf("error running cAdvisor: %v", err)
 		}

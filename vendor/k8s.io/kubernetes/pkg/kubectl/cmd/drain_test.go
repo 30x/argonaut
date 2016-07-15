@@ -33,8 +33,8 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/testapi"
 	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/batch"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/client/unversioned/fake"
 	"k8s.io/kubernetes/pkg/controller"
 	"k8s.io/kubernetes/pkg/conversion"
@@ -50,7 +50,7 @@ func TestMain(m *testing.M) {
 	node = &api.Node{
 		ObjectMeta: api.ObjectMeta{
 			Name:              "node",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 		},
 		Spec: api.NodeSpec{
 			ExternalID: "node",
@@ -142,9 +142,9 @@ func TestCordon(t *testing.T) {
 				m := &MyReq{req}
 				switch {
 				case m.isFor("GET", "/nodes/node"):
-					return &http.Response{StatusCode: 200, Body: objBody(codec, test.node)}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, test.node)}, nil
 				case m.isFor("GET", "/nodes/bar"):
-					return &http.Response{StatusCode: 404, Body: stringBody("nope")}, nil
+					return &http.Response{StatusCode: 404, Header: defaultHeader(), Body: stringBody("nope")}, nil
 				case m.isFor("PUT", "/nodes/node"):
 					data, err := ioutil.ReadAll(req.Body)
 					if err != nil {
@@ -158,14 +158,14 @@ func TestCordon(t *testing.T) {
 						t.Fatalf("%s: expected:\n%v\nsaw:\n%v\n", test.description, test.expected.Spec, new_node.Spec)
 					}
 					updated = true
-					return &http.Response{StatusCode: 200, Body: objBody(codec, new_node)}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, new_node)}, nil
 				default:
 					t.Fatalf("%s: unexpected request: %v %#v\n%#v", test.description, req.Method, req.URL, req)
 					return nil, nil
 				}
 			}),
 		}
-		tf.ClientConfig = &restclient.Config{ContentConfig: restclient.ContentConfig{GroupVersion: testapi.Default.GroupVersion()}}
+		tf.ClientConfig = defaultClientConfig()
 
 		buf := bytes.NewBuffer([]byte{})
 		cmd := test.cmd(f, buf)
@@ -209,7 +209,7 @@ func TestDrain(t *testing.T) {
 		ObjectMeta: api.ObjectMeta{
 			Name:              "rc",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			Labels:            labels,
 			SelfLink:          testapi.Default.SelfLink("replicationcontrollers", "rc"),
 		},
@@ -225,7 +225,7 @@ func TestDrain(t *testing.T) {
 		ObjectMeta: api.ObjectMeta{
 			Name:              "bar",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			Labels:            labels,
 			Annotations:       rc_anno,
 		},
@@ -238,7 +238,7 @@ func TestDrain(t *testing.T) {
 		ObjectMeta: api.ObjectMeta{
 			Name:              "ds",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			SelfLink:          "/apis/extensions/v1beta1/namespaces/default/daemonsets/ds",
 		},
 		Spec: extensions.DaemonSetSpec{
@@ -253,7 +253,7 @@ func TestDrain(t *testing.T) {
 		ObjectMeta: api.ObjectMeta{
 			Name:              "bar",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			Labels:            labels,
 			Annotations:       ds_anno,
 		},
@@ -262,14 +262,14 @@ func TestDrain(t *testing.T) {
 		},
 	}
 
-	job := extensions.Job{
+	job := batch.Job{
 		ObjectMeta: api.ObjectMeta{
 			Name:              "job",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			SelfLink:          "/apis/extensions/v1beta1/namespaces/default/jobs/job",
 		},
-		Spec: extensions.JobSpec{
+		Spec: batch.JobSpec{
 			Selector: &unversioned.LabelSelector{MatchLabels: labels},
 		},
 	}
@@ -278,7 +278,7 @@ func TestDrain(t *testing.T) {
 		ObjectMeta: api.ObjectMeta{
 			Name:              "bar",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			Labels:            labels,
 			Annotations:       map[string]string{controller.CreatedByAnnotation: refJson(t, &job)},
 		},
@@ -317,11 +317,29 @@ func TestDrain(t *testing.T) {
 		ObjectMeta: api.ObjectMeta{
 			Name:              "bar",
 			Namespace:         "default",
-			CreationTimestamp: unversioned.Time{time.Now()},
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
 			Labels:            labels,
 		},
 		Spec: api.PodSpec{
 			NodeName: "node",
+		},
+	}
+
+	emptydir_pod := api.Pod{
+		ObjectMeta: api.ObjectMeta{
+			Name:              "bar",
+			Namespace:         "default",
+			CreationTimestamp: unversioned.Time{Time: time.Now()},
+			Labels:            labels,
+		},
+		Spec: api.PodSpec{
+			NodeName: "node",
+			Volumes: []api.Volume{
+				{
+					Name:         "scratch",
+					VolumeSource: api.VolumeSource{EmptyDir: &api.EmptyDirVolumeSource{Medium: ""}},
+				},
+			},
 		},
 	}
 
@@ -407,6 +425,24 @@ func TestDrain(t *testing.T) {
 			expectDelete: true,
 		},
 		{
+			description:  "pod with EmptyDir",
+			node:         node,
+			expected:     cordoned_node,
+			pods:         []api.Pod{emptydir_pod},
+			args:         []string{"node", "--force"},
+			expectFatal:  true,
+			expectDelete: false,
+		},
+		{
+			description:  "pod with EmptyDir and --delete-local-data",
+			node:         node,
+			expected:     cordoned_node,
+			pods:         []api.Pod{emptydir_pod},
+			args:         []string{"node", "--force", "--delete-local-data=true"},
+			expectFatal:  false,
+			expectDelete: true,
+		},
+		{
 			description:  "empty node",
 			node:         node,
 			expected:     cordoned_node,
@@ -429,15 +465,15 @@ func TestDrain(t *testing.T) {
 				m := &MyReq{req}
 				switch {
 				case m.isFor("GET", "/nodes/node"):
-					return &http.Response{StatusCode: 200, Body: objBody(codec, test.node)}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, test.node)}, nil
 				case m.isFor("GET", "/namespaces/default/replicationcontrollers/rc"):
-					return &http.Response{StatusCode: 200, Body: objBody(codec, &test.rcs[0])}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, &test.rcs[0])}, nil
 				case m.isFor("GET", "/namespaces/default/daemonsets/ds"):
-					return &http.Response{StatusCode: 200, Body: objBody(testapi.Extensions.Codec(), &ds)}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(testapi.Extensions.Codec(), &ds)}, nil
 				case m.isFor("GET", "/namespaces/default/jobs/job"):
-					return &http.Response{StatusCode: 200, Body: objBody(testapi.Extensions.Codec(), &job)}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(testapi.Extensions.Codec(), &job)}, nil
 				case m.isFor("GET", "/namespaces/default/replicasets/rs"):
-					return &http.Response{StatusCode: 200, Body: objBody(testapi.Extensions.Codec(), &test.replicaSets[0])}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(testapi.Extensions.Codec(), &test.replicaSets[0])}, nil
 				case m.isFor("GET", "/pods"):
 					values, err := url.ParseQuery(req.URL.RawQuery)
 					if err != nil {
@@ -448,9 +484,9 @@ func TestDrain(t *testing.T) {
 					if !reflect.DeepEqual(get_params, values) {
 						t.Fatalf("%s: expected:\n%v\nsaw:\n%v\n", test.description, get_params, values)
 					}
-					return &http.Response{StatusCode: 200, Body: objBody(codec, &api.PodList{Items: test.pods})}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, &api.PodList{Items: test.pods})}, nil
 				case m.isFor("GET", "/replicationcontrollers"):
-					return &http.Response{StatusCode: 200, Body: objBody(codec, &api.ReplicationControllerList{Items: test.rcs})}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, &api.ReplicationControllerList{Items: test.rcs})}, nil
 				case m.isFor("PUT", "/nodes/node"):
 					data, err := ioutil.ReadAll(req.Body)
 					if err != nil {
@@ -463,17 +499,17 @@ func TestDrain(t *testing.T) {
 					if !reflect.DeepEqual(test.expected.Spec, new_node.Spec) {
 						t.Fatalf("%s: expected:\n%v\nsaw:\n%v\n", test.description, test.expected.Spec, new_node.Spec)
 					}
-					return &http.Response{StatusCode: 200, Body: objBody(codec, new_node)}, nil
+					return &http.Response{StatusCode: 200, Header: defaultHeader(), Body: objBody(codec, new_node)}, nil
 				case m.isFor("DELETE", "/namespaces/default/pods/bar"):
 					deleted = true
-					return &http.Response{StatusCode: 204, Body: objBody(codec, &test.pods[0])}, nil
+					return &http.Response{StatusCode: 204, Header: defaultHeader(), Body: objBody(codec, &test.pods[0])}, nil
 				default:
 					t.Fatalf("%s: unexpected request: %v %#v\n%#v", test.description, req.Method, req.URL, req)
 					return nil, nil
 				}
 			}),
 		}
-		tf.ClientConfig = &restclient.Config{ContentConfig: restclient.ContentConfig{GroupVersion: testapi.Default.GroupVersion()}}
+		tf.ClientConfig = defaultClientConfig()
 
 		buf := bytes.NewBuffer([]byte{})
 		cmd := NewCmdDrain(f, buf)

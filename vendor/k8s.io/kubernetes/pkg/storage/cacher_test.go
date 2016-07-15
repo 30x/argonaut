@@ -45,7 +45,7 @@ import (
 
 func newEtcdTestStorage(t *testing.T, codec runtime.Codec, prefix string) (*etcdtesting.EtcdTestServer, storage.Interface) {
 	server := etcdtesting.NewEtcdTestClientServer(t)
-	storage := etcdstorage.NewEtcdStorage(server.Client, codec, prefix, false)
+	storage := etcdstorage.NewEtcdStorage(server.Client, codec, prefix, false, etcdtest.DeserializationCacheSize)
 	return server, storage
 }
 
@@ -71,20 +71,22 @@ func makeTestPod(name string) *api.Pod {
 }
 
 func updatePod(t *testing.T, s storage.Interface, obj, old *api.Pod) *api.Pod {
+	updateFn := func(input runtime.Object, res storage.ResponseMeta) (runtime.Object, *uint64, error) {
+		newObj, err := api.Scheme.DeepCopy(obj)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+			return nil, nil, err
+		}
+		return newObj.(*api.Pod), nil, nil
+	}
 	key := etcdtest.AddPrefix("pods/ns/" + obj.Name)
+	if err := s.GuaranteedUpdate(context.TODO(), key, &api.Pod{}, old == nil, nil, updateFn); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	obj.ResourceVersion = ""
 	result := &api.Pod{}
-	if old == nil {
-		if err := s.Create(context.TODO(), key, obj, result, 0); err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-	} else {
-		// To force "update" behavior of Set() we need to set ResourceVersion of
-		// previous version of object.
-		obj.ResourceVersion = old.ResourceVersion
-		if err := s.Set(context.TODO(), key, obj, result, 0); err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-		obj.ResourceVersion = ""
+	if err := s.Get(context.TODO(), key, result, false); err != nil {
+		t.Errorf("unexpected error: %v", err)
 	}
 	return result
 }
@@ -109,7 +111,7 @@ func TestList(t *testing.T) {
 	_ = updatePod(t, etcdStorage, podFooPrime, fooCreated)
 
 	deleted := api.Pod{}
-	if err := etcdStorage.Delete(context.TODO(), etcdtest.AddPrefix("pods/ns/bar"), &deleted); err != nil {
+	if err := etcdStorage.Delete(context.TODO(), etcdtest.AddPrefix("pods/ns/bar"), &deleted, nil); err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
@@ -237,7 +239,7 @@ func TestWatch(t *testing.T) {
 	}
 	defer tooOldWatcher.Stop()
 	// Ensure we get a "Gone" error
-	expectedGoneError := errors.NewGone("").(*errors.StatusError).ErrStatus
+	expectedGoneError := errors.NewGone("").ErrStatus
 	verifyWatchEvent(t, tooOldWatcher, watch.Error, &expectedGoneError)
 
 	initialWatcher, err := cacher.Watch(context.TODO(), "pods/ns/foo", fooCreated.ResourceVersion, storage.Everything)
@@ -324,7 +326,7 @@ func TestFiltering(t *testing.T) {
 	_ = updatePod(t, etcdStorage, podFooPrime, fooUnfiltered)
 
 	deleted := api.Pod{}
-	if err := etcdStorage.Delete(context.TODO(), etcdtest.AddPrefix("pods/ns/foo"), &deleted); err != nil {
+	if err := etcdStorage.Delete(context.TODO(), etcdtest.AddPrefix("pods/ns/foo"), &deleted, nil); err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 

@@ -5,7 +5,7 @@
   {% set ips = salt['mine.get']('roles:kubernetes-master', 'network.ip_addrs', 'grain').values() -%}
   {% set api_servers = "--master=https://" + ips[0][0] -%}
 {% endif -%}
-{% if grains['cloud'] is defined and grains.cloud in [ 'aws', 'gce', 'vagrant', 'vsphere' ]  %}
+{% if grains['cloud'] is defined and grains.cloud in [ 'aws', 'gce', 'vagrant', 'vsphere', 'photon-controller', 'openstack' ]  %}
   {% set api_servers_with_port = api_servers -%}
 {% else -%}
   {% set api_servers_with_port = api_servers + ":6443" -%}
@@ -30,6 +30,9 @@ kind: Pod
 metadata:
   name: kube-proxy
   namespace: kube-system
+  labels:
+    tier: node
+    component: kube-proxy
 spec:
   hostNetwork: true
   containers:

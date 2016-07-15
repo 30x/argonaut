@@ -24,7 +24,6 @@ set -o pipefail
 KUBE_ROOT=$(dirname "${BASH_SOURCE}")/..
 : ${KUBE_CONFIG_FILE:="config-test.sh"}
 
-source "${KUBE_ROOT}/cluster/kube-env.sh"
 source "${KUBE_ROOT}/cluster/kube-util.sh"
 detect-project &> /dev/null
 
@@ -46,7 +45,7 @@ function copy-logs-from-node() {
     local -r scp_files="{$(echo ${files[*]} | tr ' ' ',')}"
 
     if [[ "${KUBERNETES_PROVIDER}" == "aws" ]]; then
-        local ip=$(get_instance_public_ip "${node}")
+        local ip=$(get_ssh_hostname "${node}")
         scp -i "${AWS_SSH_KEY}" "${SSH_USER}@${ip}:${scp_files}" "${dir}" > /dev/null || true
     else
         gcloud compute copy-files --project "${PROJECT}" --zone "${ZONE}" "${node}:${scp_files}" "${dir}" > /dev/null || true
@@ -63,10 +62,14 @@ function save-logs() {
     if [[ "${KUBERNETES_PROVIDER}" == "gce" ]]; then
         files="${files} ${gce_logfiles}"
     fi
+    if [[ "${KUBERNETES_PROVIDER}" == "aws" ]]; then
+        files="${files} ${aws_logfiles}"
+    fi
     if ssh-to-node "${node_name}" "sudo systemctl status kubelet.service" &> /dev/null; then
         ssh-to-node "${node_name}" "sudo journalctl --output=cat -u kubelet.service" > "${dir}/kubelet.log" || true
+        ssh-to-node "${node_name}" "sudo journalctl --output=cat -u docker.service" > "${dir}/docker.log" || true
     else
-        files="${files} ${supervisord_logfiles}"
+        files="${files} ${initd_logfiles} ${supervisord_logfiles}"
     fi
     copy-logs-from-node "${node_name}" "${dir}" "${files}"
 }
@@ -74,11 +77,13 @@ function save-logs() {
 readonly master_ssh_supported_providers="gce aws kubemark"
 readonly node_ssh_supported_providers="gce gke aws"
 
-readonly master_logfiles="kube-apiserver kube-scheduler kube-controller-manager etcd"
+readonly master_logfiles="kube-apiserver kube-scheduler kube-controller-manager etcd glbc cluster-autoscaler"
 readonly node_logfiles="kube-proxy"
+readonly aws_logfiles="cloud-init-output"
 readonly gce_logfiles="startupscript"
-readonly common_logfiles="kern docker"
-readonly supervisord_logfiles="kubelet supervisor/supervisord supervisor/kubelet-stdout supervisor/kubelet-stderr"
+readonly common_logfiles="kern"
+readonly initd_logfiles="docker"
+readonly supervisord_logfiles="kubelet supervisor/supervisord supervisor/kubelet-stdout supervisor/kubelet-stderr supervisor/docker-stdout supervisor/docker-stderr"
 
 # Limit the number of concurrent node connections so that we don't run out of
 # file descriptors for large clusters.
@@ -86,7 +91,7 @@ readonly max_scp_processes=25
 
 if [[ ! "${master_ssh_supported_providers}" =~ "${KUBERNETES_PROVIDER}" ]]; then
     echo "Master SSH not supported for ${KUBERNETES_PROVIDER}"
-elif ! $(detect-master &> /dev/null); then
+elif ! (detect-master &> /dev/null); then
     echo "Master not detected. Is the cluster up?"
 else
     readonly master_dir="${report_dir}/${MASTER_NAME}"
