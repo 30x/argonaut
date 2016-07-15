@@ -1,0 +1,15 @@
+*.iml
+*.test
+
+.classpath
+.project
+.projectile
+.tern-project
+coverage.out
+k8s-multi-pod
+
+.idea/
+.settings/
+.vscode/
+typings/
+

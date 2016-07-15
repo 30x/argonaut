@@ -1,3 +1,11 @@
 package: github.com/30x/k8s-multi-pod
 import:
 - package: github.com/spf13/cobra
+  version: 4c05eb1145f16d0e6bb4a3e1b6d769f4713cb41f
+  subpackages:
+  - cobra
+- package: k8s.io/kubernetes
+  version: ~1.2.x
+- package: speter.net/go/exp/math/dec/inf
+  repo: https://github.com/go-inf/inf
+  vcs: git
