@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
+	"bufio"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/unversioned"
@@ -27,10 +29,14 @@ import (
 	"k8s.io/kubernetes/pkg/labels"
 
 	"github.com/spf13/cobra"
+	"github.com/fatih/color"
 )
 
 var containerFlag string
 var tailFlag int
+var followFlag bool
+var colorFlag bool
+var colors []*color.Color
 
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
@@ -51,7 +57,7 @@ k8s-multi-pod logs "app=hello" -c ingress`,
 
 		labelSelector := args[0]
 
-		fmt.Println("Retrieving logs...this could take a minute.")
+		fmt.Printf("\nRetrieving logs...this could take a minute.\n\n")
 
 		// retrieve k8s client via .kube/config
 		client, err := getClient()
@@ -60,7 +66,7 @@ k8s-multi-pod logs "app=hello" -c ingress`,
 			return
 		}
 
-		err = GetMultiLogs(client, labelSelector, namespaceFlag, containerFlag, tailFlag)
+		err = GetMultiLogs(client, labelSelector, namespaceFlag, containerFlag, tailFlag, followFlag, colorFlag)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -70,7 +76,7 @@ k8s-multi-pod logs "app=hello" -c ingress`,
 }
 
 // GetMultiLogs retrieves all logs for the given label selector
-func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace string, container string, tail int) error {
+func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace string, container string, tail int, follow bool, useColor bool) error {
 	// parse given label selector
 	selector, err := labels.Parse(labelSelector)
 	if err != nil {
@@ -98,17 +104,37 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 		return errors.New("No pods in namespace: " + namespace)
 	}
 
+	var wg sync.WaitGroup
+	var col *color.Color
+
+	// do not use color if there are more than 7 pods being read,
+	// not enough colors supported right now
+	if len(pods.Items) > len(colors) {
+		useColor = false
+	}
+
 	// iterate over pods and get logs
-	for _, pod := range pods.Items {
+	for ndx, pod := range pods.Items {
 		// set pod logging options
 		podLogOpts := &api.PodLogOptions{}
 		if container != "" {
 			podLogOpts.Container = container
 		}
 
+		// set tail line count
 		if tail != -1 {
 			convTail := int64(tail)
 			podLogOpts.TailLines = &convTail
+		}
+
+		// defaults to false
+		podLogOpts.Follow = follow
+
+		if useColor {
+			col = colors[ndx] // give this stream one of the set colors
+		} else {
+			color.NoColor = true // turn off all colors
+			col = color.New(color.FgWhite) // set color to white to be safe
 		}
 
 		// get specified pod's log request and run it
@@ -118,13 +144,23 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 			return err
 		}
 
-		fmt.Println("Logs for pod", pod.Name, ":")
-		// gather log request output
-		defer stream.Close()
-		_, err = io.Copy(os.Stdout, stream)
-		if err != nil {
-			return err
+		// attach to and stream logs for this container until stopped
+		if follow {
+			wg.Add(1)
+			go openLogStream(stream, pod.Name, &wg, col)
+		} else { // gather log request output and dump to stdout
+			col.Println("Logs for pod", pod.Name, ":")
+
+			defer stream.Close()
+			_, err = io.Copy(os.Stdout, stream)
+			if err != nil {
+				return err
+			}
 		}
+	}
+
+	if follow {
+		wg.Wait()
 	}
 
 	return nil
@@ -151,8 +187,31 @@ func getClient() (*unversioned.Client, error) {
 	return client, nil
 }
 
+func openLogStream(stream io.ReadCloser, podName string, wg *sync.WaitGroup, col *color.Color) {
+	defer stream.Close()
+	defer wg.Done()
+
+	buf := bufio.NewReader(stream)
+	for {
+		line, _, err := buf.ReadLine()
+		if err != nil {
+			fmt.Println("Error from routine for", podName, ":", err)
+			return
+		}
+
+		col.Printf("POD %s: ", podName)
+		fmt.Printf("%q\n", line)
+	}
+}
+
 func init() {
 	RootCmd.AddCommand(logsCmd)
 	logsCmd.Flags().StringVarP(&containerFlag, "container", "c", "", "Print the logs of this container")
 	logsCmd.Flags().IntVarP(&tailFlag, "tail", "t", -1, "Lines of recent log file to display. Defaults to -1, showing all log lines.")
+	logsCmd.Flags().BoolVarP(&followFlag, "follow", "f", false, "Specify if the logs should be streamed.")
+	logsCmd.Flags().BoolVarP(&colorFlag, "color", "l", false, "Use color in log output. Up to 7 pods.")
+
+	// initialize slice of colors, add more here to be used
+	colors = []*color.Color{color.New(color.FgBlue), color.New(color.FgMagenta), color.New(color.FgGreen),
+		color.New(color.FgWhite), color.New(color.FgRed), color.New(color.FgCyan), color.New(color.FgYellow)}
 }
