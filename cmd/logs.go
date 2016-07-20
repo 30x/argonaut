@@ -106,12 +106,7 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 
 	var wg sync.WaitGroup
 	var col *color.Color
-
-	// do not use color if there are more than 7 pods being read,
-	// not enough colors supported right now
-	if len(pods.Items) > len(colors) {
-		useColor = false
-	}
+	colorLen := len(colors)
 
 	// iterate over pods and get logs
 	for ndx, pod := range pods.Items {
@@ -131,7 +126,7 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 		podLogOpts.Follow = follow
 
 		if useColor {
-			col = colors[ndx] // give this stream one of the set colors
+			col = colors[ndx%colorLen] // give this stream one of the set colors
 		} else {
 			color.NoColor = true // turn off all colors
 			col = color.New(color.FgWhite) // set color to white to be safe
