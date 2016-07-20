@@ -57,7 +57,7 @@ k8s-multi-pod logs "app=hello" -c ingress`,
 
 		labelSelector := args[0]
 
-		fmt.Println("\nRetrieving logs...this could take a minute.\n")
+		fmt.Printf("\nRetrieving logs...this could take a minute.\n\n")
 
 		// retrieve k8s client via .kube/config
 		client, err := getClient()
@@ -106,7 +106,10 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 
 	var wg sync.WaitGroup
 	var col *color.Color
-	if len(pods.Items) > 7 {
+
+	// do not use color if there are more than 7 pods being read,
+	// not enough colors supported right now
+	if len(pods.Items) > len(colors) {
 		useColor = false
 	}
 
@@ -118,18 +121,20 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 			podLogOpts.Container = container
 		}
 
+		// set tail line count
 		if tail != -1 {
 			convTail := int64(tail)
 			podLogOpts.TailLines = &convTail
 		}
 
+		// defaults to false
 		podLogOpts.Follow = follow
 
 		if useColor {
-			col = colors[ndx]
+			col = colors[ndx] // give this stream one of the set colors
 		} else {
-			color.NoColor = true
-			col = color.New(color.FgWhite)
+			color.NoColor = true // turn off all colors
+			col = color.New(color.FgWhite) // set color to white to be safe
 		}
 
 		// get specified pod's log request and run it
@@ -139,35 +144,18 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 			return err
 		}
 
-		// gather log request output
+		// attach to and stream logs for this container until stopped
 		if follow {
 			wg.Add(1)
-			go func(stream io.ReadCloser, podName string, wg *sync.WaitGroup, col *color.Color) {
-				defer stream.Close()
-				defer wg.Done()
-
-				buf := bufio.NewReader(stream)
-				for {
-					line, _, err := buf.ReadLine()
-					if err != nil {
-						fmt.Println("Error from routine for", podName, ":", err)
-						return
-					}
-
-					col.Printf("POD %s: %q\n", podName, line)
-				}
-			}(stream, pod.Name, &wg, col)
-		} else {
-			col.Set()
-			fmt.Println("Logs for pod", pod.Name, ":")
+			go openLogStream(stream, pod.Name, &wg, col)
+		} else { // gather log request output and dump to stdout
+			col.Println("Logs for pod", pod.Name, ":")
 
 			defer stream.Close()
 			_, err = io.Copy(os.Stdout, stream)
 			if err != nil {
 				return err
 			}
-
-			color.Unset()
 		}
 	}
 
@@ -199,13 +187,31 @@ func getClient() (*unversioned.Client, error) {
 	return client, nil
 }
 
+func openLogStream(stream io.ReadCloser, podName string, wg *sync.WaitGroup, col *color.Color) {
+	defer stream.Close()
+	defer wg.Done()
+
+	buf := bufio.NewReader(stream)
+	for {
+		line, _, err := buf.ReadLine()
+		if err != nil {
+			fmt.Println("Error from routine for", podName, ":", err)
+			return
+		}
+
+		col.Printf("POD %s: ", podName)
+		fmt.Printf("%q\n", line)
+	}
+}
+
 func init() {
 	RootCmd.AddCommand(logsCmd)
 	logsCmd.Flags().StringVarP(&containerFlag, "container", "c", "", "Print the logs of this container")
 	logsCmd.Flags().IntVarP(&tailFlag, "tail", "t", -1, "Lines of recent log file to display. Defaults to -1, showing all log lines.")
-	logsCmd.Flags().BoolVarP(&followFlag, "follow", "f", false, "Attach the logging streams and watch them")
+	logsCmd.Flags().BoolVarP(&followFlag, "follow", "f", false, "Specify if the logs should be streamed.")
 	logsCmd.Flags().BoolVarP(&colorFlag, "color", "l", false, "Use color in log output. Up to 7 pods.")
 
-	colors = []*color.Color{color.New(color.FgBlue), color.New(color.FgWhite), color.New(color.FgGreen), color.New(color.FgMagenta),
-		color.New(color.FgRed), color.New(color.FgCyan), color.New(color.FgYellow)}
+	// initialize slice of colors, add more here to be used
+	colors = []*color.Color{color.New(color.FgBlue), color.New(color.FgMagenta), color.New(color.FgGreen),
+		color.New(color.FgWhite), color.New(color.FgRed), color.New(color.FgCyan), color.New(color.FgYellow)}
 }
