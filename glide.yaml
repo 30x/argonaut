@@ -5,5 +5,6 @@ import:
   subpackages:
   - cobra
 - package: k8s.io/kubernetes
-  # Latest stable
   version: 1.3.0
+- package: github.com/fatih/color
+  version: ^1.0.0
