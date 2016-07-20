@@ -1,5 +1,5 @@
-hash: d68fe06d723de9665127ec55748fc9417bc43c3a170030334cbe00910ba7c79b
-updated: 2016-07-20T12:34:46.819765962-06:00
+hash: 85959bc2af1f06347011f4d7988b56f37b0f39a868ae039136eed5a605ed45ec
+updated: 2016-07-20T14:06:53.747864237-07:00
 imports:
 - name: github.com/beorn7/perks
   version: 3ac7bf7a47d159a033b107610db8a1b6575507a4
@@ -59,6 +59,8 @@ imports:
   subpackages:
   - log
   - swagger
+- name: github.com/fatih/color
+  version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - name: github.com/gogo/protobuf
