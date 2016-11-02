@@ -5,6 +5,7 @@ import:
   subpackages:
   - cobra
 - package: k8s.io/kubernetes
-  version: 1.3.0
+  version: 1.3.4
 - package: github.com/fatih/color
   version: ^1.0.0
+- package: github.com/lunixbochs/vtclean

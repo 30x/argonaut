@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -24,19 +23,17 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/unversioned"
-	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"k8s.io/kubernetes/pkg/fields"
 	"k8s.io/kubernetes/pkg/labels"
 
 	"github.com/spf13/cobra"
 	"github.com/fatih/color"
+	"github.com/30x/k8s-multi-pod/utils"
 )
 
 var containerFlag string
 var tailFlag int
 var followFlag bool
-var colorFlag bool
-var colors []*color.Color
 
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
@@ -60,7 +57,7 @@ k8s-multi-pod logs "app=hello" -c ingress`,
 		fmt.Printf("\nRetrieving logs...this could take a minute.\n\n")
 
 		// retrieve k8s client via .kube/config
-		client, err := getClient()
+		client, err := utils.GetClient()
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -101,7 +98,7 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 
 	// notify caller that there were no pods
 	if len(pods.Items) == 0 {
-		return errors.New("No pods in namespace: " + namespace)
+		return fmt.Errorf("No pods in namespace: " + namespace)
 	}
 
 	var wg sync.WaitGroup
@@ -161,27 +158,6 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 	return nil
 }
 
-func getClient() (*unversioned.Client, error) {
-	// retrieve necessary kube config settings
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	configOverrides := &clientcmd.ConfigOverrides{}
-	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-
-	// make a client config with kube config
-	config, err := kubeConfig.ClientConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	// make a client out of the kube client config
-	client, err := unversioned.New(config)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
 func openLogStream(stream io.ReadCloser, podName string, wg *sync.WaitGroup, col *color.Color) {
 	defer stream.Close()
 	defer wg.Done()
@@ -204,9 +180,4 @@ func init() {
 	logsCmd.Flags().StringVarP(&containerFlag, "container", "c", "", "Print the logs of this container")
 	logsCmd.Flags().IntVarP(&tailFlag, "tail", "t", -1, "Lines of recent log file to display. Defaults to -1, showing all log lines.")
 	logsCmd.Flags().BoolVarP(&followFlag, "follow", "f", false, "Specify if the logs should be streamed.")
-	logsCmd.Flags().BoolVarP(&colorFlag, "color", "l", false, "Use color in log output. Up to 7 pods.")
-
-	// initialize slice of colors, add more here to be used
-	colors = []*color.Color{color.New(color.FgBlue), color.New(color.FgMagenta), color.New(color.FgGreen),
-		color.New(color.FgWhite), color.New(color.FgRed), color.New(color.FgCyan), color.New(color.FgYellow)}
 }

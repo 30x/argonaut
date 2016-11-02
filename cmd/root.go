@@ -19,9 +19,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/fatih/color"
 )
 
 var namespaceFlag string
+var colorFlag bool
+var colors []*color.Color
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -45,4 +48,9 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().StringVar(&namespaceFlag, "namespace", "", "If present, the namespace scope for this CLI request.")
+	RootCmd.PersistentFlags().BoolVarP(&colorFlag, "color", "l", false, "Use color in log output. Up to 7 pods.")
+
+	// initialize slice of colors, add more here to be used
+	colors = []*color.Color{color.New(color.FgBlue), color.New(color.FgMagenta), color.New(color.FgGreen),
+		color.New(color.FgWhite), color.New(color.FgRed), color.New(color.FgCyan), color.New(color.FgYellow)}
 }

@@ -1,5 +1,5 @@
-hash: 85959bc2af1f06347011f4d7988b56f37b0f39a868ae039136eed5a605ed45ec
-updated: 2016-07-26T09:40:42.382662333-06:00
+hash: fd9bd35ebddd335c055c6e38a3f4123f18afab8f2715f7e0f1f9911c1c0af06d
+updated: 2016-11-02T15:39:51.053141535-07:00
 imports:
 - name: github.com/beorn7/perks
   version: 3ac7bf7a47d159a033b107610db8a1b6575507a4
@@ -54,13 +54,17 @@ imports:
   - pkg/units
 - name: github.com/docker/go-units
   version: 0bbddae09c5a5419a8c6dcdd7ff90da3d450393b
+- name: github.com/docker/spdystream
+  version: 449fdfce4d962303d702fec724ef0ad181c92528
+  subpackages:
+  - spdy
 - name: github.com/emicklei/go-restful
   version: 7c47e2558a0bbbaba9ecab06bc6681e73028a28a
   subpackages:
   - log
   - swagger
 - name: github.com/fatih/color
-  version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
+  version: dea9d3a26a087187530244679c1cfb3a42937794
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - name: github.com/gogo/protobuf
@@ -97,7 +101,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/google/cadvisor
-  version: 4dbefc9b671b81257973a33211fb12370c1a526e
+  version: c2ea32971ae033041f0fb0f309b1dee94fd1d55f
   subpackages:
   - api
   - cache/memory
@@ -149,10 +153,12 @@ imports:
   version: 3f831b65b61282ba6bece21b91beea2edc4c887a
 - name: github.com/juju/ratelimit
   version: 77ed1c8a01217656d2080ad51981f6e99adaa177
+- name: github.com/lunixbochs/vtclean
+  version: 4fbf7632a2c6d3fbdb9931439bdbbeded02cbe36
 - name: github.com/mattn/go-colorable
-  version: 9056b7a9f2d1f2d96498d6d146acd1f9d5ed3d59
+  version: 6e26b354bd2b0fc420cb632b0d878abccdc6544c
 - name: github.com/mattn/go-isatty
-  version: 56b76bdf51f7708750eac80fa38b952bb9f32639
+  version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
 - name: github.com/matttproud/golang_protobuf_extensions
   version: fc2b8d3a73c4867e51861bbdd5ae3c1f0869dd6a
   subpackages:
@@ -250,13 +256,16 @@ imports:
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
 - name: k8s.io/kubernetes
-  version: 283137936a498aed572ee22af6774b6fb6e9fd94
+  version: dd6b458ef8dbf24aff55795baa68f83383c9b3a9
   subpackages:
   - pkg/api
   - pkg/client/unversioned
-  - pkg/client/unversioned/clientcmd
+  - pkg/client/unversioned/remotecommand
   - pkg/fields
+  - pkg/kubelet/server/remotecommand
   - pkg/labels
+  - pkg/client/restclient
+  - pkg/client/unversioned/clientcmd
   - pkg/api/meta
   - pkg/api/meta/metatypes
   - pkg/api/resource
@@ -289,19 +298,31 @@ imports:
   - pkg/apis/policy/install
   - pkg/apis/rbac
   - pkg/apis/rbac/install
-  - pkg/client/restclient
   - pkg/client/typed/discovery
   - pkg/util/net
   - pkg/util/wait
   - pkg/version
   - pkg/watch
   - plugin/pkg/client/auth
-  - pkg/client/unversioned/auth
+  - pkg/client/transport
+  - pkg/util/httpstream
+  - pkg/util/httpstream/spdy
+  - pkg/util/runtime
+  - pkg/httplog
+  - pkg/util/wsstream
+  - pkg/util/validation
+  - pkg/api/v1
+  - pkg/api/validation
+  - pkg/client/metrics
   - pkg/client/unversioned/clientcmd/api
+  - pkg/runtime/serializer/streaming
+  - pkg/util/crypto
+  - pkg/util/flowcontrol
+  - pkg/watch/versioned
+  - pkg/client/unversioned/auth
   - pkg/client/unversioned/clientcmd/api/latest
   - pkg/util/errors
   - pkg/util/homedir
-  - pkg/util/validation
   - third_party/forked/reflect
   - pkg/conversion/queryparams
   - pkg/util/json
@@ -310,9 +331,7 @@ imports:
   - pkg/runtime/serializer/recognizer
   - pkg/runtime/serializer/versioning
   - pkg/util/validation/field
-  - pkg/api/v1
   - pkg/apimachinery
-  - pkg/watch/versioned
   - pkg/apis/apps/v1alpha1
   - pkg/apis/authentication.k8s.io
   - pkg/apis/authentication.k8s.io/v1beta1
@@ -325,29 +344,23 @@ imports:
   - pkg/apis/extensions/v1beta1
   - pkg/apis/policy/v1alpha1
   - pkg/apis/rbac/v1alpha1
-  - pkg/api/validation
-  - pkg/client/metrics
-  - pkg/client/transport
-  - pkg/runtime/serializer/streaming
-  - pkg/util/crypto
-  - pkg/util/flowcontrol
-  - pkg/util/runtime
   - plugin/pkg/client/auth/gcp
   - plugin/pkg/client/auth/oidc
-  - pkg/client/unversioned/clientcmd/api/v1
-  - pkg/util/framer
-  - pkg/util/yaml
+  - third_party/golang/netutil
   - pkg/util/parsers
-  - pkg/kubelet/qos
-  - pkg/master/ports
   - pkg/api/endpoints
   - pkg/api/pod
   - pkg/api/service
   - pkg/api/unversioned/validation
   - pkg/api/util
   - pkg/capabilities
+  - pkg/util/yaml
   - pkg/util/integer
-  - pkg/kubelet/qos/util
+  - pkg/client/unversioned/clientcmd/api/v1
+  - pkg/util/framer
+  - pkg/kubelet/qos
+  - pkg/master/ports
   - pkg/util/hash
   - pkg/util/net/sets
+  - pkg/kubelet/qos/util
 testImports: []
