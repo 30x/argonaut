@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/30x/k8s-multi-pod/cmd"
+import "github.com/30x/argonaut/cmd"
 
 func main() {
 	cmd.Execute()

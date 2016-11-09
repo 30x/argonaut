@@ -30,7 +30,7 @@ import (
 	"k8s.io/kubernetes/pkg/labels"
 
 	"github.com/spf13/cobra"
-	"github.com/30x/k8s-multi-pod/utils"
+	"github.com/30x/argonaut/utils"
 	"github.com/fatih/color"
 	"github.com/lunixbochs/vtclean"
 )
@@ -47,10 +47,10 @@ var execCmd = &cobra.Command{
 
 Examples:
 # Get output from running 'date' in all "app=hello" pods, using the first container by default
-k8s-multi-pod exec "app=hello" date
+argonaut exec "app=hello" date
 
 # Get output from running 'nginx -V' for the ingress container in all "app=hello" pods
-k8s-multi-pod exec "app=hello" -c ingress -- nginx -V
+argonaut exec "app=hello" -c ingress -- nginx -V
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {

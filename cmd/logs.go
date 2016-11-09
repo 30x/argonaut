@@ -28,7 +28,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/fatih/color"
-	"github.com/30x/k8s-multi-pod/utils"
+	"github.com/30x/argonaut/utils"
 )
 
 var containerFlag string
@@ -42,10 +42,10 @@ var logsCmd = &cobra.Command{
 	Long: `Print the logs for a container in all matching pods. If the pod has only one container, the container name is optional.
 Examples:
 # Return snapshot logs in all "app=hello" pods with only one container
-k8s-multi-pod logs "app=hello"
+argonaut logs "app=hello"
 
 # Return snapshot logs in the ingress container for all "app=hello" pods
-k8s-multi-pod logs "app=hello" -c ingress`,
+argonaut logs "app=hello" -c ingress`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("Missing required argument: labelSelector")

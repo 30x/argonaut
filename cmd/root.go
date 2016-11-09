@@ -28,7 +28,7 @@ var colors []*color.Color
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "k8s-multi-pod",
+	Use:   "argonaut",
 	Short: "A utility for running kubectl commands against multiple pods",
 	Long: `A utility for interacting with multiple Kubernetes pods at once.
 

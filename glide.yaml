@@ -1,4 +1,4 @@
-package: github.com/30x/k8s-multi-pod
+package: github.com/30x/argonaut
 import:
 - package: github.com/spf13/cobra
   version: 4c05eb1145f16d0e6bb4a3e1b6d769f4713cb41f
