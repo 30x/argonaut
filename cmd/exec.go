@@ -253,7 +253,7 @@ func readRoutineToStdout(name string, read *io.PipeReader, wg *sync.WaitGroup, c
   scanner := bufio.NewScanner(read)
   for scanner.Scan() {
 		printLock.Lock() // request printing lock
-		col.Printf("From pod %s: ", name)
+		col.Printf("%s: ", name)
 		fmt.Println(vtclean.Clean(scanner.Text(), false))
 		printLock.Unlock() // unlock printing lock so other threads can print
   }
