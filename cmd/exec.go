@@ -51,6 +51,12 @@ argonaut exec "app=hello" date
 
 # Get output from running 'nginx -V' for the ingress container in all "app=hello" pods
 argonaut exec "app=hello" -c ingress -- nginx -V
+
+# Opening an interactive shell session with all "app=hello" pods & colored output labels
+argonaut exec "app=hello" sh -li
+
+# Opening an interactive shell TTY session with all "app=hello" pods & colored output labels
+argonaut exec "app=hello" sh -lit
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
@@ -202,6 +208,7 @@ func MultiExec(client *unversioned.Client, labelSelector string, command string,
 	return
 }
 
+// opens a stream with a pod as configured  by the given remote command, should be run in a go routine
 func openPodSession(rmtCmd remote.StreamExecutor, supportedProtocols []string, in io.Reader, out io.Writer, rtErr io.Writer, tty bool, podName string, wg *sync.WaitGroup, col *color.Color) {
 	defer wg.Done()
 
@@ -215,6 +222,7 @@ func openPodSession(rmtCmd remote.StreamExecutor, supportedProtocols []string, i
 	return
 }
 
+// writes stdin from user to all pipes
 func stdinToPods(writes []*io.PipeWriter) error {
 	consolereader := bufio.NewScanner(os.Stdin)
 	for consolereader.Scan() { // read stdin line by line
