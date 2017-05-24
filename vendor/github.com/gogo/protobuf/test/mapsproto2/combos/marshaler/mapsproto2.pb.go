@@ -10,7 +10,9 @@ It is generated from these files:
 
 It has these top-level messages:
 	FloatingPoint
+	CustomMap
 	AllMaps
+	AllMapsOrdered
 */
 package proto2_maps
 
@@ -19,25 +21,31 @@ import fmt "fmt"
 import math "math"
 import _ "github.com/gogo/protobuf/gogoproto"
 
-import "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+import github_com_gogo_protobuf_test_custom "github.com/gogo/protobuf/test/custom"
+import github_com_gogo_protobuf_test "github.com/gogo/protobuf/test"
+
+import github_com_gogo_protobuf_protoc_gen_gogo_descriptor "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
+import compress_gzip "compress/gzip"
+import bytes "bytes"
+import io_ioutil "io/ioutil"
 
 import strconv "strconv"
 
-import bytes "bytes"
-
-import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
-
 import strings "strings"
-import sort "sort"
 import reflect "reflect"
 import github_com_gogo_protobuf_sortkeys "github.com/gogo/protobuf/sortkeys"
-
-import errors "errors"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type MapEnum int32
 
@@ -74,14 +82,28 @@ func (x *MapEnum) UnmarshalJSON(data []byte) error {
 	*x = MapEnum(value)
 	return nil
 }
+func (MapEnum) EnumDescriptor() ([]byte, []int) { return fileDescriptorMapsproto2, []int{0} }
 
 type FloatingPoint struct {
 	F                *float64 `protobuf:"fixed64,1,opt,name=f" json:"f,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *FloatingPoint) Reset()      { *m = FloatingPoint{} }
-func (*FloatingPoint) ProtoMessage() {}
+func (m *FloatingPoint) Reset()                    { *m = FloatingPoint{} }
+func (*FloatingPoint) ProtoMessage()               {}
+func (*FloatingPoint) Descriptor() ([]byte, []int) { return fileDescriptorMapsproto2, []int{0} }
+
+type CustomMap struct {
+	Nullable128S     map[string]*github_com_gogo_protobuf_test_custom.Uint128 `protobuf:"bytes,1,rep,name=Nullable128s,customtype=github.com/gogo/protobuf/test/custom.Uint128" json:"Nullable128s,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Uint128S         map[string]github_com_gogo_protobuf_test_custom.Uint128  `protobuf:"bytes,2,rep,name=Uint128s,customtype=github.com/gogo/protobuf/test/custom.Uint128" json:"Uint128s" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	NullableIds      map[string]*github_com_gogo_protobuf_test.Uuid           `protobuf:"bytes,3,rep,name=NullableIds,customtype=github.com/gogo/protobuf/test.Uuid" json:"NullableIds,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Ids              map[string]github_com_gogo_protobuf_test.Uuid            `protobuf:"bytes,4,rep,name=Ids,customtype=github.com/gogo/protobuf/test.Uuid" json:"Ids" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_unrecognized []byte                                                   `json:"-"`
+}
+
+func (m *CustomMap) Reset()                    { *m = CustomMap{} }
+func (*CustomMap) ProtoMessage()               {}
+func (*CustomMap) Descriptor() ([]byte, []int) { return fileDescriptorMapsproto2, []int{1} }
 
 type AllMaps struct {
 	StringToDoubleMap map[string]float64        `protobuf:"bytes,1,rep,name=StringToDoubleMap" json:"StringToDoubleMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"fixed64,2,opt,name=value"`
@@ -104,1492 +126,359 @@ type AllMaps struct {
 	XXX_unrecognized  []byte                    `json:"-"`
 }
 
-func (m *AllMaps) Reset()      { *m = AllMaps{} }
-func (*AllMaps) ProtoMessage() {}
+func (m *AllMaps) Reset()                    { *m = AllMaps{} }
+func (*AllMaps) ProtoMessage()               {}
+func (*AllMaps) Descriptor() ([]byte, []int) { return fileDescriptorMapsproto2, []int{2} }
+
+type AllMapsOrdered struct {
+	StringToDoubleMap map[string]float64        `protobuf:"bytes,1,rep,name=StringToDoubleMap" json:"StringToDoubleMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"fixed64,2,opt,name=value"`
+	StringToFloatMap  map[string]float32        `protobuf:"bytes,2,rep,name=StringToFloatMap" json:"StringToFloatMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"fixed32,2,opt,name=value"`
+	Int32Map          map[int32]int32           `protobuf:"bytes,3,rep,name=Int32Map" json:"Int32Map,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	Int64Map          map[int64]int64           `protobuf:"bytes,4,rep,name=Int64Map" json:"Int64Map,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	Uint32Map         map[uint32]uint32         `protobuf:"bytes,5,rep,name=Uint32Map" json:"Uint32Map,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	Uint64Map         map[uint64]uint64         `protobuf:"bytes,6,rep,name=Uint64Map" json:"Uint64Map,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	Sint32Map         map[int32]int32           `protobuf:"bytes,7,rep,name=Sint32Map" json:"Sint32Map,omitempty" protobuf_key:"zigzag32,1,opt,name=key" protobuf_val:"zigzag32,2,opt,name=value"`
+	Sint64Map         map[int64]int64           `protobuf:"bytes,8,rep,name=Sint64Map" json:"Sint64Map,omitempty" protobuf_key:"zigzag64,1,opt,name=key" protobuf_val:"zigzag64,2,opt,name=value"`
+	Fixed32Map        map[uint32]uint32         `protobuf:"bytes,9,rep,name=Fixed32Map" json:"Fixed32Map,omitempty" protobuf_key:"fixed32,1,opt,name=key" protobuf_val:"fixed32,2,opt,name=value"`
+	Sfixed32Map       map[int32]int32           `protobuf:"bytes,10,rep,name=Sfixed32Map" json:"Sfixed32Map,omitempty" protobuf_key:"fixed32,1,opt,name=key" protobuf_val:"fixed32,2,opt,name=value"`
+	Fixed64Map        map[uint64]uint64         `protobuf:"bytes,11,rep,name=Fixed64Map" json:"Fixed64Map,omitempty" protobuf_key:"fixed64,1,opt,name=key" protobuf_val:"fixed64,2,opt,name=value"`
+	Sfixed64Map       map[int64]int64           `protobuf:"bytes,12,rep,name=Sfixed64Map" json:"Sfixed64Map,omitempty" protobuf_key:"fixed64,1,opt,name=key" protobuf_val:"fixed64,2,opt,name=value"`
+	BoolMap           map[bool]bool             `protobuf:"bytes,13,rep,name=BoolMap" json:"BoolMap,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	StringMap         map[string]string         `protobuf:"bytes,14,rep,name=StringMap" json:"StringMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StringToBytesMap  map[string][]byte         `protobuf:"bytes,15,rep,name=StringToBytesMap" json:"StringToBytesMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StringToEnumMap   map[string]MapEnum        `protobuf:"bytes,16,rep,name=StringToEnumMap" json:"StringToEnumMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value,enum=proto2.maps.MapEnum"`
+	StringToMsgMap    map[string]*FloatingPoint `protobuf:"bytes,17,rep,name=StringToMsgMap" json:"StringToMsgMap,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_unrecognized  []byte                    `json:"-"`
+}
+
+func (m *AllMapsOrdered) Reset()                    { *m = AllMapsOrdered{} }
+func (*AllMapsOrdered) ProtoMessage()               {}
+func (*AllMapsOrdered) Descriptor() ([]byte, []int) { return fileDescriptorMapsproto2, []int{3} }
 
 func init() {
 	proto.RegisterType((*FloatingPoint)(nil), "proto2.maps.FloatingPoint")
+	proto.RegisterType((*CustomMap)(nil), "proto2.maps.CustomMap")
 	proto.RegisterType((*AllMaps)(nil), "proto2.maps.AllMaps")
+	proto.RegisterType((*AllMapsOrdered)(nil), "proto2.maps.AllMapsOrdered")
 	proto.RegisterEnum("proto2.maps.MapEnum", MapEnum_name, MapEnum_value)
 }
-func (this *FloatingPoint) Description() (desc *descriptor.FileDescriptorSet) {
+func (this *FloatingPoint) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
 	return Mapsproto2Description()
 }
-func (this *AllMaps) Description() (desc *descriptor.FileDescriptorSet) {
+func (this *CustomMap) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
 	return Mapsproto2Description()
 }
-func Mapsproto2Description() (desc *descriptor.FileDescriptorSet) {
-	return &descriptor.FileDescriptorSet{File: []*descriptor.FileDescriptorProto{{Name: func(v string) *string { return &v }("google/protobuf/descriptor.proto"),
-		Package: func(v string) *string { return &v }("google.protobuf"),
-		MessageType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("FileDescriptorSet"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("file"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FileDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("file"),
-			}},
-		}, {Name: func(v string) *string { return &v }("FileDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("package"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("package"),
-			}, {Name: func(v string) *string { return &v }("dependency"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("dependency"),
-			}, {Name: func(v string) *string { return &v }("public_dependency"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("publicDependency"),
-			}, {Name: func(v string) *string { return &v }("weak_dependency"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("weakDependency"),
-			}, {Name: func(v string) *string { return &v }("message_type"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto"),
-				JsonName: func(v string) *string { return &v }("messageType"),
-			}, {Name: func(v string) *string { return &v }("enum_type"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("enumType"),
-			}, {Name: func(v string) *string { return &v }("service"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.ServiceDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("service"),
-			}, {Name: func(v string) *string { return &v }("extension"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("extension"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("source_code_info"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.SourceCodeInfo"),
-				JsonName: func(v string) *string { return &v }("sourceCodeInfo"),
-			}, {Name: func(v string) *string { return &v }("syntax"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("syntax"),
-			}},
-		}, {Name: func(v string) *string { return &v }("DescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("field"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("field"),
-			}, {Name: func(v string) *string { return &v }("extension"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("extension"),
-			}, {Name: func(v string) *string { return &v }("nested_type"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto"),
-				JsonName: func(v string) *string { return &v }("nestedType"),
-			}, {Name: func(v string) *string { return &v }("enum_type"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("enumType"),
-			}, {Name: func(v string) *string { return &v }("extension_range"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto.ExtensionRange"),
-				JsonName: func(v string) *string { return &v }("extensionRange"),
-			}, {Name: func(v string) *string { return &v }("oneof_decl"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.OneofDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("oneofDecl"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("reserved_range"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto.ReservedRange"),
-				JsonName: func(v string) *string { return &v }("reservedRange"),
-			}, {Name: func(v string) *string { return &v }("reserved_name"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("reservedName"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("ExtensionRange"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("start"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("start"),
-				}, {Name: func(v string) *string { return &v }("end"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("end"),
-				}},
-			}, {Name: func(v string) *string { return &v }("ReservedRange"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("start"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("start"),
-				}, {Name: func(v string) *string { return &v }("end"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("end"),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("FieldDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("number"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("number"),
-			}, {Name: func(v string) *string { return &v }("label"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto.Label"),
-				JsonName: func(v string) *string { return &v }("label"),
-			}, {Name: func(v string) *string { return &v }("type"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto.Type"),
-				JsonName: func(v string) *string { return &v }("type"),
-			}, {Name: func(v string) *string { return &v }("type_name"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("typeName"),
-			}, {Name: func(v string) *string { return &v }("extendee"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("extendee"),
-			}, {Name: func(v string) *string { return &v }("default_value"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("defaultValue"),
-			}, {Name: func(v string) *string { return &v }("oneof_index"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("oneofIndex"),
-			}, {Name: func(v string) *string { return &v }("json_name"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("jsonName"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("Type"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("TYPE_DOUBLE"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("TYPE_FLOAT"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("TYPE_INT64"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}, {Name: func(v string) *string { return &v }("TYPE_UINT64"),
-					Number: func(v int32) *int32 { return &v }(4),
-				}, {Name: func(v string) *string { return &v }("TYPE_INT32"),
-					Number: func(v int32) *int32 { return &v }(5),
-				}, {Name: func(v string) *string { return &v }("TYPE_FIXED64"),
-					Number: func(v int32) *int32 { return &v }(6),
-				}, {Name: func(v string) *string { return &v }("TYPE_FIXED32"),
-					Number: func(v int32) *int32 { return &v }(7),
-				}, {Name: func(v string) *string { return &v }("TYPE_BOOL"),
-					Number: func(v int32) *int32 { return &v }(8),
-				}, {Name: func(v string) *string { return &v }("TYPE_STRING"),
-					Number: func(v int32) *int32 { return &v }(9),
-				}, {Name: func(v string) *string { return &v }("TYPE_GROUP"),
-					Number: func(v int32) *int32 { return &v }(10),
-				}, {Name: func(v string) *string { return &v }("TYPE_MESSAGE"),
-					Number: func(v int32) *int32 { return &v }(11),
-				}, {Name: func(v string) *string { return &v }("TYPE_BYTES"),
-					Number: func(v int32) *int32 { return &v }(12),
-				}, {Name: func(v string) *string { return &v }("TYPE_UINT32"),
-					Number: func(v int32) *int32 { return &v }(13),
-				}, {Name: func(v string) *string { return &v }("TYPE_ENUM"),
-					Number: func(v int32) *int32 { return &v }(14),
-				}, {Name: func(v string) *string { return &v }("TYPE_SFIXED32"),
-					Number: func(v int32) *int32 { return &v }(15),
-				}, {Name: func(v string) *string { return &v }("TYPE_SFIXED64"),
-					Number: func(v int32) *int32 { return &v }(16),
-				}, {Name: func(v string) *string { return &v }("TYPE_SINT32"),
-					Number: func(v int32) *int32 { return &v }(17),
-				}, {Name: func(v string) *string { return &v }("TYPE_SINT64"),
-					Number: func(v int32) *int32 { return &v }(18),
-				}},
-			}, {Name: func(v string) *string { return &v }("Label"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("LABEL_OPTIONAL"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("LABEL_REQUIRED"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("LABEL_REPEATED"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("OneofDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumValueDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("value"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumValueDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("number"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("number"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumValueOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("ServiceDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("method"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MethodDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("method"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.ServiceOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("MethodDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("input_type"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("inputType"),
-			}, {Name: func(v string) *string { return &v }("output_type"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("outputType"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MethodOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("client_streaming"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("clientStreaming"),
-			}, {Name: func(v string) *string { return &v }("server_streaming"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("serverStreaming"),
-			}},
-		}, {Name: func(v string) *string { return &v }("FileOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("java_package"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("javaPackage"),
-			}, {Name: func(v string) *string { return &v }("java_outer_classname"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("javaOuterClassname"),
-			}, {Name: func(v string) *string { return &v }("java_multiple_files"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaMultipleFiles"),
-			}, {Name: func(v string) *string { return &v }("java_generate_equals_and_hash"),
-				Number:       func(v int32) *int32 { return &v }(20),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaGenerateEqualsAndHash"),
-			}, {Name: func(v string) *string { return &v }("java_string_check_utf8"),
-				Number:       func(v int32) *int32 { return &v }(27),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaStringCheckUtf8"),
-			}, {Name: func(v string) *string { return &v }("optimize_for"),
-				Number:       func(v int32) *int32 { return &v }(9),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FileOptions.OptimizeMode"),
-				DefaultValue: func(v string) *string { return &v }("SPEED"),
-				JsonName:     func(v string) *string { return &v }("optimizeFor"),
-			}, {Name: func(v string) *string { return &v }("go_package"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("goPackage"),
-			}, {Name: func(v string) *string { return &v }("cc_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(16),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("ccGenericServices"),
-			}, {Name: func(v string) *string { return &v }("java_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(17),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaGenericServices"),
-			}, {Name: func(v string) *string { return &v }("py_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(18),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("pyGenericServices"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(23),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("cc_enable_arenas"),
-				Number:       func(v int32) *int32 { return &v }(31),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("ccEnableArenas"),
-			}, {Name: func(v string) *string { return &v }("objc_class_prefix"),
-				Number:   func(v int32) *int32 { return &v }(36),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("objcClassPrefix"),
-			}, {Name: func(v string) *string { return &v }("csharp_namespace"),
-				Number:   func(v int32) *int32 { return &v }(37),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("csharpNamespace"),
-			}, {Name: func(v string) *string { return &v }("javanano_use_deprecated_package"),
-				Number:   func(v int32) *int32 { return &v }(38),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("javananoUseDeprecatedPackage"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("OptimizeMode"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("SPEED"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("CODE_SIZE"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("LITE_RUNTIME"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}},
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("MessageOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("message_set_wire_format"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("messageSetWireFormat"),
-			}, {Name: func(v string) *string { return &v }("no_standard_descriptor_accessor"),
-				Number:       func(v int32) *int32 { return &v }(2),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("noStandardDescriptorAccessor"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("map_entry"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("mapEntry"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("FieldOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("ctype"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FieldOptions.CType"),
-				DefaultValue: func(v string) *string { return &v }("STRING"),
-				JsonName:     func(v string) *string { return &v }("ctype"),
-			}, {Name: func(v string) *string { return &v }("packed"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("packed"),
-			}, {Name: func(v string) *string { return &v }("jstype"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FieldOptions.JSType"),
-				DefaultValue: func(v string) *string { return &v }("JS_NORMAL"),
-				JsonName:     func(v string) *string { return &v }("jstype"),
-			}, {Name: func(v string) *string { return &v }("lazy"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("lazy"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("weak"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("weak"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("CType"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("STRING"),
-					Number: func(v int32) *int32 { return &v }(0),
-				}, {Name: func(v string) *string { return &v }("CORD"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("STRING_PIECE"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}},
-			}, {Name: func(v string) *string { return &v }("JSType"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("JS_NORMAL"),
-					Number: func(v int32) *int32 { return &v }(0),
-				}, {Name: func(v string) *string { return &v }("JS_STRING"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("JS_NUMBER"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}},
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("allow_alias"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("allowAlias"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumValueOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("ServiceOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(33),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("MethodOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(33),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("UninterpretedOption"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption.NamePart"),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("identifier_value"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("identifierValue"),
-			}, {Name: func(v string) *string { return &v }("positive_int_value"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("positiveIntValue"),
-			}, {Name: func(v string) *string { return &v }("negative_int_value"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("negativeIntValue"),
-			}, {Name: func(v string) *string { return &v }("double_value"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("doubleValue"),
-			}, {Name: func(v string) *string { return &v }("string_value"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("stringValue"),
-			}, {Name: func(v string) *string { return &v }("aggregate_value"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("aggregateValue"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("NamePart"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name_part"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(2),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("namePart"),
-				}, {Name: func(v string) *string { return &v }("is_extension"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(2),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-					JsonName: func(v string) *string { return &v }("isExtension"),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("SourceCodeInfo"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("location"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.SourceCodeInfo.Location"),
-				JsonName: func(v string) *string { return &v }("location"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("Location"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("path"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("path"),
-					Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-						XXX_extensions: map[int32]proto.Extension{},
-					},
-				}, {Name: func(v string) *string { return &v }("span"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("span"),
-					Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-						XXX_extensions: map[int32]proto.Extension{},
-					},
-				}, {Name: func(v string) *string { return &v }("leading_comments"),
-					Number:   func(v int32) *int32 { return &v }(3),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("leadingComments"),
-				}, {Name: func(v string) *string { return &v }("trailing_comments"),
-					Number:   func(v int32) *int32 { return &v }(4),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("trailingComments"),
-				}, {Name: func(v string) *string { return &v }("leading_detached_comments"),
-					Number:   func(v int32) *int32 { return &v }(6),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("leadingDetachedComments"),
-				}},
-			}},
-		}},
-		Options: &descriptor.FileOptions{JavaPackage: func(v string) *string { return &v }("com.google.protobuf"),
-			JavaOuterClassname: func(v string) *string { return &v }("DescriptorProtos"),
-			OptimizeFor:        func(v descriptor.FileOptions_OptimizeMode) *descriptor.FileOptions_OptimizeMode { return &v }(1),
-			GoPackage:          func(v string) *string { return &v }("descriptor"),
-			ObjcClassPrefix:    func(v string) *string { return &v }("GPB"),
-			CsharpNamespace:    func(v string) *string { return &v }("Google.Protobuf.Reflection"),
-			XXX_extensions:     map[int32]proto.Extension{},
-		},
-	}, {Name: func(v string) *string { return &v }("github.com/gogo/protobuf/gogoproto/gogo.proto"),
-		Package:    func(v string) *string { return &v }("gogoproto"),
-		Dependency: []string{"google/protobuf/descriptor.proto"},
-		Extension: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("goproto_enum_prefix"),
-			Number:   func(v int32) *int32 { return &v }(62001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumPrefix"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_stringer"),
-			Number:   func(v int32) *int32 { return &v }(62021),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumStringer"),
-		}, {Name: func(v string) *string { return &v }("enum_stringer"),
-			Number:   func(v int32) *int32 { return &v }(62022),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("enumStringer"),
-		}, {Name: func(v string) *string { return &v }("goproto_getters_all"),
-			Number:   func(v int32) *int32 { return &v }(63001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoGettersAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_prefix_all"),
-			Number:   func(v int32) *int32 { return &v }(63002),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumPrefixAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoStringerAll"),
-		}, {Name: func(v string) *string { return &v }("verbose_equal_all"),
-			Number:   func(v int32) *int32 { return &v }(63004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("verboseEqualAll"),
-		}, {Name: func(v string) *string { return &v }("face_all"),
-			Number:   func(v int32) *int32 { return &v }(63005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("faceAll"),
-		}, {Name: func(v string) *string { return &v }("gostring_all"),
-			Number:   func(v int32) *int32 { return &v }(63006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("gostringAll"),
-		}, {Name: func(v string) *string { return &v }("populate_all"),
-			Number:   func(v int32) *int32 { return &v }(63007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("populateAll"),
-		}, {Name: func(v string) *string { return &v }("stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("stringerAll"),
-		}, {Name: func(v string) *string { return &v }("onlyone_all"),
-			Number:   func(v int32) *int32 { return &v }(63009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("onlyoneAll"),
-		}, {Name: func(v string) *string { return &v }("equal_all"),
-			Number:   func(v int32) *int32 { return &v }(63013),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("equalAll"),
-		}, {Name: func(v string) *string { return &v }("description_all"),
-			Number:   func(v int32) *int32 { return &v }(63014),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("descriptionAll"),
-		}, {Name: func(v string) *string { return &v }("testgen_all"),
-			Number:   func(v int32) *int32 { return &v }(63015),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("testgenAll"),
-		}, {Name: func(v string) *string { return &v }("benchgen_all"),
-			Number:   func(v int32) *int32 { return &v }(63016),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("benchgenAll"),
-		}, {Name: func(v string) *string { return &v }("marshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63017),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("marshalerAll"),
-		}, {Name: func(v string) *string { return &v }("unmarshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63018),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unmarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("sizer_all"),
-			Number:   func(v int32) *int32 { return &v }(63020),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("sizerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63021),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumStringerAll"),
-		}, {Name: func(v string) *string { return &v }("enum_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63022),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("enumStringerAll"),
-		}, {Name: func(v string) *string { return &v }("unsafe_marshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63023),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeMarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("unsafe_unmarshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63024),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeUnmarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_extensions_map_all"),
-			Number:   func(v int32) *int32 { return &v }(63025),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoExtensionsMapAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_unrecognized_all"),
-			Number:   func(v int32) *int32 { return &v }(63026),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoUnrecognizedAll"),
-		}, {Name: func(v string) *string { return &v }("gogoproto_import"),
-			Number:   func(v int32) *int32 { return &v }(63027),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("gogoprotoImport"),
-		}, {Name: func(v string) *string { return &v }("protosizer_all"),
-			Number:   func(v int32) *int32 { return &v }(63028),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("protosizerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_getters"),
-			Number:   func(v int32) *int32 { return &v }(64001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoGetters"),
-		}, {Name: func(v string) *string { return &v }("goproto_stringer"),
-			Number:   func(v int32) *int32 { return &v }(64003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoStringer"),
-		}, {Name: func(v string) *string { return &v }("verbose_equal"),
-			Number:   func(v int32) *int32 { return &v }(64004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("verboseEqual"),
-		}, {Name: func(v string) *string { return &v }("face"),
-			Number:   func(v int32) *int32 { return &v }(64005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("face"),
-		}, {Name: func(v string) *string { return &v }("gostring"),
-			Number:   func(v int32) *int32 { return &v }(64006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("gostring"),
-		}, {Name: func(v string) *string { return &v }("populate"),
-			Number:   func(v int32) *int32 { return &v }(64007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("populate"),
-		}, {Name: func(v string) *string { return &v }("stringer"),
-			Number:   func(v int32) *int32 { return &v }(67008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("stringer"),
-		}, {Name: func(v string) *string { return &v }("onlyone"),
-			Number:   func(v int32) *int32 { return &v }(64009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("onlyone"),
-		}, {Name: func(v string) *string { return &v }("equal"),
-			Number:   func(v int32) *int32 { return &v }(64013),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("equal"),
-		}, {Name: func(v string) *string { return &v }("description"),
-			Number:   func(v int32) *int32 { return &v }(64014),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("description"),
-		}, {Name: func(v string) *string { return &v }("testgen"),
-			Number:   func(v int32) *int32 { return &v }(64015),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("testgen"),
-		}, {Name: func(v string) *string { return &v }("benchgen"),
-			Number:   func(v int32) *int32 { return &v }(64016),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("benchgen"),
-		}, {Name: func(v string) *string { return &v }("marshaler"),
-			Number:   func(v int32) *int32 { return &v }(64017),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("marshaler"),
-		}, {Name: func(v string) *string { return &v }("unmarshaler"),
-			Number:   func(v int32) *int32 { return &v }(64018),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unmarshaler"),
-		}, {Name: func(v string) *string { return &v }("sizer"),
-			Number:   func(v int32) *int32 { return &v }(64020),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("sizer"),
-		}, {Name: func(v string) *string { return &v }("unsafe_marshaler"),
-			Number:   func(v int32) *int32 { return &v }(64023),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeMarshaler"),
-		}, {Name: func(v string) *string { return &v }("unsafe_unmarshaler"),
-			Number:   func(v int32) *int32 { return &v }(64024),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeUnmarshaler"),
-		}, {Name: func(v string) *string { return &v }("goproto_extensions_map"),
-			Number:   func(v int32) *int32 { return &v }(64025),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoExtensionsMap"),
-		}, {Name: func(v string) *string { return &v }("goproto_unrecognized"),
-			Number:   func(v int32) *int32 { return &v }(64026),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoUnrecognized"),
-		}, {Name: func(v string) *string { return &v }("protosizer"),
-			Number:   func(v int32) *int32 { return &v }(64028),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("protosizer"),
-		}, {Name: func(v string) *string { return &v }("nullable"),
-			Number:   func(v int32) *int32 { return &v }(65001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("nullable"),
-		}, {Name: func(v string) *string { return &v }("embed"),
-			Number:   func(v int32) *int32 { return &v }(65002),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("embed"),
-		}, {Name: func(v string) *string { return &v }("customtype"),
-			Number:   func(v int32) *int32 { return &v }(65003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("customtype"),
-		}, {Name: func(v string) *string { return &v }("customname"),
-			Number:   func(v int32) *int32 { return &v }(65004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("customname"),
-		}, {Name: func(v string) *string { return &v }("jsontag"),
-			Number:   func(v int32) *int32 { return &v }(65005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("jsontag"),
-		}, {Name: func(v string) *string { return &v }("moretags"),
-			Number:   func(v int32) *int32 { return &v }(65006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("moretags"),
-		}, {Name: func(v string) *string { return &v }("casttype"),
-			Number:   func(v int32) *int32 { return &v }(65007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("casttype"),
-		}, {Name: func(v string) *string { return &v }("castkey"),
-			Number:   func(v int32) *int32 { return &v }(65008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("castkey"),
-		}, {Name: func(v string) *string { return &v }("castvalue"),
-			Number:   func(v int32) *int32 { return &v }(65009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("castvalue"),
-		}},
-		Options: &descriptor.FileOptions{JavaPackage: func(v string) *string { return &v }("com.google.protobuf"),
-			JavaOuterClassname: func(v string) *string { return &v }("GoGoProtos"),
-			XXX_extensions:     map[int32]proto.Extension{},
-		},
-	}, {Name: func(v string) *string { return &v }("combos/marshaler/mapsproto2.proto"),
-		Package:    func(v string) *string { return &v }("proto2.maps"),
-		Dependency: []string{"github.com/gogo/protobuf/gogoproto/gogo.proto"},
-		MessageType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("FloatingPoint"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("f"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("f"),
-			}},
-		}, {Name: func(v string) *string { return &v }("AllMaps"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("StringToDoubleMap"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.StringToDoubleMapEntry"),
-				JsonName: func(v string) *string { return &v }("stringToDoubleMap"),
-			}, {Name: func(v string) *string { return &v }("StringToFloatMap"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.StringToFloatMapEntry"),
-				JsonName: func(v string) *string { return &v }("stringToFloatMap"),
-			}, {Name: func(v string) *string { return &v }("Int32Map"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Int32MapEntry"),
-				JsonName: func(v string) *string { return &v }("int32Map"),
-			}, {Name: func(v string) *string { return &v }("Int64Map"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Int64MapEntry"),
-				JsonName: func(v string) *string { return &v }("int64Map"),
-			}, {Name: func(v string) *string { return &v }("Uint32Map"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Uint32MapEntry"),
-				JsonName: func(v string) *string { return &v }("uint32Map"),
-			}, {Name: func(v string) *string { return &v }("Uint64Map"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Uint64MapEntry"),
-				JsonName: func(v string) *string { return &v }("uint64Map"),
-			}, {Name: func(v string) *string { return &v }("Sint32Map"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Sint32MapEntry"),
-				JsonName: func(v string) *string { return &v }("sint32Map"),
-			}, {Name: func(v string) *string { return &v }("Sint64Map"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Sint64MapEntry"),
-				JsonName: func(v string) *string { return &v }("sint64Map"),
-			}, {Name: func(v string) *string { return &v }("Fixed32Map"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Fixed32MapEntry"),
-				JsonName: func(v string) *string { return &v }("fixed32Map"),
-			}, {Name: func(v string) *string { return &v }("Sfixed32Map"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Sfixed32MapEntry"),
-				JsonName: func(v string) *string { return &v }("sfixed32Map"),
-			}, {Name: func(v string) *string { return &v }("Fixed64Map"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Fixed64MapEntry"),
-				JsonName: func(v string) *string { return &v }("fixed64Map"),
-			}, {Name: func(v string) *string { return &v }("Sfixed64Map"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.Sfixed64MapEntry"),
-				JsonName: func(v string) *string { return &v }("sfixed64Map"),
-			}, {Name: func(v string) *string { return &v }("BoolMap"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.BoolMapEntry"),
-				JsonName: func(v string) *string { return &v }("boolMap"),
-			}, {Name: func(v string) *string { return &v }("StringMap"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.StringMapEntry"),
-				JsonName: func(v string) *string { return &v }("stringMap"),
-			}, {Name: func(v string) *string { return &v }("StringToBytesMap"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.StringToBytesMapEntry"),
-				JsonName: func(v string) *string { return &v }("stringToBytesMap"),
-			}, {Name: func(v string) *string { return &v }("StringToEnumMap"),
-				Number:   func(v int32) *int32 { return &v }(16),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.StringToEnumMapEntry"),
-				JsonName: func(v string) *string { return &v }("stringToEnumMap"),
-			}, {Name: func(v string) *string { return &v }("StringToMsgMap"),
-				Number:   func(v int32) *int32 { return &v }(17),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".proto2.maps.AllMaps.StringToMsgMapEntry"),
-				JsonName: func(v string) *string { return &v }("stringToMsgMap"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("StringToDoubleMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("StringToFloatMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Int32MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Int64MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Uint32MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Uint64MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Sint32MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Sint64MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Fixed32MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Sfixed32MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Fixed64MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Sfixed64MapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("BoolMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("StringMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("StringToBytesMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("StringToEnumMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-					TypeName: func(v string) *string { return &v }(".proto2.maps.MapEnum"),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("StringToMsgMapEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-					TypeName: func(v string) *string { return &v }(".proto2.maps.FloatingPoint"),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}},
-		}},
-		EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("MapEnum"),
-			Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("MA"),
-				Number: func(v int32) *int32 { return &v }(0),
-			}, {Name: func(v string) *string { return &v }("MB"),
-				Number: func(v int32) *int32 { return &v }(1),
-			}, {Name: func(v string) *string { return &v }("MC"),
-				Number: func(v int32) *int32 { return &v }(2),
-			}},
-		}},
-		Options: &descriptor.FileOptions{XXX_extensions: map[int32]proto.Extension{63001: proto.NewExtension([]byte{0xc8, 0xe1, 0x1e, 0x0}), 63002: proto.NewExtension([]byte{0xd0, 0xe1, 0x1e, 0x0}), 63003: proto.NewExtension([]byte{0xd8, 0xe1, 0x1e, 0x0}), 63004: proto.NewExtension([]byte{0xe0, 0xe1, 0x1e, 0x1}), 63005: proto.NewExtension([]byte{0xe8, 0xe1, 0x1e, 0x1}), 63006: proto.NewExtension([]byte{0xf0, 0xe1, 0x1e, 0x1}), 63007: proto.NewExtension([]byte{0xf8, 0xe1, 0x1e, 0x1}), 63008: proto.NewExtension([]byte{0x80, 0xe2, 0x1e, 0x1}), 63013: proto.NewExtension([]byte{0xa8, 0xe2, 0x1e, 0x1}), 63014: proto.NewExtension([]byte{0xb0, 0xe2, 0x1e, 0x1}), 63015: proto.NewExtension([]byte{0xb8, 0xe2, 0x1e, 0x1}), 63016: proto.NewExtension([]byte{0xc0, 0xe2, 0x1e, 0x1}), 63017: proto.NewExtension([]byte{0xc8, 0xe2, 0x1e, 0x1}), 63018: proto.NewExtension([]byte{0xd0, 0xe2, 0x1e, 0x0}), 63020: proto.NewExtension([]byte{0xe0, 0xe2, 0x1e, 0x1}), 63021: proto.NewExtension([]byte{0xe8, 0xe2, 0x1e, 0x0}), 63022: proto.NewExtension([]byte{0xf0, 0xe2, 0x1e, 0x1}), 63023: proto.NewExtension([]byte{0xf8, 0xe2, 0x1e, 0x0}), 63024: proto.NewExtension([]byte{0x80, 0xe3, 0x1e, 0x0})}},
-	}},
+func (this *AllMaps) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return Mapsproto2Description()
+}
+func (this *AllMapsOrdered) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return Mapsproto2Description()
+}
+func Mapsproto2Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	d := &github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet{}
+	var gzipped = []byte{
+		// 4577 bytes of a gzipped FileDescriptorSet
+		0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x7a, 0x6b, 0x6c, 0x23, 0xd7,
+		0x75, 0xbf, 0x86, 0x0f, 0x89, 0x3c, 0xa4, 0xa8, 0xd1, 0x95, 0xbc, 0xa6, 0xe5, 0x58, 0xbb, 0x2b,
+		0xbf, 0xe4, 0xb5, 0x2d, 0xd9, 0xf2, 0xee, 0x7a, 0xcd, 0x8d, 0x6d, 0x50, 0x12, 0x57, 0x2b, 0x5b,
+		0xaf, 0x0c, 0x25, 0x7b, 0xed, 0x3f, 0x8c, 0xf9, 0x8f, 0x86, 0x97, 0xd4, 0x78, 0xc9, 0x19, 0x7a,
+		0x66, 0xb8, 0xb6, 0xfc, 0xa1, 0xd8, 0xc2, 0x7d, 0x20, 0x28, 0xfa, 0x2e, 0x50, 0xc7, 0x75, 0xdc,
+		0x26, 0x40, 0xeb, 0x34, 0xe9, 0x23, 0xe9, 0x23, 0x0d, 0xfa, 0x29, 0x5f, 0xd2, 0x1a, 0x28, 0x50,
+		0x24, 0xdf, 0x82, 0x20, 0x30, 0xbc, 0x8a, 0x81, 0xba, 0xad, 0xdb, 0xba, 0x8d, 0x81, 0x04, 0xf0,
+		0x97, 0xe2, 0xbe, 0x86, 0x33, 0xc3, 0x21, 0x87, 0x32, 0xe0, 0xa4, 0x1f, 0xfc, 0x49, 0x9a, 0x73,
+		0xcf, 0xef, 0x77, 0xcf, 0x3d, 0xf7, 0xdc, 0x73, 0xce, 0x5c, 0x0e, 0xfc, 0xe8, 0x1c, 0x9c, 0x6a,
+		0x58, 0x56, 0xa3, 0x89, 0x17, 0xdb, 0xb6, 0xe5, 0x5a, 0xfb, 0x9d, 0xfa, 0x62, 0x0d, 0x3b, 0xba,
+		0x6d, 0xb4, 0x5d, 0xcb, 0x5e, 0xa0, 0x32, 0x34, 0xc1, 0x34, 0x16, 0x84, 0xc6, 0xdc, 0x26, 0x4c,
+		0x5e, 0x32, 0x9a, 0x78, 0xd5, 0x53, 0xac, 0x62, 0x17, 0x5d, 0x80, 0x54, 0xdd, 0x68, 0xe2, 0xa2,
+		0x74, 0x2a, 0x39, 0x9f, 0x5b, 0xba, 0x63, 0x21, 0x04, 0x5a, 0x08, 0x22, 0x76, 0x88, 0x58, 0xa1,
+		0x88, 0xb9, 0x77, 0x53, 0x30, 0x15, 0x31, 0x8a, 0x10, 0xa4, 0x4c, 0xad, 0x45, 0x18, 0xa5, 0xf9,
+		0xac, 0x42, 0xff, 0x47, 0x45, 0x18, 0x6b, 0x6b, 0xfa, 0x55, 0xad, 0x81, 0x8b, 0x09, 0x2a, 0x16,
+		0x8f, 0x68, 0x16, 0xa0, 0x86, 0xdb, 0xd8, 0xac, 0x61, 0x53, 0x3f, 0x2c, 0x26, 0x4f, 0x25, 0xe7,
+		0xb3, 0x8a, 0x4f, 0x82, 0xee, 0x85, 0xc9, 0x76, 0x67, 0xbf, 0x69, 0xe8, 0xaa, 0x4f, 0x0d, 0x4e,
+		0x25, 0xe7, 0xd3, 0x8a, 0xcc, 0x06, 0x56, 0xbb, 0xca, 0x77, 0xc3, 0xc4, 0x8b, 0x58, 0xbb, 0xea,
+		0x57, 0xcd, 0x51, 0xd5, 0x02, 0x11, 0xfb, 0x14, 0x57, 0x20, 0xdf, 0xc2, 0x8e, 0xa3, 0x35, 0xb0,
+		0xea, 0x1e, 0xb6, 0x71, 0x31, 0x45, 0x57, 0x7f, 0xaa, 0x67, 0xf5, 0xe1, 0x95, 0xe7, 0x38, 0x6a,
+		0xf7, 0xb0, 0x8d, 0x51, 0x19, 0xb2, 0xd8, 0xec, 0xb4, 0x18, 0x43, 0xba, 0x8f, 0xff, 0x2a, 0x66,
+		0xa7, 0x15, 0x66, 0xc9, 0x10, 0x18, 0xa7, 0x18, 0x73, 0xb0, 0x7d, 0xcd, 0xd0, 0x71, 0x71, 0x94,
+		0x12, 0xdc, 0xdd, 0x43, 0x50, 0x65, 0xe3, 0x61, 0x0e, 0x81, 0x43, 0x2b, 0x90, 0xc5, 0x2f, 0xb9,
+		0xd8, 0x74, 0x0c, 0xcb, 0x2c, 0x8e, 0x51, 0x92, 0x3b, 0x23, 0x76, 0x11, 0x37, 0x6b, 0x61, 0x8a,
+		0x2e, 0x0e, 0x9d, 0x87, 0x31, 0xab, 0xed, 0x1a, 0x96, 0xe9, 0x14, 0x33, 0xa7, 0xa4, 0xf9, 0xdc,
+		0xd2, 0x67, 0x22, 0x03, 0x61, 0x9b, 0xe9, 0x28, 0x42, 0x19, 0xad, 0x83, 0xec, 0x58, 0x1d, 0x5b,
+		0xc7, 0xaa, 0x6e, 0xd5, 0xb0, 0x6a, 0x98, 0x75, 0xab, 0x98, 0xa5, 0x04, 0x27, 0x7b, 0x17, 0x42,
+		0x15, 0x57, 0xac, 0x1a, 0x5e, 0x37, 0xeb, 0x96, 0x52, 0x70, 0x02, 0xcf, 0xe8, 0x04, 0x8c, 0x3a,
+		0x87, 0xa6, 0xab, 0xbd, 0x54, 0xcc, 0xd3, 0x08, 0xe1, 0x4f, 0x73, 0x3f, 0x49, 0xc3, 0xc4, 0x30,
+		0x21, 0x76, 0x11, 0xd2, 0x75, 0xb2, 0xca, 0x62, 0xe2, 0x38, 0x3e, 0x60, 0x98, 0xa0, 0x13, 0x47,
+		0x3f, 0xa6, 0x13, 0xcb, 0x90, 0x33, 0xb1, 0xe3, 0xe2, 0x1a, 0x8b, 0x88, 0xe4, 0x90, 0x31, 0x05,
+		0x0c, 0xd4, 0x1b, 0x52, 0xa9, 0x8f, 0x15, 0x52, 0x57, 0x60, 0xc2, 0x33, 0x49, 0xb5, 0x35, 0xb3,
+		0x21, 0x62, 0x73, 0x31, 0xce, 0x92, 0x85, 0x8a, 0xc0, 0x29, 0x04, 0xa6, 0x14, 0x70, 0xe0, 0x19,
+		0xad, 0x02, 0x58, 0x26, 0xb6, 0xea, 0x6a, 0x0d, 0xeb, 0xcd, 0x62, 0xa6, 0x8f, 0x97, 0xb6, 0x89,
+		0x4a, 0x8f, 0x97, 0x2c, 0x26, 0xd5, 0x9b, 0xe8, 0x91, 0x6e, 0xa8, 0x8d, 0xf5, 0x89, 0x94, 0x4d,
+		0x76, 0xc8, 0x7a, 0xa2, 0x6d, 0x0f, 0x0a, 0x36, 0x26, 0x71, 0x8f, 0x6b, 0x7c, 0x65, 0x59, 0x6a,
+		0xc4, 0x42, 0xec, 0xca, 0x14, 0x0e, 0x63, 0x0b, 0x1b, 0xb7, 0xfd, 0x8f, 0xe8, 0x76, 0xf0, 0x04,
+		0x2a, 0x0d, 0x2b, 0xa0, 0x59, 0x28, 0x2f, 0x84, 0x5b, 0x5a, 0x0b, 0xcf, 0x5c, 0x80, 0x42, 0xd0,
+		0x3d, 0x68, 0x1a, 0xd2, 0x8e, 0xab, 0xd9, 0x2e, 0x8d, 0xc2, 0xb4, 0xc2, 0x1e, 0x90, 0x0c, 0x49,
+		0x6c, 0xd6, 0x68, 0x96, 0x4b, 0x2b, 0xe4, 0xdf, 0x99, 0x87, 0x61, 0x3c, 0x30, 0xfd, 0xb0, 0xc0,
+		0xb9, 0x57, 0x47, 0x61, 0x3a, 0x2a, 0xe6, 0x22, 0xc3, 0xff, 0x04, 0x8c, 0x9a, 0x9d, 0xd6, 0x3e,
+		0xb6, 0x8b, 0x49, 0xca, 0xc0, 0x9f, 0x50, 0x19, 0xd2, 0x4d, 0x6d, 0x1f, 0x37, 0x8b, 0xa9, 0x53,
+		0xd2, 0x7c, 0x61, 0xe9, 0xde, 0xa1, 0xa2, 0x7a, 0x61, 0x83, 0x40, 0x14, 0x86, 0x44, 0x8f, 0x41,
+		0x8a, 0xa7, 0x38, 0xc2, 0x70, 0x66, 0x38, 0x06, 0x12, 0x8b, 0x0a, 0xc5, 0xa1, 0x5b, 0x21, 0x4b,
+		0xfe, 0x32, 0xdf, 0x8e, 0x52, 0x9b, 0x33, 0x44, 0x40, 0xfc, 0x8a, 0x66, 0x20, 0x43, 0xc3, 0xac,
+		0x86, 0x45, 0x69, 0xf0, 0x9e, 0xc9, 0xc6, 0xd4, 0x70, 0x5d, 0xeb, 0x34, 0x5d, 0xf5, 0x9a, 0xd6,
+		0xec, 0x60, 0x1a, 0x30, 0x59, 0x25, 0xcf, 0x85, 0x4f, 0x11, 0x19, 0x3a, 0x09, 0x39, 0x16, 0x95,
+		0x86, 0x59, 0xc3, 0x2f, 0xd1, 0xec, 0x93, 0x56, 0x58, 0xa0, 0xae, 0x13, 0x09, 0x99, 0xfe, 0x79,
+		0xc7, 0x32, 0xc5, 0xd6, 0xd2, 0x29, 0x88, 0x80, 0x4e, 0xff, 0x70, 0x38, 0xf1, 0xdd, 0x16, 0xbd,
+		0xbc, 0x70, 0x2c, 0xce, 0x7d, 0x33, 0x01, 0x29, 0x7a, 0xde, 0x26, 0x20, 0xb7, 0xfb, 0xcc, 0x4e,
+		0x45, 0x5d, 0xdd, 0xde, 0x5b, 0xde, 0xa8, 0xc8, 0x12, 0x2a, 0x00, 0x50, 0xc1, 0xa5, 0x8d, 0xed,
+		0xf2, 0xae, 0x9c, 0xf0, 0x9e, 0xd7, 0xb7, 0x76, 0xcf, 0x9f, 0x95, 0x93, 0x1e, 0x60, 0x8f, 0x09,
+		0x52, 0x7e, 0x85, 0x87, 0x96, 0xe4, 0x34, 0x92, 0x21, 0xcf, 0x08, 0xd6, 0xaf, 0x54, 0x56, 0xcf,
+		0x9f, 0x95, 0x47, 0x83, 0x92, 0x87, 0x96, 0xe4, 0x31, 0x34, 0x0e, 0x59, 0x2a, 0x59, 0xde, 0xde,
+		0xde, 0x90, 0x33, 0x1e, 0x67, 0x75, 0x57, 0x59, 0xdf, 0x5a, 0x93, 0xb3, 0x1e, 0xe7, 0x9a, 0xb2,
+		0xbd, 0xb7, 0x23, 0x83, 0xc7, 0xb0, 0x59, 0xa9, 0x56, 0xcb, 0x6b, 0x15, 0x39, 0xe7, 0x69, 0x2c,
+		0x3f, 0xb3, 0x5b, 0xa9, 0xca, 0xf9, 0x80, 0x59, 0x0f, 0x2d, 0xc9, 0xe3, 0xde, 0x14, 0x95, 0xad,
+		0xbd, 0x4d, 0xb9, 0x80, 0x26, 0x61, 0x9c, 0x4d, 0x21, 0x8c, 0x98, 0x08, 0x89, 0xce, 0x9f, 0x95,
+		0xe5, 0xae, 0x21, 0x8c, 0x65, 0x32, 0x20, 0x38, 0x7f, 0x56, 0x46, 0x73, 0x2b, 0x90, 0xa6, 0xd1,
+		0x85, 0x10, 0x14, 0x36, 0xca, 0xcb, 0x95, 0x0d, 0x75, 0x7b, 0x67, 0x77, 0x7d, 0x7b, 0xab, 0xbc,
+		0x21, 0x4b, 0x5d, 0x99, 0x52, 0xf9, 0xdc, 0xde, 0xba, 0x52, 0x59, 0x95, 0x13, 0x7e, 0xd9, 0x4e,
+		0xa5, 0xbc, 0x5b, 0x59, 0x95, 0x93, 0x73, 0x3a, 0x4c, 0x47, 0xe5, 0x99, 0xc8, 0x93, 0xe1, 0xdb,
+		0xe2, 0x44, 0x9f, 0x2d, 0xa6, 0x5c, 0x3d, 0x5b, 0xfc, 0x65, 0x09, 0xa6, 0x22, 0x72, 0x6d, 0xe4,
+		0x24, 0x8f, 0x43, 0x9a, 0x85, 0x28, 0xab, 0x3e, 0xf7, 0x44, 0x26, 0x6d, 0x1a, 0xb0, 0x3d, 0x15,
+		0x88, 0xe2, 0xfc, 0x15, 0x38, 0xd9, 0xa7, 0x02, 0x13, 0x8a, 0x1e, 0x23, 0x5f, 0x91, 0xa0, 0xd8,
+		0x8f, 0x3b, 0x26, 0x51, 0x24, 0x02, 0x89, 0xe2, 0x62, 0xd8, 0x80, 0xd3, 0xfd, 0xd7, 0xd0, 0x63,
+		0xc5, 0x9b, 0x12, 0x9c, 0x88, 0x6e, 0x54, 0x22, 0x6d, 0x78, 0x0c, 0x46, 0x5b, 0xd8, 0x3d, 0xb0,
+		0x44, 0xb1, 0xbe, 0x2b, 0xa2, 0x04, 0x90, 0xe1, 0xb0, 0xaf, 0x38, 0xca, 0x5f, 0x43, 0x92, 0xfd,
+		0xba, 0x0d, 0x66, 0x4d, 0x8f, 0xa5, 0x9f, 0x4f, 0xc0, 0x4d, 0x91, 0xe4, 0x91, 0x86, 0xde, 0x06,
+		0x60, 0x98, 0xed, 0x8e, 0xcb, 0x0a, 0x32, 0xcb, 0x4f, 0x59, 0x2a, 0xa1, 0x67, 0x9f, 0xe4, 0x9e,
+		0x8e, 0xeb, 0x8d, 0x27, 0xe9, 0x38, 0x30, 0x11, 0x55, 0xb8, 0xd0, 0x35, 0x34, 0x45, 0x0d, 0x9d,
+		0xed, 0xb3, 0xd2, 0x9e, 0x5a, 0xf7, 0x00, 0xc8, 0x7a, 0xd3, 0xc0, 0xa6, 0xab, 0x3a, 0xae, 0x8d,
+		0xb5, 0x96, 0x61, 0x36, 0x68, 0x02, 0xce, 0x94, 0xd2, 0x75, 0xad, 0xe9, 0x60, 0x65, 0x82, 0x0d,
+		0x57, 0xc5, 0x28, 0x41, 0xd0, 0x2a, 0x63, 0xfb, 0x10, 0xa3, 0x01, 0x04, 0x1b, 0xf6, 0x10, 0x73,
+		0x5f, 0x1b, 0x83, 0x9c, 0xaf, 0xad, 0x43, 0xa7, 0x21, 0xff, 0xbc, 0x76, 0x4d, 0x53, 0x45, 0xab,
+		0xce, 0x3c, 0x91, 0x23, 0xb2, 0x1d, 0xde, 0xae, 0x3f, 0x00, 0xd3, 0x54, 0xc5, 0xea, 0xb8, 0xd8,
+		0x56, 0xf5, 0xa6, 0xe6, 0x38, 0xd4, 0x69, 0x19, 0xaa, 0x8a, 0xc8, 0xd8, 0x36, 0x19, 0x5a, 0x11,
+		0x23, 0xe8, 0x1c, 0x4c, 0x51, 0x44, 0xab, 0xd3, 0x74, 0x8d, 0x76, 0x13, 0xab, 0xe4, 0xe5, 0xc1,
+		0xa1, 0x89, 0xd8, 0xb3, 0x6c, 0x92, 0x68, 0x6c, 0x72, 0x05, 0x62, 0x91, 0x83, 0x56, 0xe1, 0x36,
+		0x0a, 0x6b, 0x60, 0x13, 0xdb, 0x9a, 0x8b, 0x55, 0xfc, 0x42, 0x47, 0x6b, 0x3a, 0xaa, 0x66, 0xd6,
+		0xd4, 0x03, 0xcd, 0x39, 0x28, 0x4e, 0x13, 0x82, 0xe5, 0x44, 0x51, 0x52, 0x6e, 0x21, 0x8a, 0x6b,
+		0x5c, 0xaf, 0x42, 0xd5, 0xca, 0x66, 0xed, 0xb2, 0xe6, 0x1c, 0xa0, 0x12, 0x9c, 0xa0, 0x2c, 0x8e,
+		0x6b, 0x1b, 0x66, 0x43, 0xd5, 0x0f, 0xb0, 0x7e, 0x55, 0xed, 0xb8, 0xf5, 0x0b, 0xc5, 0x5b, 0xfd,
+		0xf3, 0x53, 0x0b, 0xab, 0x54, 0x67, 0x85, 0xa8, 0xec, 0xb9, 0xf5, 0x0b, 0xa8, 0x0a, 0x79, 0xb2,
+		0x19, 0x2d, 0xe3, 0x65, 0xac, 0xd6, 0x2d, 0x9b, 0x56, 0x96, 0x42, 0xc4, 0xc9, 0xf6, 0x79, 0x70,
+		0x61, 0x9b, 0x03, 0x36, 0xad, 0x1a, 0x2e, 0xa5, 0xab, 0x3b, 0x95, 0xca, 0xaa, 0x92, 0x13, 0x2c,
+		0x97, 0x2c, 0x9b, 0x04, 0x54, 0xc3, 0xf2, 0x1c, 0x9c, 0x63, 0x01, 0xd5, 0xb0, 0x84, 0x7b, 0xcf,
+		0xc1, 0x94, 0xae, 0xb3, 0x35, 0x1b, 0xba, 0xca, 0x5b, 0x7c, 0xa7, 0x28, 0x07, 0x9c, 0xa5, 0xeb,
+		0x6b, 0x4c, 0x81, 0xc7, 0xb8, 0x83, 0x1e, 0x81, 0x9b, 0xba, 0xce, 0xf2, 0x03, 0x27, 0x7b, 0x56,
+		0x19, 0x86, 0x9e, 0x83, 0xa9, 0xf6, 0x61, 0x2f, 0x10, 0x05, 0x66, 0x6c, 0x1f, 0x86, 0x61, 0x77,
+		0xd2, 0xd7, 0x36, 0x1b, 0xeb, 0x9a, 0x8b, 0x6b, 0xc5, 0x9b, 0xfd, 0xda, 0xbe, 0x01, 0xb4, 0x08,
+		0xb2, 0xae, 0xab, 0xd8, 0xd4, 0xf6, 0x9b, 0x58, 0xd5, 0x6c, 0x6c, 0x6a, 0x4e, 0xf1, 0xa4, 0x5f,
+		0xb9, 0xa0, 0xeb, 0x15, 0x3a, 0x5a, 0xa6, 0x83, 0xe8, 0x0c, 0x4c, 0x5a, 0xfb, 0xcf, 0xeb, 0x2c,
+		0xb2, 0xd4, 0xb6, 0x8d, 0xeb, 0xc6, 0x4b, 0xc5, 0x3b, 0xa8, 0x9b, 0x26, 0xc8, 0x00, 0x8d, 0xab,
+		0x1d, 0x2a, 0x46, 0xf7, 0x80, 0xac, 0x3b, 0x07, 0x9a, 0xdd, 0xa6, 0xa5, 0xdd, 0x69, 0x6b, 0x3a,
+		0x2e, 0xde, 0xc9, 0x54, 0x99, 0x7c, 0x4b, 0x88, 0x49, 0x64, 0x3b, 0x2f, 0x1a, 0x75, 0x57, 0x30,
+		0xde, 0xcd, 0x22, 0x9b, 0xca, 0x38, 0xdb, 0x15, 0x98, 0xee, 0x98, 0x86, 0xe9, 0x62, 0xbb, 0x6d,
+		0x63, 0xd2, 0xc4, 0xb3, 0x93, 0x58, 0xfc, 0x97, 0xb1, 0x3e, 0x6d, 0xf8, 0x9e, 0x5f, 0x9b, 0x05,
+		0x80, 0x32, 0xd5, 0xe9, 0x15, 0xce, 0x95, 0x20, 0xef, 0x8f, 0x0b, 0x94, 0x05, 0x16, 0x19, 0xb2,
+		0x44, 0x6a, 0xec, 0xca, 0xf6, 0x2a, 0xa9, 0x8e, 0xcf, 0x56, 0xe4, 0x04, 0xa9, 0xd2, 0x1b, 0xeb,
+		0xbb, 0x15, 0x55, 0xd9, 0xdb, 0xda, 0x5d, 0xdf, 0xac, 0xc8, 0xc9, 0x33, 0xd9, 0xcc, 0x7b, 0x63,
+		0xf2, 0xf5, 0xeb, 0xd7, 0xaf, 0x27, 0xe6, 0xbe, 0x93, 0x80, 0x42, 0xb0, 0x33, 0x46, 0x9f, 0x85,
+		0x9b, 0xc5, 0x6b, 0xac, 0x83, 0x5d, 0xf5, 0x45, 0xc3, 0xa6, 0xa1, 0xda, 0xd2, 0x58, 0x6f, 0xe9,
+		0x79, 0x79, 0x9a, 0x6b, 0x55, 0xb1, 0xfb, 0xb4, 0x61, 0x93, 0x40, 0x6c, 0x69, 0x2e, 0xda, 0x80,
+		0x93, 0xa6, 0xa5, 0x3a, 0xae, 0x66, 0xd6, 0x34, 0xbb, 0xa6, 0x76, 0x2f, 0x10, 0x54, 0x4d, 0xd7,
+		0xb1, 0xe3, 0x58, 0xac, 0x44, 0x78, 0x2c, 0x9f, 0x31, 0xad, 0x2a, 0x57, 0xee, 0xe6, 0xce, 0x32,
+		0x57, 0x0d, 0x45, 0x44, 0xb2, 0x5f, 0x44, 0xdc, 0x0a, 0xd9, 0x96, 0xd6, 0x56, 0xb1, 0xe9, 0xda,
+		0x87, 0xb4, 0x9f, 0xcb, 0x28, 0x99, 0x96, 0xd6, 0xae, 0x90, 0xe7, 0x4f, 0x6e, 0x0f, 0xfc, 0x7e,
+		0xfc, 0x61, 0x12, 0xf2, 0xfe, 0x9e, 0x8e, 0xb4, 0xc8, 0x3a, 0xcd, 0xdf, 0x12, 0x3d, 0xe1, 0xb7,
+		0x0f, 0xec, 0x00, 0x17, 0x56, 0x48, 0x62, 0x2f, 0x8d, 0xb2, 0x4e, 0x4b, 0x61, 0x48, 0x52, 0x54,
+		0xc9, 0x99, 0xc6, 0xac, 0x7f, 0xcf, 0x28, 0xfc, 0x09, 0xad, 0xc1, 0xe8, 0xf3, 0x0e, 0xe5, 0x1e,
+		0xa5, 0xdc, 0x77, 0x0c, 0xe6, 0x7e, 0xa2, 0x4a, 0xc9, 0xb3, 0x4f, 0x54, 0xd5, 0xad, 0x6d, 0x65,
+		0xb3, 0xbc, 0xa1, 0x70, 0x38, 0xba, 0x05, 0x52, 0x4d, 0xed, 0xe5, 0xc3, 0x60, 0x09, 0xa0, 0xa2,
+		0x61, 0x1d, 0x7f, 0x0b, 0xa4, 0x5e, 0xc4, 0xda, 0xd5, 0x60, 0xe2, 0xa5, 0xa2, 0x4f, 0x30, 0xf4,
+		0x17, 0x21, 0x4d, 0xfd, 0x85, 0x00, 0xb8, 0xc7, 0xe4, 0x11, 0x94, 0x81, 0xd4, 0xca, 0xb6, 0x42,
+		0xc2, 0x5f, 0x86, 0x3c, 0x93, 0xaa, 0x3b, 0xeb, 0x95, 0x95, 0x8a, 0x9c, 0x98, 0x3b, 0x07, 0xa3,
+		0xcc, 0x09, 0xe4, 0x68, 0x78, 0x6e, 0x90, 0x47, 0xf8, 0x23, 0xe7, 0x90, 0xc4, 0xe8, 0xde, 0xe6,
+		0x72, 0x45, 0x91, 0x13, 0xfe, 0xed, 0x75, 0x20, 0xef, 0x6f, 0xe7, 0x7e, 0x36, 0x31, 0xf5, 0xf7,
+		0x12, 0xe4, 0x7c, 0xed, 0x19, 0x69, 0x0c, 0xb4, 0x66, 0xd3, 0x7a, 0x51, 0xd5, 0x9a, 0x86, 0xe6,
+		0xf0, 0xa0, 0x00, 0x2a, 0x2a, 0x13, 0xc9, 0xb0, 0x9b, 0xf6, 0x33, 0x31, 0xfe, 0x0d, 0x09, 0xe4,
+		0x70, 0x6b, 0x17, 0x32, 0x50, 0xfa, 0xb9, 0x1a, 0xf8, 0xba, 0x04, 0x85, 0x60, 0x3f, 0x17, 0x32,
+		0xef, 0xf4, 0xcf, 0xd5, 0xbc, 0x77, 0x12, 0x30, 0x1e, 0xe8, 0xe2, 0x86, 0xb5, 0xee, 0x05, 0x98,
+		0x34, 0x6a, 0xb8, 0xd5, 0xb6, 0x5c, 0x6c, 0xea, 0x87, 0x6a, 0x13, 0x5f, 0xc3, 0xcd, 0xe2, 0x1c,
+		0x4d, 0x14, 0x8b, 0x83, 0xfb, 0xc4, 0x85, 0xf5, 0x2e, 0x6e, 0x83, 0xc0, 0x4a, 0x53, 0xeb, 0xab,
+		0x95, 0xcd, 0x9d, 0xed, 0xdd, 0xca, 0xd6, 0xca, 0x33, 0xea, 0xde, 0xd6, 0x93, 0x5b, 0xdb, 0x4f,
+		0x6f, 0x29, 0xb2, 0x11, 0x52, 0xfb, 0x04, 0x8f, 0xfa, 0x0e, 0xc8, 0x61, 0xa3, 0xd0, 0xcd, 0x10,
+		0x65, 0x96, 0x3c, 0x82, 0xa6, 0x60, 0x62, 0x6b, 0x5b, 0xad, 0xae, 0xaf, 0x56, 0xd4, 0xca, 0xa5,
+		0x4b, 0x95, 0x95, 0xdd, 0x2a, 0x7b, 0x71, 0xf6, 0xb4, 0x77, 0x83, 0x87, 0xfa, 0xb5, 0x24, 0x4c,
+		0x45, 0x58, 0x82, 0xca, 0xbc, 0x67, 0x67, 0xaf, 0x11, 0xf7, 0x0f, 0x63, 0xfd, 0x02, 0xe9, 0x0a,
+		0x76, 0x34, 0xdb, 0xe5, 0x2d, 0xfe, 0x3d, 0x40, 0xbc, 0x64, 0xba, 0x46, 0xdd, 0xc0, 0x36, 0xbf,
+		0x67, 0x60, 0x8d, 0xfc, 0x44, 0x57, 0xce, 0xae, 0x1a, 0xee, 0x03, 0xd4, 0xb6, 0x1c, 0xc3, 0x35,
+		0xae, 0x61, 0xd5, 0x30, 0xc5, 0xa5, 0x04, 0x69, 0xec, 0x53, 0x8a, 0x2c, 0x46, 0xd6, 0x4d, 0xd7,
+		0xd3, 0x36, 0x71, 0x43, 0x0b, 0x69, 0x93, 0x04, 0x9e, 0x54, 0x64, 0x31, 0xe2, 0x69, 0x9f, 0x86,
+		0x7c, 0xcd, 0xea, 0x90, 0x36, 0x89, 0xe9, 0x91, 0x7a, 0x21, 0x29, 0x39, 0x26, 0xf3, 0x54, 0x78,
+		0x1f, 0xdb, 0xbd, 0x0d, 0xc9, 0x2b, 0x39, 0x26, 0x63, 0x2a, 0x77, 0xc3, 0x84, 0xd6, 0x68, 0xd8,
+		0x84, 0x5c, 0x10, 0xb1, 0xce, 0xbc, 0xe0, 0x89, 0xa9, 0xe2, 0xcc, 0x13, 0x90, 0x11, 0x7e, 0x20,
+		0x25, 0x99, 0x78, 0x42, 0x6d, 0xb3, 0x3b, 0xa9, 0xc4, 0x7c, 0x56, 0xc9, 0x98, 0x62, 0xf0, 0x34,
+		0xe4, 0x0d, 0x47, 0xed, 0x5e, 0x8e, 0x26, 0x4e, 0x25, 0xe6, 0x33, 0x4a, 0xce, 0x70, 0xbc, 0xdb,
+		0xb0, 0xb9, 0x37, 0x13, 0x50, 0x08, 0x5e, 0xee, 0xa2, 0x55, 0xc8, 0x34, 0x2d, 0x5d, 0xa3, 0xa1,
+		0xc5, 0x7e, 0x59, 0x98, 0x8f, 0xb9, 0x0f, 0x5e, 0xd8, 0xe0, 0xfa, 0x8a, 0x87, 0x9c, 0xf9, 0x67,
+		0x09, 0x32, 0x42, 0x8c, 0x4e, 0x40, 0xaa, 0xad, 0xb9, 0x07, 0x94, 0x2e, 0xbd, 0x9c, 0x90, 0x25,
+		0x85, 0x3e, 0x13, 0xb9, 0xd3, 0xd6, 0x4c, 0x1a, 0x02, 0x5c, 0x4e, 0x9e, 0xc9, 0xbe, 0x36, 0xb1,
+		0x56, 0xa3, 0x6d, 0xbf, 0xd5, 0x6a, 0x61, 0xd3, 0x75, 0xc4, 0xbe, 0x72, 0xf9, 0x0a, 0x17, 0xa3,
+		0x7b, 0x61, 0xd2, 0xb5, 0x35, 0xa3, 0x19, 0xd0, 0x4d, 0x51, 0x5d, 0x59, 0x0c, 0x78, 0xca, 0x25,
+		0xb8, 0x45, 0xf0, 0xd6, 0xb0, 0xab, 0xe9, 0x07, 0xb8, 0xd6, 0x05, 0x8d, 0xd2, 0x9b, 0xc3, 0x9b,
+		0xb9, 0xc2, 0x2a, 0x1f, 0x17, 0xd8, 0xb9, 0xef, 0x49, 0x30, 0x29, 0x5e, 0x54, 0x6a, 0x9e, 0xb3,
+		0x36, 0x01, 0x34, 0xd3, 0xb4, 0x5c, 0xbf, 0xbb, 0x7a, 0x43, 0xb9, 0x07, 0xb7, 0x50, 0xf6, 0x40,
+		0x8a, 0x8f, 0x60, 0xa6, 0x05, 0xd0, 0x1d, 0xe9, 0xeb, 0xb6, 0x93, 0x90, 0xe3, 0x37, 0xf7, 0xf4,
+		0xe7, 0x1f, 0xf6, 0x6a, 0x0b, 0x4c, 0x44, 0xde, 0x68, 0xd0, 0x34, 0xa4, 0xf7, 0x71, 0xc3, 0x30,
+		0xf9, 0x7d, 0x22, 0x7b, 0x10, 0xb7, 0x94, 0x29, 0xef, 0x96, 0x72, 0xf9, 0x0a, 0x4c, 0xe9, 0x56,
+		0x2b, 0x6c, 0xee, 0xb2, 0x1c, 0x7a, 0xbd, 0x76, 0x2e, 0x4b, 0xcf, 0x42, 0xb7, 0xc5, 0xfc, 0x72,
+		0x22, 0xb9, 0xb6, 0xb3, 0xfc, 0xd5, 0xc4, 0xcc, 0x1a, 0xc3, 0xed, 0x88, 0x65, 0x2a, 0xb8, 0xde,
+		0xc4, 0x3a, 0x31, 0x1d, 0x7e, 0x7c, 0x17, 0xdc, 0xdf, 0x30, 0xdc, 0x83, 0xce, 0xfe, 0x82, 0x6e,
+		0xb5, 0x16, 0x1b, 0x56, 0xc3, 0xea, 0xfe, 0xdc, 0x45, 0x9e, 0xe8, 0x03, 0xfd, 0x8f, 0xff, 0xe4,
+		0x95, 0xf5, 0xa4, 0x33, 0xb1, 0xbf, 0x8f, 0x95, 0xb6, 0x60, 0x8a, 0x2b, 0xab, 0xf4, 0xce, 0x9d,
+		0xbd, 0x1a, 0xa0, 0x81, 0xf7, 0x2e, 0xc5, 0x6f, 0xbc, 0x4b, 0x6b, 0xb5, 0x32, 0xc9, 0xa1, 0x64,
+		0x8c, 0xbd, 0x40, 0x94, 0x14, 0xb8, 0x29, 0xc0, 0xc7, 0xce, 0x25, 0xb6, 0x63, 0x18, 0xbf, 0xc3,
+		0x19, 0xa7, 0x7c, 0x8c, 0x55, 0x0e, 0x2d, 0xad, 0xc0, 0xf8, 0x71, 0xb8, 0xfe, 0x81, 0x73, 0xe5,
+		0xb1, 0x9f, 0x64, 0x0d, 0x26, 0x28, 0x89, 0xde, 0x71, 0x5c, 0xab, 0x45, 0x93, 0xde, 0x60, 0x9a,
+		0x7f, 0x7c, 0x97, 0x1d, 0x94, 0x02, 0x81, 0xad, 0x78, 0xa8, 0x52, 0x09, 0xe8, 0xcf, 0x0c, 0x35,
+		0xac, 0x37, 0x63, 0x18, 0xde, 0xe2, 0x86, 0x78, 0xfa, 0xa5, 0xa7, 0x60, 0x9a, 0xfc, 0x4f, 0x73,
+		0x92, 0xdf, 0x92, 0xf8, 0x5b, 0xa6, 0xe2, 0xf7, 0x5e, 0x61, 0x67, 0x71, 0xca, 0x23, 0xf0, 0xd9,
+		0xe4, 0xdb, 0xc5, 0x06, 0x76, 0x5d, 0x6c, 0x3b, 0xaa, 0xd6, 0x8c, 0x32, 0xcf, 0xf7, 0x9a, 0x5e,
+		0xfc, 0xc2, 0xfb, 0xc1, 0x5d, 0x5c, 0x63, 0xc8, 0x72, 0xb3, 0x59, 0xda, 0x83, 0x9b, 0x23, 0xa2,
+		0x62, 0x08, 0xce, 0xd7, 0x38, 0xe7, 0x74, 0x4f, 0x64, 0x10, 0xda, 0x1d, 0x10, 0x72, 0x6f, 0x2f,
+		0x87, 0xe0, 0xfc, 0x03, 0xce, 0x89, 0x38, 0x56, 0x6c, 0x29, 0x61, 0x7c, 0x02, 0x26, 0xaf, 0x61,
+		0x7b, 0xdf, 0x72, 0xf8, 0xd5, 0xc8, 0x10, 0x74, 0xaf, 0x73, 0xba, 0x09, 0x0e, 0xa4, 0x77, 0x25,
+		0x84, 0xeb, 0x11, 0xc8, 0xd4, 0x35, 0x1d, 0x0f, 0x41, 0xf1, 0x45, 0x4e, 0x31, 0x46, 0xf4, 0x09,
+		0xb4, 0x0c, 0xf9, 0x86, 0xc5, 0xcb, 0x52, 0x3c, 0xfc, 0x0d, 0x0e, 0xcf, 0x09, 0x0c, 0xa7, 0x68,
+		0x5b, 0xed, 0x4e, 0x93, 0xd4, 0xac, 0x78, 0x8a, 0x3f, 0x14, 0x14, 0x02, 0xc3, 0x29, 0x8e, 0xe1,
+		0xd6, 0x3f, 0x12, 0x14, 0x8e, 0xcf, 0x9f, 0x8f, 0x43, 0xce, 0x32, 0x9b, 0x87, 0x96, 0x39, 0x8c,
+		0x11, 0x5f, 0xe2, 0x0c, 0xc0, 0x21, 0x84, 0xe0, 0x22, 0x64, 0x87, 0xdd, 0x88, 0x3f, 0x7e, 0x5f,
+		0x1c, 0x0f, 0xb1, 0x03, 0x6b, 0x30, 0x21, 0x12, 0x94, 0x61, 0x99, 0x43, 0x50, 0xfc, 0x09, 0xa7,
+		0x28, 0xf8, 0x60, 0x7c, 0x19, 0x2e, 0x76, 0xdc, 0x06, 0x1e, 0x86, 0xe4, 0x4d, 0xb1, 0x0c, 0x0e,
+		0xe1, 0xae, 0xdc, 0xc7, 0xa6, 0x7e, 0x30, 0x1c, 0xc3, 0x57, 0x84, 0x2b, 0x05, 0x86, 0x50, 0xac,
+		0xc0, 0x78, 0x4b, 0xb3, 0x9d, 0x03, 0xad, 0x39, 0xd4, 0x76, 0xfc, 0x29, 0xe7, 0xc8, 0x7b, 0x20,
+		0xee, 0x91, 0x8e, 0x79, 0x1c, 0x9a, 0xaf, 0x0a, 0x8f, 0xf8, 0x60, 0xfc, 0xe8, 0x39, 0x2e, 0xbd,
+		0x80, 0x3a, 0x0e, 0xdb, 0xd7, 0xc4, 0xd1, 0x63, 0xd8, 0x4d, 0x3f, 0xe3, 0x45, 0xc8, 0x3a, 0xc6,
+		0xcb, 0x43, 0xd1, 0xfc, 0x99, 0xd8, 0x69, 0x0a, 0x20, 0xe0, 0x67, 0xe0, 0x96, 0xc8, 0x32, 0x31,
+		0x04, 0xd9, 0x9f, 0x73, 0xb2, 0x13, 0x11, 0xa5, 0x82, 0xa7, 0x84, 0xe3, 0x52, 0xfe, 0x85, 0x48,
+		0x09, 0x38, 0xc4, 0xb5, 0x43, 0x5e, 0x14, 0x1c, 0xad, 0x7e, 0x3c, 0xaf, 0xfd, 0xa5, 0xf0, 0x1a,
+		0xc3, 0x06, 0xbc, 0xb6, 0x0b, 0x27, 0x38, 0xe3, 0xf1, 0xf6, 0xf5, 0xeb, 0x22, 0xb1, 0x32, 0xf4,
+		0x5e, 0x70, 0x77, 0xff, 0x1f, 0xcc, 0x78, 0xee, 0x14, 0x1d, 0xa9, 0xa3, 0xb6, 0xb4, 0xf6, 0x10,
+		0xcc, 0xdf, 0xe0, 0xcc, 0x22, 0xe3, 0x7b, 0x2d, 0xad, 0xb3, 0xa9, 0xb5, 0x09, 0xf9, 0x15, 0x28,
+		0x0a, 0xf2, 0x8e, 0x69, 0x63, 0xdd, 0x6a, 0x98, 0xc6, 0xcb, 0xb8, 0x36, 0x04, 0xf5, 0x5f, 0x85,
+		0xb6, 0x6a, 0xcf, 0x07, 0x27, 0xcc, 0xeb, 0x20, 0x7b, 0xbd, 0x8a, 0x6a, 0xb4, 0xda, 0x96, 0xed,
+		0xc6, 0x30, 0xfe, 0xb5, 0xd8, 0x29, 0x0f, 0xb7, 0x4e, 0x61, 0xa5, 0x0a, 0x14, 0xe8, 0xe3, 0xb0,
+		0x21, 0xf9, 0x37, 0x9c, 0x68, 0xbc, 0x8b, 0xe2, 0x89, 0x43, 0xb7, 0x5a, 0x6d, 0xcd, 0x1e, 0x26,
+		0xff, 0xfd, 0xad, 0x48, 0x1c, 0x1c, 0xc2, 0x13, 0x87, 0x7b, 0xd8, 0xc6, 0xa4, 0xda, 0x0f, 0xc1,
+		0xf0, 0x4d, 0x91, 0x38, 0x04, 0x86, 0x53, 0x88, 0x86, 0x61, 0x08, 0x8a, 0xbf, 0x13, 0x14, 0x02,
+		0x43, 0x28, 0x3e, 0xd7, 0x2d, 0xb4, 0x36, 0x6e, 0x18, 0x8e, 0x6b, 0xb3, 0x3e, 0x78, 0x30, 0xd5,
+		0xb7, 0xde, 0x0f, 0x36, 0x61, 0x8a, 0x0f, 0x5a, 0x7a, 0x02, 0x26, 0x42, 0x2d, 0x06, 0x8a, 0xfb,
+		0x66, 0xa1, 0xf8, 0x8b, 0x1f, 0xf2, 0x64, 0x14, 0xec, 0x30, 0x4a, 0x1b, 0x64, 0xdf, 0x83, 0x7d,
+		0x40, 0x3c, 0xd9, 0x2b, 0x1f, 0x7a, 0x5b, 0x1f, 0x68, 0x03, 0x4a, 0x97, 0x60, 0x3c, 0xd0, 0x03,
+		0xc4, 0x53, 0xfd, 0x12, 0xa7, 0xca, 0xfb, 0x5b, 0x80, 0xd2, 0x39, 0x48, 0x91, 0x7a, 0x1e, 0x0f,
+		0xff, 0x65, 0x0e, 0xa7, 0xea, 0xa5, 0x47, 0x21, 0x23, 0xea, 0x78, 0x3c, 0xf4, 0x57, 0x38, 0xd4,
+		0x83, 0x10, 0xb8, 0xa8, 0xe1, 0xf1, 0xf0, 0x5f, 0x15, 0x70, 0x01, 0x21, 0xf0, 0xe1, 0x5d, 0xf8,
+		0xed, 0x5f, 0x4b, 0xf1, 0x3c, 0x2c, 0x7c, 0x77, 0x11, 0xc6, 0x78, 0xf1, 0x8e, 0x47, 0x7f, 0x9e,
+		0x4f, 0x2e, 0x10, 0xa5, 0x87, 0x21, 0x3d, 0xa4, 0xc3, 0x7f, 0x9d, 0x43, 0x99, 0x7e, 0x69, 0x05,
+		0x72, 0xbe, 0x82, 0x1d, 0x0f, 0xff, 0x0d, 0x0e, 0xf7, 0xa3, 0x88, 0xe9, 0xbc, 0x60, 0xc7, 0x13,
+		0xfc, 0xa6, 0x30, 0x9d, 0x23, 0x88, 0xdb, 0x44, 0xad, 0x8e, 0x47, 0xff, 0x96, 0xf0, 0xba, 0x80,
+		0x94, 0x1e, 0x87, 0xac, 0x97, 0x7f, 0xe3, 0xf1, 0xbf, 0xcd, 0xf1, 0x5d, 0x0c, 0xf1, 0x80, 0x2f,
+		0xff, 0xc7, 0x53, 0xfc, 0x8e, 0xf0, 0x80, 0x0f, 0x45, 0x8e, 0x51, 0xb8, 0xa6, 0xc7, 0x33, 0xfd,
+		0xae, 0x38, 0x46, 0xa1, 0x92, 0x4e, 0x76, 0x93, 0xa6, 0xc1, 0x78, 0x8a, 0xdf, 0x13, 0xbb, 0x49,
+		0xf5, 0x89, 0x19, 0xe1, 0x22, 0x19, 0xcf, 0xf1, 0xfb, 0xc2, 0x8c, 0x50, 0x8d, 0x2c, 0xed, 0x00,
+		0xea, 0x2d, 0x90, 0xf1, 0x7c, 0xaf, 0x72, 0xbe, 0xc9, 0x9e, 0xfa, 0x58, 0x7a, 0x1a, 0x4e, 0x44,
+		0x17, 0xc7, 0x78, 0xd6, 0x2f, 0x7c, 0x18, 0x7a, 0x9d, 0xf1, 0xd7, 0xc6, 0xd2, 0x6e, 0x37, 0xcb,
+		0xfa, 0x0b, 0x63, 0x3c, 0xed, 0x6b, 0x1f, 0x06, 0x13, 0xad, 0xbf, 0x2e, 0x96, 0xca, 0x00, 0xdd,
+		0x9a, 0x14, 0xcf, 0xf5, 0x3a, 0xe7, 0xf2, 0x81, 0xc8, 0xd1, 0xe0, 0x25, 0x29, 0x1e, 0xff, 0x45,
+		0x71, 0x34, 0x38, 0x82, 0x1c, 0x0d, 0x51, 0x8d, 0xe2, 0xd1, 0x6f, 0x88, 0xa3, 0x21, 0x20, 0xa5,
+		0x8b, 0x90, 0x31, 0x3b, 0xcd, 0x26, 0x89, 0x2d, 0x34, 0xf8, 0x33, 0xa2, 0xe2, 0xbf, 0x7e, 0xc4,
+		0xc1, 0x02, 0x50, 0x3a, 0x07, 0x69, 0xdc, 0xda, 0xc7, 0xb5, 0x38, 0xe4, 0xbf, 0x7d, 0x24, 0xf2,
+		0x09, 0xd1, 0x2e, 0x3d, 0x0e, 0xc0, 0x5e, 0xa6, 0xe9, 0xaf, 0x44, 0x31, 0xd8, 0x7f, 0xff, 0x88,
+		0x7f, 0xa1, 0xd0, 0x85, 0x74, 0x09, 0xd8, 0xf7, 0x0e, 0x83, 0x09, 0xde, 0x0f, 0x12, 0xd0, 0x17,
+		0xf0, 0x47, 0x60, 0xec, 0x79, 0xc7, 0x32, 0x5d, 0xad, 0x11, 0x87, 0xfe, 0x0f, 0x8e, 0x16, 0xfa,
+		0xc4, 0x61, 0x2d, 0xcb, 0xc6, 0xae, 0xd6, 0x70, 0xe2, 0xb0, 0xff, 0xc9, 0xb1, 0x1e, 0x80, 0x80,
+		0x75, 0xcd, 0x71, 0x87, 0x59, 0xf7, 0x7f, 0x09, 0xb0, 0x00, 0x10, 0xa3, 0xc9, 0xff, 0x57, 0xf1,
+		0x61, 0x1c, 0xf6, 0x03, 0x61, 0x34, 0xd7, 0x2f, 0x3d, 0x0a, 0x59, 0xf2, 0x2f, 0xfb, 0x6a, 0x27,
+		0x06, 0xfc, 0xdf, 0x1c, 0xdc, 0x45, 0x90, 0x99, 0x1d, 0xb7, 0xe6, 0x1a, 0xf1, 0xce, 0xfe, 0x1f,
+		0xbe, 0xd3, 0x42, 0xbf, 0x54, 0x86, 0x9c, 0xe3, 0xd6, 0x6a, 0x1d, 0xde, 0xd1, 0xc4, 0xc0, 0x7f,
+		0xfc, 0x91, 0xf7, 0x92, 0xeb, 0x61, 0x96, 0x4f, 0x47, 0x5f, 0xd6, 0xc1, 0x9a, 0xb5, 0x66, 0xb1,
+		0x6b, 0x3a, 0xf8, 0xc9, 0xfd, 0x70, 0x5a, 0xb7, 0x5a, 0xfb, 0x96, 0xb3, 0xe8, 0x25, 0x92, 0xc5,
+		0x96, 0xd6, 0x76, 0xa8, 0xf6, 0x12, 0xbf, 0x69, 0xcb, 0xf1, 0x27, 0x32, 0x30, 0x73, 0xbc, 0x5b,
+		0xba, 0xb9, 0xdb, 0x60, 0xfc, 0x52, 0xd3, 0xd2, 0x5c, 0xc3, 0x6c, 0xec, 0x58, 0x86, 0xe9, 0xa2,
+		0x3c, 0x48, 0x75, 0xfa, 0x13, 0x93, 0xa4, 0x48, 0xf5, 0xb9, 0x7f, 0x4a, 0x43, 0x96, 0x5d, 0xf0,
+		0x6c, 0x6a, 0x6d, 0xf4, 0x0b, 0x90, 0xdf, 0xe2, 0x67, 0xe4, 0xc1, 0xa5, 0x0b, 0x8e, 0x77, 0x9b,
+		0xec, 0x9b, 0x7f, 0xc1, 0xd3, 0x5e, 0xf0, 0xab, 0xd2, 0x9f, 0x94, 0x97, 0x1f, 0xf8, 0xc1, 0xdb,
+		0x27, 0xef, 0xeb, 0x6b, 0x1f, 0x29, 0x8a, 0x8b, 0x2c, 0x98, 0x17, 0xf6, 0x0c, 0xd3, 0x7d, 0x70,
+		0xe9, 0x82, 0x12, 0x98, 0x0f, 0x5d, 0x83, 0x0c, 0x1f, 0x70, 0xf8, 0xaf, 0x0c, 0x77, 0xf4, 0x99,
+		0x5b, 0xa8, 0xb1, 0x79, 0xcf, 0xbe, 0xf5, 0xf6, 0xc9, 0x91, 0x63, 0xcf, 0xed, 0xcd, 0x85, 0x5e,
+		0x80, 0x9c, 0xb0, 0x63, 0xbd, 0xe6, 0xf0, 0x8f, 0x89, 0xef, 0x8e, 0x59, 0xf6, 0x7a, 0x8d, 0xcf,
+		0x7e, 0xd7, 0x0f, 0xde, 0x3e, 0x39, 0x37, 0x70, 0xe6, 0x85, 0xbd, 0x8e, 0x51, 0x53, 0xfc, 0x73,
+		0xa0, 0xe7, 0x20, 0x49, 0xa6, 0x62, 0x9f, 0x1d, 0x9f, 0xec, 0x33, 0x95, 0x37, 0xc5, 0x19, 0xbe,
+		0xc0, 0x61, 0xa6, 0x21, 0xbc, 0x33, 0x8f, 0xc3, 0x64, 0xcf, 0xf6, 0x20, 0x19, 0x92, 0x57, 0xf1,
+		0x21, 0xff, 0xd2, 0x88, 0xfc, 0x8b, 0xa6, 0xbb, 0x5f, 0xd2, 0x49, 0xf3, 0x79, 0xfe, 0x79, 0x5c,
+		0x29, 0x71, 0x41, 0x9a, 0xb9, 0x08, 0xe3, 0x01, 0x1f, 0x1f, 0x0b, 0xfc, 0x18, 0xc8, 0x61, 0x2f,
+		0x1d, 0x0b, 0x7f, 0x1e, 0x32, 0x1f, 0x07, 0x37, 0xf7, 0x7d, 0x04, 0x63, 0xe5, 0x66, 0x73, 0x53,
+		0x6b, 0x3b, 0xe8, 0x19, 0x98, 0x64, 0xad, 0xfb, 0xae, 0xb5, 0x4a, 0x7f, 0xd7, 0xd9, 0xd4, 0xda,
+		0x3c, 0xa0, 0xef, 0x0d, 0xb8, 0x9b, 0x03, 0x16, 0x7a, 0xb4, 0xe9, 0xfc, 0x4a, 0x2f, 0x0b, 0x7a,
+		0x0a, 0x64, 0x21, 0xa4, 0x67, 0x8b, 0x30, 0xb3, 0x70, 0x3d, 0x33, 0x90, 0x59, 0x28, 0x33, 0xe2,
+		0x1e, 0x0e, 0xf4, 0x18, 0x64, 0xd6, 0x4d, 0xf7, 0xa1, 0x25, 0xc2, 0xc7, 0x62, 0x70, 0x2e, 0x92,
+		0x4f, 0x28, 0x31, 0x1e, 0x0f, 0xc3, 0xf1, 0xe7, 0xcf, 0x12, 0x7c, 0x6a, 0x30, 0x9e, 0x2a, 0x75,
+		0xf1, 0xf4, 0x11, 0x95, 0x21, 0x4b, 0xf6, 0x9c, 0x19, 0xc0, 0xbe, 0x63, 0xbf, 0x3d, 0x92, 0xc0,
+		0xd3, 0x62, 0x0c, 0x5d, 0x94, 0xa0, 0x60, 0x36, 0x8c, 0xc6, 0x50, 0xf8, 0x8c, 0xe8, 0xa2, 0x08,
+		0x45, 0xd5, 0xb3, 0x62, 0x6c, 0x00, 0x45, 0x35, 0x64, 0x45, 0xd5, 0x6f, 0x45, 0xd5, 0xb3, 0x22,
+		0x13, 0x43, 0xe1, 0xb7, 0xc2, 0x7b, 0x46, 0xab, 0x00, 0x97, 0x8c, 0x97, 0x70, 0x8d, 0x99, 0x91,
+		0x8d, 0x48, 0x46, 0x82, 0xa3, 0xab, 0xc6, 0x48, 0x7c, 0x38, 0xb4, 0x06, 0xb9, 0x6a, 0xbd, 0x4b,
+		0x03, 0xfc, 0x33, 0xfe, 0x48, 0x53, 0xea, 0x21, 0x1e, 0x3f, 0xd2, 0x33, 0x87, 0x2d, 0x29, 0x17,
+		0x67, 0x8e, 0x6f, 0x4d, 0x3e, 0x5c, 0xd7, 0x1c, 0x46, 0x93, 0x8f, 0x35, 0xc7, 0xc7, 0xe3, 0x47,
+		0xa2, 0x8b, 0x30, 0xb6, 0x6c, 0x59, 0x44, 0xb3, 0x38, 0x4e, 0x49, 0x4e, 0x47, 0x92, 0x70, 0x1d,
+		0x46, 0x20, 0x10, 0x74, 0x77, 0x68, 0xe8, 0x13, 0x78, 0x61, 0xd0, 0xee, 0x08, 0x2d, 0xb1, 0x3b,
+		0xe2, 0xd9, 0x7f, 0x02, 0x97, 0x0f, 0x5d, 0x4c, 0xda, 0xe4, 0xe2, 0xc4, 0x10, 0x27, 0x50, 0x28,
+		0x87, 0x4e, 0xa0, 0x10, 0xa3, 0x2a, 0x4c, 0x08, 0x59, 0xc5, 0xec, 0x90, 0x1c, 0x5c, 0x94, 0xf9,
+		0x37, 0xc6, 0x83, 0x68, 0xb9, 0x2e, 0x63, 0x0d, 0x33, 0xa0, 0x1d, 0x28, 0x08, 0xd1, 0xa6, 0x43,
+		0x17, 0x3d, 0x19, 0x51, 0x57, 0xc3, 0x9c, 0x4c, 0x95, 0x51, 0x86, 0xf0, 0x33, 0xab, 0x70, 0x22,
+		0x3a, 0x5b, 0xc5, 0x65, 0x4b, 0xc9, 0x9f, 0x65, 0x57, 0xe0, 0xa6, 0xc8, 0xcc, 0x14, 0x47, 0x92,
+		0x08, 0xd5, 0x89, 0x40, 0x3a, 0xf2, 0x83, 0xd3, 0x11, 0xe0, 0x74, 0x2f, 0xb8, 0x1b, 0x64, 0x7e,
+		0x70, 0x32, 0x02, 0x9c, 0xf4, 0x83, 0x3f, 0x0b, 0x85, 0x60, 0x1e, 0xf2, 0xa3, 0xc7, 0x23, 0xd0,
+		0xe3, 0x11, 0xe8, 0xe8, 0xb9, 0x53, 0x11, 0xe8, 0x54, 0x08, 0x5d, 0xed, 0x3b, 0xf7, 0x64, 0x04,
+		0x7a, 0x32, 0x02, 0x1d, 0x3d, 0x37, 0x8a, 0x40, 0x23, 0x3f, 0xfa, 0x51, 0x98, 0x08, 0xa5, 0x1c,
+		0x3f, 0x7c, 0x2c, 0x02, 0x3e, 0x16, 0xaa, 0xcd, 0xe1, 0x54, 0xe3, 0xc7, 0x4f, 0x44, 0xe0, 0x27,
+		0xa2, 0xa6, 0x8f, 0xb6, 0x7e, 0x34, 0x02, 0x3e, 0x1a, 0x39, 0x7d, 0x34, 0x5e, 0x8e, 0xc0, 0xcb,
+		0x7e, 0x7c, 0x09, 0xf2, 0xfe, 0xac, 0xe2, 0xc7, 0x66, 0x22, 0xb0, 0x99, 0xb0, 0xdf, 0x03, 0x29,
+		0x25, 0x2e, 0xd2, 0xb3, 0x7d, 0x8e, 0x4b, 0x20, 0x8d, 0x1c, 0xab, 0xb3, 0xb9, 0x02, 0xd3, 0x51,
+		0x49, 0x23, 0x82, 0xe3, 0x8c, 0x9f, 0xa3, 0xb0, 0x34, 0x1d, 0x48, 0x16, 0x14, 0xd7, 0x69, 0xf9,
+		0x99, 0x9f, 0x83, 0xa9, 0x88, 0xd4, 0x11, 0x41, 0xfc, 0x80, 0x9f, 0x38, 0xb7, 0x34, 0x13, 0x20,
+		0x0e, 0xbc, 0x2b, 0xf8, 0x5b, 0xab, 0x1f, 0x4e, 0x41, 0x81, 0xa7, 0xa8, 0x6d, 0xbb, 0x86, 0x6d,
+		0x5c, 0x43, 0xff, 0xbf, 0x7f, 0x87, 0xb5, 0x14, 0x95, 0xda, 0x38, 0xee, 0x18, 0x8d, 0xd6, 0x73,
+		0x7d, 0x1b, 0xad, 0x07, 0x87, 0x99, 0x20, 0xae, 0xdf, 0xaa, 0xf4, 0xf4, 0x5b, 0xf7, 0x0c, 0xa2,
+		0xed, 0xd7, 0x76, 0x55, 0x7a, 0xda, 0xae, 0x38, 0x9a, 0xc8, 0xee, 0xeb, 0x72, 0x6f, 0xf7, 0x75,
+		0x66, 0x10, 0x4f, 0xff, 0x26, 0xec, 0x72, 0x6f, 0x13, 0x16, 0xcb, 0x14, 0xdd, 0x8b, 0x5d, 0xee,
+		0xed, 0xc5, 0x06, 0x32, 0xf5, 0x6f, 0xc9, 0x2e, 0xf7, 0xb6, 0x64, 0xb1, 0x4c, 0xd1, 0x9d, 0xd9,
+		0x93, 0x11, 0x9d, 0xd9, 0xbd, 0x83, 0xa8, 0x06, 0x35, 0x68, 0x5b, 0x51, 0x0d, 0xda, 0x7d, 0x03,
+		0x0d, 0x1b, 0xd8, 0xa7, 0x3d, 0x19, 0xd1, 0xa7, 0xc5, 0x1b, 0xd7, 0xa7, 0x5d, 0xdb, 0x8a, 0x6a,
+		0xd7, 0x86, 0x30, 0xae, 0x5f, 0xd7, 0xb6, 0x1c, 0xee, 0xda, 0xe6, 0x07, 0x71, 0x45, 0x37, 0x6f,
+		0x97, 0x7b, 0x9b, 0xb7, 0x33, 0xf1, 0x67, 0x31, 0xaa, 0x87, 0x7b, 0xae, 0x6f, 0x0f, 0x37, 0xd4,
+		0xe1, 0x8e, 0x6b, 0xe5, 0x9e, 0xed, 0xd7, 0xca, 0x3d, 0x30, 0x0c, 0xfb, 0xe0, 0x8e, 0xee, 0xe9,
+		0x3e, 0x1d, 0xdd, 0xe2, 0x30, 0xd4, 0x9f, 0x36, 0x76, 0x9f, 0x36, 0x76, 0x9f, 0x36, 0x76, 0x9f,
+		0x36, 0x76, 0xff, 0x37, 0x1a, 0xbb, 0x52, 0xea, 0xd5, 0x2f, 0x9d, 0x94, 0xce, 0x9c, 0x86, 0x31,
+		0x3e, 0x35, 0x1a, 0x85, 0xc4, 0x66, 0x59, 0x1e, 0xa1, 0x7f, 0x97, 0x65, 0x89, 0xfe, 0x5d, 0x91,
+		0x13, 0xcb, 0x1b, 0x6f, 0xdd, 0x98, 0x1d, 0xf9, 0xee, 0x8d, 0xd9, 0x91, 0xef, 0xdf, 0x98, 0x1d,
+		0x79, 0xe7, 0xc6, 0xac, 0xf4, 0xde, 0x8d, 0x59, 0xe9, 0x83, 0x1b, 0xb3, 0xd2, 0x4f, 0x6f, 0xcc,
+		0x4a, 0xd7, 0x8f, 0x66, 0xa5, 0xaf, 0x1c, 0xcd, 0x4a, 0x5f, 0x3f, 0x9a, 0x95, 0xbe, 0x75, 0x34,
+		0x2b, 0x7d, 0xfb, 0x68, 0x56, 0x7a, 0xeb, 0x68, 0x56, 0xfa, 0xee, 0xd1, 0xec, 0xc8, 0x3b, 0x47,
+		0xb3, 0xd2, 0x7b, 0x47, 0xb3, 0x23, 0x1f, 0x1c, 0xcd, 0x4a, 0x3f, 0x3d, 0x9a, 0x1d, 0xb9, 0xfe,
+		0xa3, 0xd9, 0x91, 0xff, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x91, 0x69, 0xdc, 0x1d, 0x56, 0x45, 0x00,
+		0x00,
 	}
+	r := bytes.NewReader(gzipped)
+	gzipr, err := compress_gzip.NewReader(r)
+	if err != nil {
+		panic(err)
+	}
+	ungzipped, err := io_ioutil.ReadAll(gzipr)
+	if err != nil {
+		panic(err)
+	}
+	if err := github_com_gogo_protobuf_proto.Unmarshal(ungzipped, d); err != nil {
+		panic(err)
+	}
+	return d
 }
 func (x MapEnum) String() string {
 	s, ok := MapEnum_name[int32(x)]
@@ -1670,6 +559,130 @@ func (this *FloatingPoint) Equal(that interface{}) bool {
 		return false
 	} else if that1.F != nil {
 		return false
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *CustomMap) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*CustomMap)
+	if !ok {
+		that2, ok := that.(CustomMap)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *CustomMap")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *CustomMap but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *CustomMap but is not nil && this == nil")
+	}
+	if len(this.Nullable128S) != len(that1.Nullable128S) {
+		return fmt.Errorf("Nullable128S this(%v) Not Equal that(%v)", len(this.Nullable128S), len(that1.Nullable128S))
+	}
+	for i := range this.Nullable128S {
+		if !this.Nullable128S[i].Equal(*that1.Nullable128S[i]) { //nullable
+			return fmt.Errorf("Nullable128S this[%v](%v) Not Equal that[%v](%v)", i, this.Nullable128S[i], i, that1.Nullable128S[i])
+		}
+	}
+	if len(this.Uint128S) != len(that1.Uint128S) {
+		return fmt.Errorf("Uint128S this(%v) Not Equal that(%v)", len(this.Uint128S), len(that1.Uint128S))
+	}
+	for i := range this.Uint128S {
+		if !this.Uint128S[i].Equal(that1.Uint128S[i]) { //not nullable
+			return fmt.Errorf("Uint128S this[%v](%v) Not Equal that[%v](%v)", i, this.Uint128S[i], i, that1.Uint128S[i])
+		}
+	}
+	if len(this.NullableIds) != len(that1.NullableIds) {
+		return fmt.Errorf("NullableIds this(%v) Not Equal that(%v)", len(this.NullableIds), len(that1.NullableIds))
+	}
+	for i := range this.NullableIds {
+		if !this.NullableIds[i].Equal(*that1.NullableIds[i]) { //nullable
+			return fmt.Errorf("NullableIds this[%v](%v) Not Equal that[%v](%v)", i, this.NullableIds[i], i, that1.NullableIds[i])
+		}
+	}
+	if len(this.Ids) != len(that1.Ids) {
+		return fmt.Errorf("Ids this(%v) Not Equal that(%v)", len(this.Ids), len(that1.Ids))
+	}
+	for i := range this.Ids {
+		if !this.Ids[i].Equal(that1.Ids[i]) { //not nullable
+			return fmt.Errorf("Ids this[%v](%v) Not Equal that[%v](%v)", i, this.Ids[i], i, that1.Ids[i])
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *CustomMap) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*CustomMap)
+	if !ok {
+		that2, ok := that.(CustomMap)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if len(this.Nullable128S) != len(that1.Nullable128S) {
+		return false
+	}
+	for i := range this.Nullable128S {
+		if !this.Nullable128S[i].Equal(*that1.Nullable128S[i]) { //nullable
+			return false
+		}
+	}
+	if len(this.Uint128S) != len(that1.Uint128S) {
+		return false
+	}
+	for i := range this.Uint128S {
+		if !this.Uint128S[i].Equal(that1.Uint128S[i]) { //not nullable
+			return false
+		}
+	}
+	if len(this.NullableIds) != len(that1.NullableIds) {
+		return false
+	}
+	for i := range this.NullableIds {
+		if !this.NullableIds[i].Equal(*that1.NullableIds[i]) { //nullable
+			return false
+		}
+	}
+	if len(this.Ids) != len(that1.Ids) {
+		return false
+	}
+	for i := range this.Ids {
+		if !this.Ids[i].Equal(that1.Ids[i]) { //not nullable
+			return false
+		}
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return false
@@ -2008,6 +1021,338 @@ func (this *AllMaps) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *AllMapsOrdered) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*AllMapsOrdered)
+	if !ok {
+		that2, ok := that.(AllMapsOrdered)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *AllMapsOrdered")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *AllMapsOrdered but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *AllMapsOrdered but is not nil && this == nil")
+	}
+	if len(this.StringToDoubleMap) != len(that1.StringToDoubleMap) {
+		return fmt.Errorf("StringToDoubleMap this(%v) Not Equal that(%v)", len(this.StringToDoubleMap), len(that1.StringToDoubleMap))
+	}
+	for i := range this.StringToDoubleMap {
+		if this.StringToDoubleMap[i] != that1.StringToDoubleMap[i] {
+			return fmt.Errorf("StringToDoubleMap this[%v](%v) Not Equal that[%v](%v)", i, this.StringToDoubleMap[i], i, that1.StringToDoubleMap[i])
+		}
+	}
+	if len(this.StringToFloatMap) != len(that1.StringToFloatMap) {
+		return fmt.Errorf("StringToFloatMap this(%v) Not Equal that(%v)", len(this.StringToFloatMap), len(that1.StringToFloatMap))
+	}
+	for i := range this.StringToFloatMap {
+		if this.StringToFloatMap[i] != that1.StringToFloatMap[i] {
+			return fmt.Errorf("StringToFloatMap this[%v](%v) Not Equal that[%v](%v)", i, this.StringToFloatMap[i], i, that1.StringToFloatMap[i])
+		}
+	}
+	if len(this.Int32Map) != len(that1.Int32Map) {
+		return fmt.Errorf("Int32Map this(%v) Not Equal that(%v)", len(this.Int32Map), len(that1.Int32Map))
+	}
+	for i := range this.Int32Map {
+		if this.Int32Map[i] != that1.Int32Map[i] {
+			return fmt.Errorf("Int32Map this[%v](%v) Not Equal that[%v](%v)", i, this.Int32Map[i], i, that1.Int32Map[i])
+		}
+	}
+	if len(this.Int64Map) != len(that1.Int64Map) {
+		return fmt.Errorf("Int64Map this(%v) Not Equal that(%v)", len(this.Int64Map), len(that1.Int64Map))
+	}
+	for i := range this.Int64Map {
+		if this.Int64Map[i] != that1.Int64Map[i] {
+			return fmt.Errorf("Int64Map this[%v](%v) Not Equal that[%v](%v)", i, this.Int64Map[i], i, that1.Int64Map[i])
+		}
+	}
+	if len(this.Uint32Map) != len(that1.Uint32Map) {
+		return fmt.Errorf("Uint32Map this(%v) Not Equal that(%v)", len(this.Uint32Map), len(that1.Uint32Map))
+	}
+	for i := range this.Uint32Map {
+		if this.Uint32Map[i] != that1.Uint32Map[i] {
+			return fmt.Errorf("Uint32Map this[%v](%v) Not Equal that[%v](%v)", i, this.Uint32Map[i], i, that1.Uint32Map[i])
+		}
+	}
+	if len(this.Uint64Map) != len(that1.Uint64Map) {
+		return fmt.Errorf("Uint64Map this(%v) Not Equal that(%v)", len(this.Uint64Map), len(that1.Uint64Map))
+	}
+	for i := range this.Uint64Map {
+		if this.Uint64Map[i] != that1.Uint64Map[i] {
+			return fmt.Errorf("Uint64Map this[%v](%v) Not Equal that[%v](%v)", i, this.Uint64Map[i], i, that1.Uint64Map[i])
+		}
+	}
+	if len(this.Sint32Map) != len(that1.Sint32Map) {
+		return fmt.Errorf("Sint32Map this(%v) Not Equal that(%v)", len(this.Sint32Map), len(that1.Sint32Map))
+	}
+	for i := range this.Sint32Map {
+		if this.Sint32Map[i] != that1.Sint32Map[i] {
+			return fmt.Errorf("Sint32Map this[%v](%v) Not Equal that[%v](%v)", i, this.Sint32Map[i], i, that1.Sint32Map[i])
+		}
+	}
+	if len(this.Sint64Map) != len(that1.Sint64Map) {
+		return fmt.Errorf("Sint64Map this(%v) Not Equal that(%v)", len(this.Sint64Map), len(that1.Sint64Map))
+	}
+	for i := range this.Sint64Map {
+		if this.Sint64Map[i] != that1.Sint64Map[i] {
+			return fmt.Errorf("Sint64Map this[%v](%v) Not Equal that[%v](%v)", i, this.Sint64Map[i], i, that1.Sint64Map[i])
+		}
+	}
+	if len(this.Fixed32Map) != len(that1.Fixed32Map) {
+		return fmt.Errorf("Fixed32Map this(%v) Not Equal that(%v)", len(this.Fixed32Map), len(that1.Fixed32Map))
+	}
+	for i := range this.Fixed32Map {
+		if this.Fixed32Map[i] != that1.Fixed32Map[i] {
+			return fmt.Errorf("Fixed32Map this[%v](%v) Not Equal that[%v](%v)", i, this.Fixed32Map[i], i, that1.Fixed32Map[i])
+		}
+	}
+	if len(this.Sfixed32Map) != len(that1.Sfixed32Map) {
+		return fmt.Errorf("Sfixed32Map this(%v) Not Equal that(%v)", len(this.Sfixed32Map), len(that1.Sfixed32Map))
+	}
+	for i := range this.Sfixed32Map {
+		if this.Sfixed32Map[i] != that1.Sfixed32Map[i] {
+			return fmt.Errorf("Sfixed32Map this[%v](%v) Not Equal that[%v](%v)", i, this.Sfixed32Map[i], i, that1.Sfixed32Map[i])
+		}
+	}
+	if len(this.Fixed64Map) != len(that1.Fixed64Map) {
+		return fmt.Errorf("Fixed64Map this(%v) Not Equal that(%v)", len(this.Fixed64Map), len(that1.Fixed64Map))
+	}
+	for i := range this.Fixed64Map {
+		if this.Fixed64Map[i] != that1.Fixed64Map[i] {
+			return fmt.Errorf("Fixed64Map this[%v](%v) Not Equal that[%v](%v)", i, this.Fixed64Map[i], i, that1.Fixed64Map[i])
+		}
+	}
+	if len(this.Sfixed64Map) != len(that1.Sfixed64Map) {
+		return fmt.Errorf("Sfixed64Map this(%v) Not Equal that(%v)", len(this.Sfixed64Map), len(that1.Sfixed64Map))
+	}
+	for i := range this.Sfixed64Map {
+		if this.Sfixed64Map[i] != that1.Sfixed64Map[i] {
+			return fmt.Errorf("Sfixed64Map this[%v](%v) Not Equal that[%v](%v)", i, this.Sfixed64Map[i], i, that1.Sfixed64Map[i])
+		}
+	}
+	if len(this.BoolMap) != len(that1.BoolMap) {
+		return fmt.Errorf("BoolMap this(%v) Not Equal that(%v)", len(this.BoolMap), len(that1.BoolMap))
+	}
+	for i := range this.BoolMap {
+		if this.BoolMap[i] != that1.BoolMap[i] {
+			return fmt.Errorf("BoolMap this[%v](%v) Not Equal that[%v](%v)", i, this.BoolMap[i], i, that1.BoolMap[i])
+		}
+	}
+	if len(this.StringMap) != len(that1.StringMap) {
+		return fmt.Errorf("StringMap this(%v) Not Equal that(%v)", len(this.StringMap), len(that1.StringMap))
+	}
+	for i := range this.StringMap {
+		if this.StringMap[i] != that1.StringMap[i] {
+			return fmt.Errorf("StringMap this[%v](%v) Not Equal that[%v](%v)", i, this.StringMap[i], i, that1.StringMap[i])
+		}
+	}
+	if len(this.StringToBytesMap) != len(that1.StringToBytesMap) {
+		return fmt.Errorf("StringToBytesMap this(%v) Not Equal that(%v)", len(this.StringToBytesMap), len(that1.StringToBytesMap))
+	}
+	for i := range this.StringToBytesMap {
+		if !bytes.Equal(this.StringToBytesMap[i], that1.StringToBytesMap[i]) {
+			return fmt.Errorf("StringToBytesMap this[%v](%v) Not Equal that[%v](%v)", i, this.StringToBytesMap[i], i, that1.StringToBytesMap[i])
+		}
+	}
+	if len(this.StringToEnumMap) != len(that1.StringToEnumMap) {
+		return fmt.Errorf("StringToEnumMap this(%v) Not Equal that(%v)", len(this.StringToEnumMap), len(that1.StringToEnumMap))
+	}
+	for i := range this.StringToEnumMap {
+		if this.StringToEnumMap[i] != that1.StringToEnumMap[i] {
+			return fmt.Errorf("StringToEnumMap this[%v](%v) Not Equal that[%v](%v)", i, this.StringToEnumMap[i], i, that1.StringToEnumMap[i])
+		}
+	}
+	if len(this.StringToMsgMap) != len(that1.StringToMsgMap) {
+		return fmt.Errorf("StringToMsgMap this(%v) Not Equal that(%v)", len(this.StringToMsgMap), len(that1.StringToMsgMap))
+	}
+	for i := range this.StringToMsgMap {
+		if !this.StringToMsgMap[i].Equal(that1.StringToMsgMap[i]) {
+			return fmt.Errorf("StringToMsgMap this[%v](%v) Not Equal that[%v](%v)", i, this.StringToMsgMap[i], i, that1.StringToMsgMap[i])
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *AllMapsOrdered) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*AllMapsOrdered)
+	if !ok {
+		that2, ok := that.(AllMapsOrdered)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if len(this.StringToDoubleMap) != len(that1.StringToDoubleMap) {
+		return false
+	}
+	for i := range this.StringToDoubleMap {
+		if this.StringToDoubleMap[i] != that1.StringToDoubleMap[i] {
+			return false
+		}
+	}
+	if len(this.StringToFloatMap) != len(that1.StringToFloatMap) {
+		return false
+	}
+	for i := range this.StringToFloatMap {
+		if this.StringToFloatMap[i] != that1.StringToFloatMap[i] {
+			return false
+		}
+	}
+	if len(this.Int32Map) != len(that1.Int32Map) {
+		return false
+	}
+	for i := range this.Int32Map {
+		if this.Int32Map[i] != that1.Int32Map[i] {
+			return false
+		}
+	}
+	if len(this.Int64Map) != len(that1.Int64Map) {
+		return false
+	}
+	for i := range this.Int64Map {
+		if this.Int64Map[i] != that1.Int64Map[i] {
+			return false
+		}
+	}
+	if len(this.Uint32Map) != len(that1.Uint32Map) {
+		return false
+	}
+	for i := range this.Uint32Map {
+		if this.Uint32Map[i] != that1.Uint32Map[i] {
+			return false
+		}
+	}
+	if len(this.Uint64Map) != len(that1.Uint64Map) {
+		return false
+	}
+	for i := range this.Uint64Map {
+		if this.Uint64Map[i] != that1.Uint64Map[i] {
+			return false
+		}
+	}
+	if len(this.Sint32Map) != len(that1.Sint32Map) {
+		return false
+	}
+	for i := range this.Sint32Map {
+		if this.Sint32Map[i] != that1.Sint32Map[i] {
+			return false
+		}
+	}
+	if len(this.Sint64Map) != len(that1.Sint64Map) {
+		return false
+	}
+	for i := range this.Sint64Map {
+		if this.Sint64Map[i] != that1.Sint64Map[i] {
+			return false
+		}
+	}
+	if len(this.Fixed32Map) != len(that1.Fixed32Map) {
+		return false
+	}
+	for i := range this.Fixed32Map {
+		if this.Fixed32Map[i] != that1.Fixed32Map[i] {
+			return false
+		}
+	}
+	if len(this.Sfixed32Map) != len(that1.Sfixed32Map) {
+		return false
+	}
+	for i := range this.Sfixed32Map {
+		if this.Sfixed32Map[i] != that1.Sfixed32Map[i] {
+			return false
+		}
+	}
+	if len(this.Fixed64Map) != len(that1.Fixed64Map) {
+		return false
+	}
+	for i := range this.Fixed64Map {
+		if this.Fixed64Map[i] != that1.Fixed64Map[i] {
+			return false
+		}
+	}
+	if len(this.Sfixed64Map) != len(that1.Sfixed64Map) {
+		return false
+	}
+	for i := range this.Sfixed64Map {
+		if this.Sfixed64Map[i] != that1.Sfixed64Map[i] {
+			return false
+		}
+	}
+	if len(this.BoolMap) != len(that1.BoolMap) {
+		return false
+	}
+	for i := range this.BoolMap {
+		if this.BoolMap[i] != that1.BoolMap[i] {
+			return false
+		}
+	}
+	if len(this.StringMap) != len(that1.StringMap) {
+		return false
+	}
+	for i := range this.StringMap {
+		if this.StringMap[i] != that1.StringMap[i] {
+			return false
+		}
+	}
+	if len(this.StringToBytesMap) != len(that1.StringToBytesMap) {
+		return false
+	}
+	for i := range this.StringToBytesMap {
+		if !bytes.Equal(this.StringToBytesMap[i], that1.StringToBytesMap[i]) {
+			return false
+		}
+	}
+	if len(this.StringToEnumMap) != len(that1.StringToEnumMap) {
+		return false
+	}
+	for i := range this.StringToEnumMap {
+		if this.StringToEnumMap[i] != that1.StringToEnumMap[i] {
+			return false
+		}
+	}
+	if len(this.StringToMsgMap) != len(that1.StringToMsgMap) {
+		return false
+	}
+	for i := range this.StringToMsgMap {
+		if !this.StringToMsgMap[i].Equal(that1.StringToMsgMap[i]) {
+			return false
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
 
 type FloatingPointFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
@@ -2029,6 +1374,47 @@ func (this *FloatingPoint) GetF() *float64 {
 func NewFloatingPointFromFace(that FloatingPointFace) *FloatingPoint {
 	this := &FloatingPoint{}
 	this.F = that.GetF()
+	return this
+}
+
+type CustomMapFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetNullable128S() map[string]*github_com_gogo_protobuf_test_custom.Uint128
+	GetUint128S() map[string]github_com_gogo_protobuf_test_custom.Uint128
+	GetNullableIds() map[string]*github_com_gogo_protobuf_test.Uuid
+	GetIds() map[string]github_com_gogo_protobuf_test.Uuid
+}
+
+func (this *CustomMap) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *CustomMap) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewCustomMapFromFace(this)
+}
+
+func (this *CustomMap) GetNullable128S() map[string]*github_com_gogo_protobuf_test_custom.Uint128 {
+	return this.Nullable128S
+}
+
+func (this *CustomMap) GetUint128S() map[string]github_com_gogo_protobuf_test_custom.Uint128 {
+	return this.Uint128S
+}
+
+func (this *CustomMap) GetNullableIds() map[string]*github_com_gogo_protobuf_test.Uuid {
+	return this.NullableIds
+}
+
+func (this *CustomMap) GetIds() map[string]github_com_gogo_protobuf_test.Uuid {
+	return this.Ids
+}
+
+func NewCustomMapFromFace(that CustomMapFace) *CustomMap {
+	this := &CustomMap{}
+	this.Nullable128S = that.GetNullable128S()
+	this.Uint128S = that.GetUint128S()
+	this.NullableIds = that.GetNullableIds()
+	this.Ids = that.GetIds()
 	return this
 }
 
@@ -2151,6 +1537,125 @@ func NewAllMapsFromFace(that AllMapsFace) *AllMaps {
 	return this
 }
 
+type AllMapsOrderedFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetStringToDoubleMap() map[string]float64
+	GetStringToFloatMap() map[string]float32
+	GetInt32Map() map[int32]int32
+	GetInt64Map() map[int64]int64
+	GetUint32Map() map[uint32]uint32
+	GetUint64Map() map[uint64]uint64
+	GetSint32Map() map[int32]int32
+	GetSint64Map() map[int64]int64
+	GetFixed32Map() map[uint32]uint32
+	GetSfixed32Map() map[int32]int32
+	GetFixed64Map() map[uint64]uint64
+	GetSfixed64Map() map[int64]int64
+	GetBoolMap() map[bool]bool
+	GetStringMap() map[string]string
+	GetStringToBytesMap() map[string][]byte
+	GetStringToEnumMap() map[string]MapEnum
+	GetStringToMsgMap() map[string]*FloatingPoint
+}
+
+func (this *AllMapsOrdered) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *AllMapsOrdered) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewAllMapsOrderedFromFace(this)
+}
+
+func (this *AllMapsOrdered) GetStringToDoubleMap() map[string]float64 {
+	return this.StringToDoubleMap
+}
+
+func (this *AllMapsOrdered) GetStringToFloatMap() map[string]float32 {
+	return this.StringToFloatMap
+}
+
+func (this *AllMapsOrdered) GetInt32Map() map[int32]int32 {
+	return this.Int32Map
+}
+
+func (this *AllMapsOrdered) GetInt64Map() map[int64]int64 {
+	return this.Int64Map
+}
+
+func (this *AllMapsOrdered) GetUint32Map() map[uint32]uint32 {
+	return this.Uint32Map
+}
+
+func (this *AllMapsOrdered) GetUint64Map() map[uint64]uint64 {
+	return this.Uint64Map
+}
+
+func (this *AllMapsOrdered) GetSint32Map() map[int32]int32 {
+	return this.Sint32Map
+}
+
+func (this *AllMapsOrdered) GetSint64Map() map[int64]int64 {
+	return this.Sint64Map
+}
+
+func (this *AllMapsOrdered) GetFixed32Map() map[uint32]uint32 {
+	return this.Fixed32Map
+}
+
+func (this *AllMapsOrdered) GetSfixed32Map() map[int32]int32 {
+	return this.Sfixed32Map
+}
+
+func (this *AllMapsOrdered) GetFixed64Map() map[uint64]uint64 {
+	return this.Fixed64Map
+}
+
+func (this *AllMapsOrdered) GetSfixed64Map() map[int64]int64 {
+	return this.Sfixed64Map
+}
+
+func (this *AllMapsOrdered) GetBoolMap() map[bool]bool {
+	return this.BoolMap
+}
+
+func (this *AllMapsOrdered) GetStringMap() map[string]string {
+	return this.StringMap
+}
+
+func (this *AllMapsOrdered) GetStringToBytesMap() map[string][]byte {
+	return this.StringToBytesMap
+}
+
+func (this *AllMapsOrdered) GetStringToEnumMap() map[string]MapEnum {
+	return this.StringToEnumMap
+}
+
+func (this *AllMapsOrdered) GetStringToMsgMap() map[string]*FloatingPoint {
+	return this.StringToMsgMap
+}
+
+func NewAllMapsOrderedFromFace(that AllMapsOrderedFace) *AllMapsOrdered {
+	this := &AllMapsOrdered{}
+	this.StringToDoubleMap = that.GetStringToDoubleMap()
+	this.StringToFloatMap = that.GetStringToFloatMap()
+	this.Int32Map = that.GetInt32Map()
+	this.Int64Map = that.GetInt64Map()
+	this.Uint32Map = that.GetUint32Map()
+	this.Uint64Map = that.GetUint64Map()
+	this.Sint32Map = that.GetSint32Map()
+	this.Sint64Map = that.GetSint64Map()
+	this.Fixed32Map = that.GetFixed32Map()
+	this.Sfixed32Map = that.GetSfixed32Map()
+	this.Fixed64Map = that.GetFixed64Map()
+	this.Sfixed64Map = that.GetSfixed64Map()
+	this.BoolMap = that.GetBoolMap()
+	this.StringMap = that.GetStringMap()
+	this.StringToBytesMap = that.GetStringToBytesMap()
+	this.StringToEnumMap = that.GetStringToEnumMap()
+	this.StringToMsgMap = that.GetStringToMsgMap()
+	return this
+}
+
 func (this *FloatingPoint) GoString() string {
 	if this == nil {
 		return "nil"
@@ -2159,6 +1664,70 @@ func (this *FloatingPoint) GoString() string {
 	s = append(s, "&proto2_maps.FloatingPoint{")
 	if this.F != nil {
 		s = append(s, "F: "+valueToGoStringMapsproto2(this.F, "float64")+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *CustomMap) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 8)
+	s = append(s, "&proto2_maps.CustomMap{")
+	keysForNullable128S := make([]string, 0, len(this.Nullable128S))
+	for k := range this.Nullable128S {
+		keysForNullable128S = append(keysForNullable128S, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForNullable128S)
+	mapStringForNullable128S := "map[string]*github_com_gogo_protobuf_test_custom.Uint128{"
+	for _, k := range keysForNullable128S {
+		mapStringForNullable128S += fmt.Sprintf("%#v: %#v,", k, this.Nullable128S[k])
+	}
+	mapStringForNullable128S += "}"
+	if this.Nullable128S != nil {
+		s = append(s, "Nullable128S: "+mapStringForNullable128S+",\n")
+	}
+	keysForUint128S := make([]string, 0, len(this.Uint128S))
+	for k := range this.Uint128S {
+		keysForUint128S = append(keysForUint128S, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForUint128S)
+	mapStringForUint128S := "map[string]github_com_gogo_protobuf_test_custom.Uint128{"
+	for _, k := range keysForUint128S {
+		mapStringForUint128S += fmt.Sprintf("%#v: %#v,", k, this.Uint128S[k])
+	}
+	mapStringForUint128S += "}"
+	if this.Uint128S != nil {
+		s = append(s, "Uint128S: "+mapStringForUint128S+",\n")
+	}
+	keysForNullableIds := make([]string, 0, len(this.NullableIds))
+	for k := range this.NullableIds {
+		keysForNullableIds = append(keysForNullableIds, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForNullableIds)
+	mapStringForNullableIds := "map[string]*github_com_gogo_protobuf_test.Uuid{"
+	for _, k := range keysForNullableIds {
+		mapStringForNullableIds += fmt.Sprintf("%#v: %#v,", k, this.NullableIds[k])
+	}
+	mapStringForNullableIds += "}"
+	if this.NullableIds != nil {
+		s = append(s, "NullableIds: "+mapStringForNullableIds+",\n")
+	}
+	keysForIds := make([]string, 0, len(this.Ids))
+	for k := range this.Ids {
+		keysForIds = append(keysForIds, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForIds)
+	mapStringForIds := "map[string]github_com_gogo_protobuf_test.Uuid{"
+	for _, k := range keysForIds {
+		mapStringForIds += fmt.Sprintf("%#v: %#v,", k, this.Ids[k])
+	}
+	mapStringForIds += "}"
+	if this.Ids != nil {
+		s = append(s, "Ids: "+mapStringForIds+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -2399,6 +1968,239 @@ func (this *AllMaps) GoString() string {
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
+func (this *AllMapsOrdered) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 21)
+	s = append(s, "&proto2_maps.AllMapsOrdered{")
+	keysForStringToDoubleMap := make([]string, 0, len(this.StringToDoubleMap))
+	for k := range this.StringToDoubleMap {
+		keysForStringToDoubleMap = append(keysForStringToDoubleMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToDoubleMap)
+	mapStringForStringToDoubleMap := "map[string]float64{"
+	for _, k := range keysForStringToDoubleMap {
+		mapStringForStringToDoubleMap += fmt.Sprintf("%#v: %#v,", k, this.StringToDoubleMap[k])
+	}
+	mapStringForStringToDoubleMap += "}"
+	if this.StringToDoubleMap != nil {
+		s = append(s, "StringToDoubleMap: "+mapStringForStringToDoubleMap+",\n")
+	}
+	keysForStringToFloatMap := make([]string, 0, len(this.StringToFloatMap))
+	for k := range this.StringToFloatMap {
+		keysForStringToFloatMap = append(keysForStringToFloatMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToFloatMap)
+	mapStringForStringToFloatMap := "map[string]float32{"
+	for _, k := range keysForStringToFloatMap {
+		mapStringForStringToFloatMap += fmt.Sprintf("%#v: %#v,", k, this.StringToFloatMap[k])
+	}
+	mapStringForStringToFloatMap += "}"
+	if this.StringToFloatMap != nil {
+		s = append(s, "StringToFloatMap: "+mapStringForStringToFloatMap+",\n")
+	}
+	keysForInt32Map := make([]int32, 0, len(this.Int32Map))
+	for k := range this.Int32Map {
+		keysForInt32Map = append(keysForInt32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(keysForInt32Map)
+	mapStringForInt32Map := "map[int32]int32{"
+	for _, k := range keysForInt32Map {
+		mapStringForInt32Map += fmt.Sprintf("%#v: %#v,", k, this.Int32Map[k])
+	}
+	mapStringForInt32Map += "}"
+	if this.Int32Map != nil {
+		s = append(s, "Int32Map: "+mapStringForInt32Map+",\n")
+	}
+	keysForInt64Map := make([]int64, 0, len(this.Int64Map))
+	for k := range this.Int64Map {
+		keysForInt64Map = append(keysForInt64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int64s(keysForInt64Map)
+	mapStringForInt64Map := "map[int64]int64{"
+	for _, k := range keysForInt64Map {
+		mapStringForInt64Map += fmt.Sprintf("%#v: %#v,", k, this.Int64Map[k])
+	}
+	mapStringForInt64Map += "}"
+	if this.Int64Map != nil {
+		s = append(s, "Int64Map: "+mapStringForInt64Map+",\n")
+	}
+	keysForUint32Map := make([]uint32, 0, len(this.Uint32Map))
+	for k := range this.Uint32Map {
+		keysForUint32Map = append(keysForUint32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint32s(keysForUint32Map)
+	mapStringForUint32Map := "map[uint32]uint32{"
+	for _, k := range keysForUint32Map {
+		mapStringForUint32Map += fmt.Sprintf("%#v: %#v,", k, this.Uint32Map[k])
+	}
+	mapStringForUint32Map += "}"
+	if this.Uint32Map != nil {
+		s = append(s, "Uint32Map: "+mapStringForUint32Map+",\n")
+	}
+	keysForUint64Map := make([]uint64, 0, len(this.Uint64Map))
+	for k := range this.Uint64Map {
+		keysForUint64Map = append(keysForUint64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint64s(keysForUint64Map)
+	mapStringForUint64Map := "map[uint64]uint64{"
+	for _, k := range keysForUint64Map {
+		mapStringForUint64Map += fmt.Sprintf("%#v: %#v,", k, this.Uint64Map[k])
+	}
+	mapStringForUint64Map += "}"
+	if this.Uint64Map != nil {
+		s = append(s, "Uint64Map: "+mapStringForUint64Map+",\n")
+	}
+	keysForSint32Map := make([]int32, 0, len(this.Sint32Map))
+	for k := range this.Sint32Map {
+		keysForSint32Map = append(keysForSint32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(keysForSint32Map)
+	mapStringForSint32Map := "map[int32]int32{"
+	for _, k := range keysForSint32Map {
+		mapStringForSint32Map += fmt.Sprintf("%#v: %#v,", k, this.Sint32Map[k])
+	}
+	mapStringForSint32Map += "}"
+	if this.Sint32Map != nil {
+		s = append(s, "Sint32Map: "+mapStringForSint32Map+",\n")
+	}
+	keysForSint64Map := make([]int64, 0, len(this.Sint64Map))
+	for k := range this.Sint64Map {
+		keysForSint64Map = append(keysForSint64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int64s(keysForSint64Map)
+	mapStringForSint64Map := "map[int64]int64{"
+	for _, k := range keysForSint64Map {
+		mapStringForSint64Map += fmt.Sprintf("%#v: %#v,", k, this.Sint64Map[k])
+	}
+	mapStringForSint64Map += "}"
+	if this.Sint64Map != nil {
+		s = append(s, "Sint64Map: "+mapStringForSint64Map+",\n")
+	}
+	keysForFixed32Map := make([]uint32, 0, len(this.Fixed32Map))
+	for k := range this.Fixed32Map {
+		keysForFixed32Map = append(keysForFixed32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint32s(keysForFixed32Map)
+	mapStringForFixed32Map := "map[uint32]uint32{"
+	for _, k := range keysForFixed32Map {
+		mapStringForFixed32Map += fmt.Sprintf("%#v: %#v,", k, this.Fixed32Map[k])
+	}
+	mapStringForFixed32Map += "}"
+	if this.Fixed32Map != nil {
+		s = append(s, "Fixed32Map: "+mapStringForFixed32Map+",\n")
+	}
+	keysForSfixed32Map := make([]int32, 0, len(this.Sfixed32Map))
+	for k := range this.Sfixed32Map {
+		keysForSfixed32Map = append(keysForSfixed32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(keysForSfixed32Map)
+	mapStringForSfixed32Map := "map[int32]int32{"
+	for _, k := range keysForSfixed32Map {
+		mapStringForSfixed32Map += fmt.Sprintf("%#v: %#v,", k, this.Sfixed32Map[k])
+	}
+	mapStringForSfixed32Map += "}"
+	if this.Sfixed32Map != nil {
+		s = append(s, "Sfixed32Map: "+mapStringForSfixed32Map+",\n")
+	}
+	keysForFixed64Map := make([]uint64, 0, len(this.Fixed64Map))
+	for k := range this.Fixed64Map {
+		keysForFixed64Map = append(keysForFixed64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint64s(keysForFixed64Map)
+	mapStringForFixed64Map := "map[uint64]uint64{"
+	for _, k := range keysForFixed64Map {
+		mapStringForFixed64Map += fmt.Sprintf("%#v: %#v,", k, this.Fixed64Map[k])
+	}
+	mapStringForFixed64Map += "}"
+	if this.Fixed64Map != nil {
+		s = append(s, "Fixed64Map: "+mapStringForFixed64Map+",\n")
+	}
+	keysForSfixed64Map := make([]int64, 0, len(this.Sfixed64Map))
+	for k := range this.Sfixed64Map {
+		keysForSfixed64Map = append(keysForSfixed64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int64s(keysForSfixed64Map)
+	mapStringForSfixed64Map := "map[int64]int64{"
+	for _, k := range keysForSfixed64Map {
+		mapStringForSfixed64Map += fmt.Sprintf("%#v: %#v,", k, this.Sfixed64Map[k])
+	}
+	mapStringForSfixed64Map += "}"
+	if this.Sfixed64Map != nil {
+		s = append(s, "Sfixed64Map: "+mapStringForSfixed64Map+",\n")
+	}
+	keysForBoolMap := make([]bool, 0, len(this.BoolMap))
+	for k := range this.BoolMap {
+		keysForBoolMap = append(keysForBoolMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Bools(keysForBoolMap)
+	mapStringForBoolMap := "map[bool]bool{"
+	for _, k := range keysForBoolMap {
+		mapStringForBoolMap += fmt.Sprintf("%#v: %#v,", k, this.BoolMap[k])
+	}
+	mapStringForBoolMap += "}"
+	if this.BoolMap != nil {
+		s = append(s, "BoolMap: "+mapStringForBoolMap+",\n")
+	}
+	keysForStringMap := make([]string, 0, len(this.StringMap))
+	for k := range this.StringMap {
+		keysForStringMap = append(keysForStringMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringMap)
+	mapStringForStringMap := "map[string]string{"
+	for _, k := range keysForStringMap {
+		mapStringForStringMap += fmt.Sprintf("%#v: %#v,", k, this.StringMap[k])
+	}
+	mapStringForStringMap += "}"
+	if this.StringMap != nil {
+		s = append(s, "StringMap: "+mapStringForStringMap+",\n")
+	}
+	keysForStringToBytesMap := make([]string, 0, len(this.StringToBytesMap))
+	for k := range this.StringToBytesMap {
+		keysForStringToBytesMap = append(keysForStringToBytesMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToBytesMap)
+	mapStringForStringToBytesMap := "map[string][]byte{"
+	for _, k := range keysForStringToBytesMap {
+		mapStringForStringToBytesMap += fmt.Sprintf("%#v: %#v,", k, this.StringToBytesMap[k])
+	}
+	mapStringForStringToBytesMap += "}"
+	if this.StringToBytesMap != nil {
+		s = append(s, "StringToBytesMap: "+mapStringForStringToBytesMap+",\n")
+	}
+	keysForStringToEnumMap := make([]string, 0, len(this.StringToEnumMap))
+	for k := range this.StringToEnumMap {
+		keysForStringToEnumMap = append(keysForStringToEnumMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToEnumMap)
+	mapStringForStringToEnumMap := "map[string]MapEnum{"
+	for _, k := range keysForStringToEnumMap {
+		mapStringForStringToEnumMap += fmt.Sprintf("%#v: %#v,", k, this.StringToEnumMap[k])
+	}
+	mapStringForStringToEnumMap += "}"
+	if this.StringToEnumMap != nil {
+		s = append(s, "StringToEnumMap: "+mapStringForStringToEnumMap+",\n")
+	}
+	keysForStringToMsgMap := make([]string, 0, len(this.StringToMsgMap))
+	for k := range this.StringToMsgMap {
+		keysForStringToMsgMap = append(keysForStringToMsgMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToMsgMap)
+	mapStringForStringToMsgMap := "map[string]*FloatingPoint{"
+	for _, k := range keysForStringToMsgMap {
+		mapStringForStringToMsgMap += fmt.Sprintf("%#v: %#v,", k, this.StringToMsgMap[k])
+	}
+	mapStringForStringToMsgMap += "}"
+	if this.StringToMsgMap != nil {
+		s = append(s, "StringToMsgMap: "+mapStringForStringToMsgMap+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
 func valueToGoStringMapsproto2(v interface{}, typ string) string {
 	rv := reflect.ValueOf(v)
 	if rv.IsNil() {
@@ -2407,381 +2209,899 @@ func valueToGoStringMapsproto2(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
-func extensionToGoStringMapsproto2(e map[int32]github_com_gogo_protobuf_proto.Extension) string {
-	if e == nil {
-		return "nil"
-	}
-	s := "map[int32]proto.Extension{"
-	keys := make([]int, 0, len(e))
-	for k := range e {
-		keys = append(keys, int(k))
-	}
-	sort.Ints(keys)
-	ss := []string{}
-	for _, k := range keys {
-		ss = append(ss, strconv.Itoa(k)+": "+e[int32(k)].GoString())
-	}
-	s += strings.Join(ss, ",") + "}"
-	return s
-}
-func (m *FloatingPoint) Marshal() (data []byte, err error) {
+func (m *FloatingPoint) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
-	data = make([]byte, size)
-	n, err := m.MarshalTo(data)
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
 	if err != nil {
 		return nil, err
 	}
-	return data[:n], nil
+	return dAtA[:n], nil
 }
 
-func (m *FloatingPoint) MarshalTo(data []byte) (int, error) {
+func (m *FloatingPoint) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
 	if m.F != nil {
-		data[i] = 0x9
+		dAtA[i] = 0x9
 		i++
-		i = encodeFixed64Mapsproto2(data, i, uint64(math.Float64bits(float64(*m.F))))
+		i = encodeFixed64Mapsproto2(dAtA, i, uint64(math.Float64bits(float64(*m.F))))
 	}
 	if m.XXX_unrecognized != nil {
-		i += copy(data[i:], m.XXX_unrecognized)
+		i += copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	return i, nil
 }
 
-func (m *AllMaps) Marshal() (data []byte, err error) {
+func (m *CustomMap) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
-	data = make([]byte, size)
-	n, err := m.MarshalTo(data)
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
 	if err != nil {
 		return nil, err
 	}
-	return data[:n], nil
+	return dAtA[:n], nil
 }
 
-func (m *AllMaps) MarshalTo(data []byte) (int, error) {
+func (m *CustomMap) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Nullable128S) > 0 {
+		for k := range m.Nullable128S {
+			dAtA[i] = 0xa
+			i++
+			v := m.Nullable128S[k]
+			cSize := 0
+			if v != nil {
+				cSize = v.Size()
+				cSize += 1 + sovMapsproto2(uint64(cSize))
+			}
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + cSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			if v != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintMapsproto2(dAtA, i, uint64(v.Size()))
+				n1, err := v.MarshalTo(dAtA[i:])
+				if err != nil {
+					return 0, err
+				}
+				i += n1
+			}
+		}
+	}
+	if len(m.Uint128S) > 0 {
+		for k := range m.Uint128S {
+			dAtA[i] = 0x12
+			i++
+			v := m.Uint128S[k]
+			cSize := 0
+			cSize = v.Size()
+			cSize += 1 + sovMapsproto2(uint64(cSize))
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + cSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v.Size()))
+			n2, err := v.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n2
+		}
+	}
+	if len(m.NullableIds) > 0 {
+		for k := range m.NullableIds {
+			dAtA[i] = 0x1a
+			i++
+			v := m.NullableIds[k]
+			cSize := 0
+			if v != nil {
+				cSize = v.Size()
+				cSize += 1 + sovMapsproto2(uint64(cSize))
+			}
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + cSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			if v != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintMapsproto2(dAtA, i, uint64(v.Size()))
+				n3, err := v.MarshalTo(dAtA[i:])
+				if err != nil {
+					return 0, err
+				}
+				i += n3
+			}
+		}
+	}
+	if len(m.Ids) > 0 {
+		for k := range m.Ids {
+			dAtA[i] = 0x22
+			i++
+			v := m.Ids[k]
+			cSize := 0
+			cSize = v.Size()
+			cSize += 1 + sovMapsproto2(uint64(cSize))
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + cSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v.Size()))
+			n4, err := v.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n4
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func (m *AllMaps) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AllMaps) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
 	if len(m.StringToDoubleMap) > 0 {
 		for k := range m.StringToDoubleMap {
-			data[i] = 0xa
+			dAtA[i] = 0xa
 			i++
 			v := m.StringToDoubleMap[k]
 			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + 8
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xa
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(k)))
-			i += copy(data[i:], k)
-			data[i] = 0x11
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x11
 			i++
-			i = encodeFixed64Mapsproto2(data, i, uint64(math.Float64bits(float64(v))))
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(math.Float64bits(float64(v))))
 		}
 	}
 	if len(m.StringToFloatMap) > 0 {
 		for k := range m.StringToFloatMap {
-			data[i] = 0x12
+			dAtA[i] = 0x12
 			i++
 			v := m.StringToFloatMap[k]
 			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + 4
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xa
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(k)))
-			i += copy(data[i:], k)
-			data[i] = 0x15
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x15
 			i++
-			i = encodeFixed32Mapsproto2(data, i, uint32(math.Float32bits(float32(v))))
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(math.Float32bits(float32(v))))
 		}
 	}
 	if len(m.Int32Map) > 0 {
 		for k := range m.Int32Map {
-			data[i] = 0x1a
+			dAtA[i] = 0x1a
 			i++
 			v := m.Int32Map[k]
 			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(k))
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.Int64Map) > 0 {
 		for k := range m.Int64Map {
-			data[i] = 0x22
+			dAtA[i] = 0x22
 			i++
 			v := m.Int64Map[k]
 			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(k))
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.Uint32Map) > 0 {
 		for k := range m.Uint32Map {
-			data[i] = 0x2a
+			dAtA[i] = 0x2a
 			i++
 			v := m.Uint32Map[k]
 			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(k))
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.Uint64Map) > 0 {
 		for k := range m.Uint64Map {
-			data[i] = 0x32
+			dAtA[i] = 0x32
 			i++
 			v := m.Uint64Map[k]
 			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(k))
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.Sint32Map) > 0 {
 		for k := range m.Sint32Map {
-			data[i] = 0x3a
+			dAtA[i] = 0x3a
 			i++
 			v := m.Sint32Map[k]
 			mapSize := 1 + sozMapsproto2(uint64(k)) + 1 + sozMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64((uint32(k)<<1)^uint32((k>>31))))
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint32(k)<<1)^uint32((k>>31))))
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64((uint32(v)<<1)^uint32((v>>31))))
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint32(v)<<1)^uint32((v>>31))))
 		}
 	}
 	if len(m.Sint64Map) > 0 {
 		for k := range m.Sint64Map {
-			data[i] = 0x42
+			dAtA[i] = 0x42
 			i++
 			v := m.Sint64Map[k]
 			mapSize := 1 + sozMapsproto2(uint64(k)) + 1 + sozMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64((uint64(k)<<1)^uint64((k>>63))))
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint64(k)<<1)^uint64((k>>63))))
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64((uint64(v)<<1)^uint64((v>>63))))
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint64(v)<<1)^uint64((v>>63))))
 		}
 	}
 	if len(m.Fixed32Map) > 0 {
 		for k := range m.Fixed32Map {
-			data[i] = 0x4a
+			dAtA[i] = 0x4a
 			i++
 			v := m.Fixed32Map[k]
 			mapSize := 1 + 4 + 1 + 4
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xd
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xd
 			i++
-			i = encodeFixed32Mapsproto2(data, i, uint32(k))
-			data[i] = 0x15
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(k))
+			dAtA[i] = 0x15
 			i++
-			i = encodeFixed32Mapsproto2(data, i, uint32(v))
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(v))
 		}
 	}
 	if len(m.Sfixed32Map) > 0 {
 		for k := range m.Sfixed32Map {
-			data[i] = 0x52
+			dAtA[i] = 0x52
 			i++
 			v := m.Sfixed32Map[k]
 			mapSize := 1 + 4 + 1 + 4
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xd
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xd
 			i++
-			i = encodeFixed32Mapsproto2(data, i, uint32(k))
-			data[i] = 0x15
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(k))
+			dAtA[i] = 0x15
 			i++
-			i = encodeFixed32Mapsproto2(data, i, uint32(v))
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(v))
 		}
 	}
 	if len(m.Fixed64Map) > 0 {
 		for k := range m.Fixed64Map {
-			data[i] = 0x5a
+			dAtA[i] = 0x5a
 			i++
 			v := m.Fixed64Map[k]
 			mapSize := 1 + 8 + 1 + 8
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x9
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x9
 			i++
-			i = encodeFixed64Mapsproto2(data, i, uint64(k))
-			data[i] = 0x11
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x11
 			i++
-			i = encodeFixed64Mapsproto2(data, i, uint64(v))
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.Sfixed64Map) > 0 {
 		for k := range m.Sfixed64Map {
-			data[i] = 0x62
+			dAtA[i] = 0x62
 			i++
 			v := m.Sfixed64Map[k]
 			mapSize := 1 + 8 + 1 + 8
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x9
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x9
 			i++
-			i = encodeFixed64Mapsproto2(data, i, uint64(k))
-			data[i] = 0x11
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x11
 			i++
-			i = encodeFixed64Mapsproto2(data, i, uint64(v))
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.BoolMap) > 0 {
 		for k := range m.BoolMap {
-			data[i] = 0x6a
+			dAtA[i] = 0x6a
 			i++
 			v := m.BoolMap[k]
 			mapSize := 1 + 1 + 1 + 1
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0x8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
 			if k {
-				data[i] = 1
+				dAtA[i] = 1
 			} else {
-				data[i] = 0
+				dAtA[i] = 0
 			}
 			i++
-			data[i] = 0x10
+			dAtA[i] = 0x10
 			i++
 			if v {
-				data[i] = 1
+				dAtA[i] = 1
 			} else {
-				data[i] = 0
+				dAtA[i] = 0
 			}
 			i++
 		}
 	}
 	if len(m.StringMap) > 0 {
 		for k := range m.StringMap {
-			data[i] = 0x72
+			dAtA[i] = 0x72
 			i++
 			v := m.StringMap[k]
 			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + len(v) + sovMapsproto2(uint64(len(v)))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xa
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(k)))
-			i += copy(data[i:], k)
-			data[i] = 0x12
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x12
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(v)))
-			i += copy(data[i:], v)
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(v)))
+			i += copy(dAtA[i:], v)
 		}
 	}
 	if len(m.StringToBytesMap) > 0 {
 		for k := range m.StringToBytesMap {
-			data[i] = 0x7a
+			dAtA[i] = 0x7a
 			i++
 			v := m.StringToBytesMap[k]
-			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + len(v) + sovMapsproto2(uint64(len(v)))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xa
+			byteSize := 0
+			if v != nil {
+				byteSize = 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			}
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + byteSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(k)))
-			i += copy(data[i:], k)
-			data[i] = 0x12
-			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(v)))
-			i += copy(data[i:], v)
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			if v != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintMapsproto2(dAtA, i, uint64(len(v)))
+				i += copy(dAtA[i:], v)
+			}
 		}
 	}
 	if len(m.StringToEnumMap) > 0 {
 		for k := range m.StringToEnumMap {
-			data[i] = 0x82
+			dAtA[i] = 0x82
 			i++
-			data[i] = 0x1
+			dAtA[i] = 0x1
 			i++
 			v := m.StringToEnumMap[k]
 			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + sovMapsproto2(uint64(v))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xa
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(k)))
-			i += copy(data[i:], k)
-			data[i] = 0x10
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x10
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
 		}
 	}
 	if len(m.StringToMsgMap) > 0 {
 		for k := range m.StringToMsgMap {
-			data[i] = 0x8a
+			dAtA[i] = 0x8a
 			i++
-			data[i] = 0x1
+			dAtA[i] = 0x1
 			i++
 			v := m.StringToMsgMap[k]
-			if v == nil {
-				return 0, errors.New("proto: map has nil element")
+			msgSize := 0
+			if v != nil {
+				msgSize = v.Size()
+				msgSize += 1 + sovMapsproto2(uint64(msgSize))
 			}
-			msgSize := v.Size()
-			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + msgSize + sovMapsproto2(uint64(msgSize))
-			i = encodeVarintMapsproto2(data, i, uint64(mapSize))
-			data[i] = 0xa
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + msgSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
 			i++
-			i = encodeVarintMapsproto2(data, i, uint64(len(k)))
-			i += copy(data[i:], k)
-			data[i] = 0x12
-			i++
-			i = encodeVarintMapsproto2(data, i, uint64(v.Size()))
-			n1, err := v.MarshalTo(data[i:])
-			if err != nil {
-				return 0, err
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			if v != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintMapsproto2(dAtA, i, uint64(v.Size()))
+				n5, err := v.MarshalTo(dAtA[i:])
+				if err != nil {
+					return 0, err
+				}
+				i += n5
 			}
-			i += n1
 		}
 	}
 	if m.XXX_unrecognized != nil {
-		i += copy(data[i:], m.XXX_unrecognized)
+		i += copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	return i, nil
 }
 
-func encodeFixed64Mapsproto2(data []byte, offset int, v uint64) int {
-	data[offset] = uint8(v)
-	data[offset+1] = uint8(v >> 8)
-	data[offset+2] = uint8(v >> 16)
-	data[offset+3] = uint8(v >> 24)
-	data[offset+4] = uint8(v >> 32)
-	data[offset+5] = uint8(v >> 40)
-	data[offset+6] = uint8(v >> 48)
-	data[offset+7] = uint8(v >> 56)
+func (m *AllMapsOrdered) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AllMapsOrdered) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.StringToDoubleMap) > 0 {
+		keysForStringToDoubleMap := make([]string, 0, len(m.StringToDoubleMap))
+		for k := range m.StringToDoubleMap {
+			keysForStringToDoubleMap = append(keysForStringToDoubleMap, string(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Strings(keysForStringToDoubleMap)
+		for _, k := range keysForStringToDoubleMap {
+			dAtA[i] = 0xa
+			i++
+			v := m.StringToDoubleMap[string(k)]
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + 8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x11
+			i++
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(math.Float64bits(float64(v))))
+		}
+	}
+	if len(m.StringToFloatMap) > 0 {
+		keysForStringToFloatMap := make([]string, 0, len(m.StringToFloatMap))
+		for k := range m.StringToFloatMap {
+			keysForStringToFloatMap = append(keysForStringToFloatMap, string(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Strings(keysForStringToFloatMap)
+		for _, k := range keysForStringToFloatMap {
+			dAtA[i] = 0x12
+			i++
+			v := m.StringToFloatMap[string(k)]
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + 4
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x15
+			i++
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(math.Float32bits(float32(v))))
+		}
+	}
+	if len(m.Int32Map) > 0 {
+		keysForInt32Map := make([]int32, 0, len(m.Int32Map))
+		for k := range m.Int32Map {
+			keysForInt32Map = append(keysForInt32Map, int32(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Int32s(keysForInt32Map)
+		for _, k := range keysForInt32Map {
+			dAtA[i] = 0x1a
+			i++
+			v := m.Int32Map[int32(k)]
+			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.Int64Map) > 0 {
+		keysForInt64Map := make([]int64, 0, len(m.Int64Map))
+		for k := range m.Int64Map {
+			keysForInt64Map = append(keysForInt64Map, int64(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Int64s(keysForInt64Map)
+		for _, k := range keysForInt64Map {
+			dAtA[i] = 0x22
+			i++
+			v := m.Int64Map[int64(k)]
+			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.Uint32Map) > 0 {
+		keysForUint32Map := make([]uint32, 0, len(m.Uint32Map))
+		for k := range m.Uint32Map {
+			keysForUint32Map = append(keysForUint32Map, uint32(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Uint32s(keysForUint32Map)
+		for _, k := range keysForUint32Map {
+			dAtA[i] = 0x2a
+			i++
+			v := m.Uint32Map[uint32(k)]
+			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.Uint64Map) > 0 {
+		keysForUint64Map := make([]uint64, 0, len(m.Uint64Map))
+		for k := range m.Uint64Map {
+			keysForUint64Map = append(keysForUint64Map, uint64(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Uint64s(keysForUint64Map)
+		for _, k := range keysForUint64Map {
+			dAtA[i] = 0x32
+			i++
+			v := m.Uint64Map[uint64(k)]
+			mapSize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.Sint32Map) > 0 {
+		keysForSint32Map := make([]int32, 0, len(m.Sint32Map))
+		for k := range m.Sint32Map {
+			keysForSint32Map = append(keysForSint32Map, int32(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Int32s(keysForSint32Map)
+		for _, k := range keysForSint32Map {
+			dAtA[i] = 0x3a
+			i++
+			v := m.Sint32Map[int32(k)]
+			mapSize := 1 + sozMapsproto2(uint64(k)) + 1 + sozMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint32(k)<<1)^uint32((k>>31))))
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint32(v)<<1)^uint32((v>>31))))
+		}
+	}
+	if len(m.Sint64Map) > 0 {
+		keysForSint64Map := make([]int64, 0, len(m.Sint64Map))
+		for k := range m.Sint64Map {
+			keysForSint64Map = append(keysForSint64Map, int64(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Int64s(keysForSint64Map)
+		for _, k := range keysForSint64Map {
+			dAtA[i] = 0x42
+			i++
+			v := m.Sint64Map[int64(k)]
+			mapSize := 1 + sozMapsproto2(uint64(k)) + 1 + sozMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint64(k)<<1)^uint64((k>>63))))
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64((uint64(v)<<1)^uint64((v>>63))))
+		}
+	}
+	if len(m.Fixed32Map) > 0 {
+		keysForFixed32Map := make([]uint32, 0, len(m.Fixed32Map))
+		for k := range m.Fixed32Map {
+			keysForFixed32Map = append(keysForFixed32Map, uint32(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Uint32s(keysForFixed32Map)
+		for _, k := range keysForFixed32Map {
+			dAtA[i] = 0x4a
+			i++
+			v := m.Fixed32Map[uint32(k)]
+			mapSize := 1 + 4 + 1 + 4
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xd
+			i++
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(k))
+			dAtA[i] = 0x15
+			i++
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(v))
+		}
+	}
+	if len(m.Sfixed32Map) > 0 {
+		keysForSfixed32Map := make([]int32, 0, len(m.Sfixed32Map))
+		for k := range m.Sfixed32Map {
+			keysForSfixed32Map = append(keysForSfixed32Map, int32(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Int32s(keysForSfixed32Map)
+		for _, k := range keysForSfixed32Map {
+			dAtA[i] = 0x52
+			i++
+			v := m.Sfixed32Map[int32(k)]
+			mapSize := 1 + 4 + 1 + 4
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xd
+			i++
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(k))
+			dAtA[i] = 0x15
+			i++
+			i = encodeFixed32Mapsproto2(dAtA, i, uint32(v))
+		}
+	}
+	if len(m.Fixed64Map) > 0 {
+		keysForFixed64Map := make([]uint64, 0, len(m.Fixed64Map))
+		for k := range m.Fixed64Map {
+			keysForFixed64Map = append(keysForFixed64Map, uint64(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Uint64s(keysForFixed64Map)
+		for _, k := range keysForFixed64Map {
+			dAtA[i] = 0x5a
+			i++
+			v := m.Fixed64Map[uint64(k)]
+			mapSize := 1 + 8 + 1 + 8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x9
+			i++
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x11
+			i++
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.Sfixed64Map) > 0 {
+		keysForSfixed64Map := make([]int64, 0, len(m.Sfixed64Map))
+		for k := range m.Sfixed64Map {
+			keysForSfixed64Map = append(keysForSfixed64Map, int64(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Int64s(keysForSfixed64Map)
+		for _, k := range keysForSfixed64Map {
+			dAtA[i] = 0x62
+			i++
+			v := m.Sfixed64Map[int64(k)]
+			mapSize := 1 + 8 + 1 + 8
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x9
+			i++
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(k))
+			dAtA[i] = 0x11
+			i++
+			i = encodeFixed64Mapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.BoolMap) > 0 {
+		keysForBoolMap := make([]bool, 0, len(m.BoolMap))
+		for k := range m.BoolMap {
+			keysForBoolMap = append(keysForBoolMap, bool(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Bools(keysForBoolMap)
+		for _, k := range keysForBoolMap {
+			dAtA[i] = 0x6a
+			i++
+			v := m.BoolMap[bool(k)]
+			mapSize := 1 + 1 + 1 + 1
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
+			i++
+			if k {
+				dAtA[i] = 1
+			} else {
+				dAtA[i] = 0
+			}
+			i++
+			dAtA[i] = 0x10
+			i++
+			if v {
+				dAtA[i] = 1
+			} else {
+				dAtA[i] = 0
+			}
+			i++
+		}
+	}
+	if len(m.StringMap) > 0 {
+		keysForStringMap := make([]string, 0, len(m.StringMap))
+		for k := range m.StringMap {
+			keysForStringMap = append(keysForStringMap, string(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Strings(keysForStringMap)
+		for _, k := range keysForStringMap {
+			dAtA[i] = 0x72
+			i++
+			v := m.StringMap[string(k)]
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(v)))
+			i += copy(dAtA[i:], v)
+		}
+	}
+	if len(m.StringToBytesMap) > 0 {
+		keysForStringToBytesMap := make([]string, 0, len(m.StringToBytesMap))
+		for k := range m.StringToBytesMap {
+			keysForStringToBytesMap = append(keysForStringToBytesMap, string(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Strings(keysForStringToBytesMap)
+		for _, k := range keysForStringToBytesMap {
+			dAtA[i] = 0x7a
+			i++
+			v := m.StringToBytesMap[string(k)]
+			byteSize := 0
+			if v != nil {
+				byteSize = 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			}
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + byteSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			if v != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintMapsproto2(dAtA, i, uint64(len(v)))
+				i += copy(dAtA[i:], v)
+			}
+		}
+	}
+	if len(m.StringToEnumMap) > 0 {
+		keysForStringToEnumMap := make([]string, 0, len(m.StringToEnumMap))
+		for k := range m.StringToEnumMap {
+			keysForStringToEnumMap = append(keysForStringToEnumMap, string(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Strings(keysForStringToEnumMap)
+		for _, k := range keysForStringToEnumMap {
+			dAtA[i] = 0x82
+			i++
+			dAtA[i] = 0x1
+			i++
+			v := m.StringToEnumMap[string(k)]
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + sovMapsproto2(uint64(v))
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			dAtA[i] = 0x10
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(v))
+		}
+	}
+	if len(m.StringToMsgMap) > 0 {
+		keysForStringToMsgMap := make([]string, 0, len(m.StringToMsgMap))
+		for k := range m.StringToMsgMap {
+			keysForStringToMsgMap = append(keysForStringToMsgMap, string(k))
+		}
+		github_com_gogo_protobuf_sortkeys.Strings(keysForStringToMsgMap)
+		for _, k := range keysForStringToMsgMap {
+			dAtA[i] = 0x8a
+			i++
+			dAtA[i] = 0x1
+			i++
+			v := m.StringToMsgMap[string(k)]
+			msgSize := 0
+			if v != nil {
+				msgSize = v.Size()
+				msgSize += 1 + sovMapsproto2(uint64(msgSize))
+			}
+			mapSize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + msgSize
+			i = encodeVarintMapsproto2(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMapsproto2(dAtA, i, uint64(len(k)))
+			i += copy(dAtA[i:], k)
+			if v != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintMapsproto2(dAtA, i, uint64(v.Size()))
+				n6, err := v.MarshalTo(dAtA[i:])
+				if err != nil {
+					return 0, err
+				}
+				i += n6
+			}
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func encodeFixed64Mapsproto2(dAtA []byte, offset int, v uint64) int {
+	dAtA[offset] = uint8(v)
+	dAtA[offset+1] = uint8(v >> 8)
+	dAtA[offset+2] = uint8(v >> 16)
+	dAtA[offset+3] = uint8(v >> 24)
+	dAtA[offset+4] = uint8(v >> 32)
+	dAtA[offset+5] = uint8(v >> 40)
+	dAtA[offset+6] = uint8(v >> 48)
+	dAtA[offset+7] = uint8(v >> 56)
 	return offset + 8
 }
-func encodeFixed32Mapsproto2(data []byte, offset int, v uint32) int {
-	data[offset] = uint8(v)
-	data[offset+1] = uint8(v >> 8)
-	data[offset+2] = uint8(v >> 16)
-	data[offset+3] = uint8(v >> 24)
+func encodeFixed32Mapsproto2(dAtA []byte, offset int, v uint32) int {
+	dAtA[offset] = uint8(v)
+	dAtA[offset+1] = uint8(v >> 8)
+	dAtA[offset+2] = uint8(v >> 16)
+	dAtA[offset+3] = uint8(v >> 24)
 	return offset + 4
 }
-func encodeVarintMapsproto2(data []byte, offset int, v uint64) int {
+func encodeVarintMapsproto2(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
-		data[offset] = uint8(v&0x7f | 0x80)
+		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
-	data[offset] = uint8(v)
+	dAtA[offset] = uint8(v)
 	return offset + 1
 }
 func NewPopulatedFloatingPoint(r randyMapsproto2, easy bool) *FloatingPoint {
@@ -2799,166 +3119,371 @@ func NewPopulatedFloatingPoint(r randyMapsproto2, easy bool) *FloatingPoint {
 	return this
 }
 
-func NewPopulatedAllMaps(r randyMapsproto2, easy bool) *AllMaps {
-	this := &AllMaps{}
+func NewPopulatedCustomMap(r randyMapsproto2, easy bool) *CustomMap {
+	this := &CustomMap{}
 	if r.Intn(10) != 0 {
 		v2 := r.Intn(10)
-		this.StringToDoubleMap = make(map[string]float64)
+		this.Nullable128S = make(map[string]*github_com_gogo_protobuf_test_custom.Uint128)
 		for i := 0; i < v2; i++ {
-			v3 := randStringMapsproto2(r)
-			this.StringToDoubleMap[v3] = float64(r.Float64())
-			if r.Intn(2) == 0 {
-				this.StringToDoubleMap[v3] *= -1
-			}
+			this.Nullable128S[randStringMapsproto2(r)] = (*github_com_gogo_protobuf_test_custom.Uint128)(github_com_gogo_protobuf_test_custom.NewPopulatedUint128(r))
+		}
+	}
+	if r.Intn(10) != 0 {
+		v3 := r.Intn(10)
+		this.Uint128S = make(map[string]github_com_gogo_protobuf_test_custom.Uint128)
+		for i := 0; i < v3; i++ {
+			this.Uint128S[randStringMapsproto2(r)] = (github_com_gogo_protobuf_test_custom.Uint128)(*github_com_gogo_protobuf_test_custom.NewPopulatedUint128(r))
 		}
 	}
 	if r.Intn(10) != 0 {
 		v4 := r.Intn(10)
-		this.StringToFloatMap = make(map[string]float32)
+		this.NullableIds = make(map[string]*github_com_gogo_protobuf_test.Uuid)
 		for i := 0; i < v4; i++ {
-			v5 := randStringMapsproto2(r)
-			this.StringToFloatMap[v5] = float32(r.Float32())
-			if r.Intn(2) == 0 {
-				this.StringToFloatMap[v5] *= -1
-			}
+			this.NullableIds[randStringMapsproto2(r)] = (*github_com_gogo_protobuf_test.Uuid)(github_com_gogo_protobuf_test.NewPopulatedUuid(r))
 		}
 	}
 	if r.Intn(10) != 0 {
+		v5 := r.Intn(10)
+		this.Ids = make(map[string]github_com_gogo_protobuf_test.Uuid)
+		for i := 0; i < v5; i++ {
+			this.Ids[randStringMapsproto2(r)] = (github_com_gogo_protobuf_test.Uuid)(*github_com_gogo_protobuf_test.NewPopulatedUuid(r))
+		}
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedMapsproto2(r, 5)
+	}
+	return this
+}
+
+func NewPopulatedAllMaps(r randyMapsproto2, easy bool) *AllMaps {
+	this := &AllMaps{}
+	if r.Intn(10) != 0 {
 		v6 := r.Intn(10)
-		this.Int32Map = make(map[int32]int32)
+		this.StringToDoubleMap = make(map[string]float64)
 		for i := 0; i < v6; i++ {
-			v7 := int32(r.Int31())
-			this.Int32Map[v7] = int32(r.Int31())
+			v7 := randStringMapsproto2(r)
+			this.StringToDoubleMap[v7] = float64(r.Float64())
 			if r.Intn(2) == 0 {
-				this.Int32Map[v7] *= -1
+				this.StringToDoubleMap[v7] *= -1
 			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v8 := r.Intn(10)
-		this.Int64Map = make(map[int64]int64)
+		this.StringToFloatMap = make(map[string]float32)
 		for i := 0; i < v8; i++ {
-			v9 := int64(r.Int63())
-			this.Int64Map[v9] = int64(r.Int63())
+			v9 := randStringMapsproto2(r)
+			this.StringToFloatMap[v9] = float32(r.Float32())
 			if r.Intn(2) == 0 {
-				this.Int64Map[v9] *= -1
+				this.StringToFloatMap[v9] *= -1
 			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v10 := r.Intn(10)
-		this.Uint32Map = make(map[uint32]uint32)
+		this.Int32Map = make(map[int32]int32)
 		for i := 0; i < v10; i++ {
-			v11 := uint32(r.Uint32())
-			this.Uint32Map[v11] = uint32(r.Uint32())
+			v11 := int32(r.Int31())
+			this.Int32Map[v11] = int32(r.Int31())
+			if r.Intn(2) == 0 {
+				this.Int32Map[v11] *= -1
+			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v12 := r.Intn(10)
-		this.Uint64Map = make(map[uint64]uint64)
+		this.Int64Map = make(map[int64]int64)
 		for i := 0; i < v12; i++ {
-			v13 := uint64(uint64(r.Uint32()))
-			this.Uint64Map[v13] = uint64(uint64(r.Uint32()))
+			v13 := int64(r.Int63())
+			this.Int64Map[v13] = int64(r.Int63())
+			if r.Intn(2) == 0 {
+				this.Int64Map[v13] *= -1
+			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v14 := r.Intn(10)
-		this.Sint32Map = make(map[int32]int32)
+		this.Uint32Map = make(map[uint32]uint32)
 		for i := 0; i < v14; i++ {
-			v15 := int32(r.Int31())
-			this.Sint32Map[v15] = int32(r.Int31())
-			if r.Intn(2) == 0 {
-				this.Sint32Map[v15] *= -1
-			}
+			v15 := uint32(r.Uint32())
+			this.Uint32Map[v15] = uint32(r.Uint32())
 		}
 	}
 	if r.Intn(10) != 0 {
 		v16 := r.Intn(10)
-		this.Sint64Map = make(map[int64]int64)
+		this.Uint64Map = make(map[uint64]uint64)
 		for i := 0; i < v16; i++ {
-			v17 := int64(r.Int63())
-			this.Sint64Map[v17] = int64(r.Int63())
-			if r.Intn(2) == 0 {
-				this.Sint64Map[v17] *= -1
-			}
+			v17 := uint64(uint64(r.Uint32()))
+			this.Uint64Map[v17] = uint64(uint64(r.Uint32()))
 		}
 	}
 	if r.Intn(10) != 0 {
 		v18 := r.Intn(10)
-		this.Fixed32Map = make(map[uint32]uint32)
+		this.Sint32Map = make(map[int32]int32)
 		for i := 0; i < v18; i++ {
-			v19 := uint32(r.Uint32())
-			this.Fixed32Map[v19] = uint32(r.Uint32())
+			v19 := int32(r.Int31())
+			this.Sint32Map[v19] = int32(r.Int31())
+			if r.Intn(2) == 0 {
+				this.Sint32Map[v19] *= -1
+			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v20 := r.Intn(10)
-		this.Sfixed32Map = make(map[int32]int32)
+		this.Sint64Map = make(map[int64]int64)
 		for i := 0; i < v20; i++ {
-			v21 := int32(r.Int31())
-			this.Sfixed32Map[v21] = int32(r.Int31())
+			v21 := int64(r.Int63())
+			this.Sint64Map[v21] = int64(r.Int63())
 			if r.Intn(2) == 0 {
-				this.Sfixed32Map[v21] *= -1
+				this.Sint64Map[v21] *= -1
 			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v22 := r.Intn(10)
-		this.Fixed64Map = make(map[uint64]uint64)
+		this.Fixed32Map = make(map[uint32]uint32)
 		for i := 0; i < v22; i++ {
-			v23 := uint64(uint64(r.Uint32()))
-			this.Fixed64Map[v23] = uint64(uint64(r.Uint32()))
+			v23 := uint32(r.Uint32())
+			this.Fixed32Map[v23] = uint32(r.Uint32())
 		}
 	}
 	if r.Intn(10) != 0 {
 		v24 := r.Intn(10)
-		this.Sfixed64Map = make(map[int64]int64)
+		this.Sfixed32Map = make(map[int32]int32)
 		for i := 0; i < v24; i++ {
-			v25 := int64(r.Int63())
-			this.Sfixed64Map[v25] = int64(r.Int63())
+			v25 := int32(r.Int31())
+			this.Sfixed32Map[v25] = int32(r.Int31())
 			if r.Intn(2) == 0 {
-				this.Sfixed64Map[v25] *= -1
+				this.Sfixed32Map[v25] *= -1
 			}
 		}
 	}
 	if r.Intn(10) != 0 {
 		v26 := r.Intn(10)
-		this.BoolMap = make(map[bool]bool)
+		this.Fixed64Map = make(map[uint64]uint64)
 		for i := 0; i < v26; i++ {
-			v27 := bool(bool(r.Intn(2) == 0))
-			this.BoolMap[v27] = bool(bool(r.Intn(2) == 0))
+			v27 := uint64(uint64(r.Uint32()))
+			this.Fixed64Map[v27] = uint64(uint64(r.Uint32()))
 		}
 	}
 	if r.Intn(10) != 0 {
 		v28 := r.Intn(10)
-		this.StringMap = make(map[string]string)
+		this.Sfixed64Map = make(map[int64]int64)
 		for i := 0; i < v28; i++ {
-			this.StringMap[randStringMapsproto2(r)] = randStringMapsproto2(r)
-		}
-	}
-	if r.Intn(10) != 0 {
-		v29 := r.Intn(10)
-		this.StringToBytesMap = make(map[string][]byte)
-		for i := 0; i < v29; i++ {
-			v30 := r.Intn(100)
-			v31 := randStringMapsproto2(r)
-			this.StringToBytesMap[v31] = make([]byte, v30)
-			for i := 0; i < v30; i++ {
-				this.StringToBytesMap[v31][i] = byte(r.Intn(256))
+			v29 := int64(r.Int63())
+			this.Sfixed64Map[v29] = int64(r.Int63())
+			if r.Intn(2) == 0 {
+				this.Sfixed64Map[v29] *= -1
 			}
 		}
 	}
 	if r.Intn(10) != 0 {
+		v30 := r.Intn(10)
+		this.BoolMap = make(map[bool]bool)
+		for i := 0; i < v30; i++ {
+			v31 := bool(bool(r.Intn(2) == 0))
+			this.BoolMap[v31] = bool(bool(r.Intn(2) == 0))
+		}
+	}
+	if r.Intn(10) != 0 {
 		v32 := r.Intn(10)
-		this.StringToEnumMap = make(map[string]MapEnum)
+		this.StringMap = make(map[string]string)
 		for i := 0; i < v32; i++ {
-			this.StringToEnumMap[randStringMapsproto2(r)] = MapEnum([]int32{0, 1, 2}[r.Intn(3)])
+			this.StringMap[randStringMapsproto2(r)] = randStringMapsproto2(r)
 		}
 	}
 	if r.Intn(10) != 0 {
 		v33 := r.Intn(10)
-		this.StringToMsgMap = make(map[string]*FloatingPoint)
+		this.StringToBytesMap = make(map[string][]byte)
 		for i := 0; i < v33; i++ {
+			v34 := r.Intn(100)
+			v35 := randStringMapsproto2(r)
+			this.StringToBytesMap[v35] = make([]byte, v34)
+			for i := 0; i < v34; i++ {
+				this.StringToBytesMap[v35][i] = byte(r.Intn(256))
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v36 := r.Intn(10)
+		this.StringToEnumMap = make(map[string]MapEnum)
+		for i := 0; i < v36; i++ {
+			this.StringToEnumMap[randStringMapsproto2(r)] = MapEnum([]int32{0, 1, 2}[r.Intn(3)])
+		}
+	}
+	if r.Intn(10) != 0 {
+		v37 := r.Intn(10)
+		this.StringToMsgMap = make(map[string]*FloatingPoint)
+		for i := 0; i < v37; i++ {
+			this.StringToMsgMap[randStringMapsproto2(r)] = NewPopulatedFloatingPoint(r, easy)
+		}
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedMapsproto2(r, 18)
+	}
+	return this
+}
+
+func NewPopulatedAllMapsOrdered(r randyMapsproto2, easy bool) *AllMapsOrdered {
+	this := &AllMapsOrdered{}
+	if r.Intn(10) != 0 {
+		v38 := r.Intn(10)
+		this.StringToDoubleMap = make(map[string]float64)
+		for i := 0; i < v38; i++ {
+			v39 := randStringMapsproto2(r)
+			this.StringToDoubleMap[v39] = float64(r.Float64())
+			if r.Intn(2) == 0 {
+				this.StringToDoubleMap[v39] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v40 := r.Intn(10)
+		this.StringToFloatMap = make(map[string]float32)
+		for i := 0; i < v40; i++ {
+			v41 := randStringMapsproto2(r)
+			this.StringToFloatMap[v41] = float32(r.Float32())
+			if r.Intn(2) == 0 {
+				this.StringToFloatMap[v41] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v42 := r.Intn(10)
+		this.Int32Map = make(map[int32]int32)
+		for i := 0; i < v42; i++ {
+			v43 := int32(r.Int31())
+			this.Int32Map[v43] = int32(r.Int31())
+			if r.Intn(2) == 0 {
+				this.Int32Map[v43] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v44 := r.Intn(10)
+		this.Int64Map = make(map[int64]int64)
+		for i := 0; i < v44; i++ {
+			v45 := int64(r.Int63())
+			this.Int64Map[v45] = int64(r.Int63())
+			if r.Intn(2) == 0 {
+				this.Int64Map[v45] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v46 := r.Intn(10)
+		this.Uint32Map = make(map[uint32]uint32)
+		for i := 0; i < v46; i++ {
+			v47 := uint32(r.Uint32())
+			this.Uint32Map[v47] = uint32(r.Uint32())
+		}
+	}
+	if r.Intn(10) != 0 {
+		v48 := r.Intn(10)
+		this.Uint64Map = make(map[uint64]uint64)
+		for i := 0; i < v48; i++ {
+			v49 := uint64(uint64(r.Uint32()))
+			this.Uint64Map[v49] = uint64(uint64(r.Uint32()))
+		}
+	}
+	if r.Intn(10) != 0 {
+		v50 := r.Intn(10)
+		this.Sint32Map = make(map[int32]int32)
+		for i := 0; i < v50; i++ {
+			v51 := int32(r.Int31())
+			this.Sint32Map[v51] = int32(r.Int31())
+			if r.Intn(2) == 0 {
+				this.Sint32Map[v51] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v52 := r.Intn(10)
+		this.Sint64Map = make(map[int64]int64)
+		for i := 0; i < v52; i++ {
+			v53 := int64(r.Int63())
+			this.Sint64Map[v53] = int64(r.Int63())
+			if r.Intn(2) == 0 {
+				this.Sint64Map[v53] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v54 := r.Intn(10)
+		this.Fixed32Map = make(map[uint32]uint32)
+		for i := 0; i < v54; i++ {
+			v55 := uint32(r.Uint32())
+			this.Fixed32Map[v55] = uint32(r.Uint32())
+		}
+	}
+	if r.Intn(10) != 0 {
+		v56 := r.Intn(10)
+		this.Sfixed32Map = make(map[int32]int32)
+		for i := 0; i < v56; i++ {
+			v57 := int32(r.Int31())
+			this.Sfixed32Map[v57] = int32(r.Int31())
+			if r.Intn(2) == 0 {
+				this.Sfixed32Map[v57] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v58 := r.Intn(10)
+		this.Fixed64Map = make(map[uint64]uint64)
+		for i := 0; i < v58; i++ {
+			v59 := uint64(uint64(r.Uint32()))
+			this.Fixed64Map[v59] = uint64(uint64(r.Uint32()))
+		}
+	}
+	if r.Intn(10) != 0 {
+		v60 := r.Intn(10)
+		this.Sfixed64Map = make(map[int64]int64)
+		for i := 0; i < v60; i++ {
+			v61 := int64(r.Int63())
+			this.Sfixed64Map[v61] = int64(r.Int63())
+			if r.Intn(2) == 0 {
+				this.Sfixed64Map[v61] *= -1
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v62 := r.Intn(10)
+		this.BoolMap = make(map[bool]bool)
+		for i := 0; i < v62; i++ {
+			v63 := bool(bool(r.Intn(2) == 0))
+			this.BoolMap[v63] = bool(bool(r.Intn(2) == 0))
+		}
+	}
+	if r.Intn(10) != 0 {
+		v64 := r.Intn(10)
+		this.StringMap = make(map[string]string)
+		for i := 0; i < v64; i++ {
+			this.StringMap[randStringMapsproto2(r)] = randStringMapsproto2(r)
+		}
+	}
+	if r.Intn(10) != 0 {
+		v65 := r.Intn(10)
+		this.StringToBytesMap = make(map[string][]byte)
+		for i := 0; i < v65; i++ {
+			v66 := r.Intn(100)
+			v67 := randStringMapsproto2(r)
+			this.StringToBytesMap[v67] = make([]byte, v66)
+			for i := 0; i < v66; i++ {
+				this.StringToBytesMap[v67][i] = byte(r.Intn(256))
+			}
+		}
+	}
+	if r.Intn(10) != 0 {
+		v68 := r.Intn(10)
+		this.StringToEnumMap = make(map[string]MapEnum)
+		for i := 0; i < v68; i++ {
+			this.StringToEnumMap[randStringMapsproto2(r)] = MapEnum([]int32{0, 1, 2}[r.Intn(3)])
+		}
+	}
+	if r.Intn(10) != 0 {
+		v69 := r.Intn(10)
+		this.StringToMsgMap = make(map[string]*FloatingPoint)
+		for i := 0; i < v69; i++ {
 			this.StringToMsgMap[randStringMapsproto2(r)] = NewPopulatedFloatingPoint(r, easy)
 		}
 	}
@@ -2987,14 +3512,14 @@ func randUTF8RuneMapsproto2(r randyMapsproto2) rune {
 	return rune(ru + 61)
 }
 func randStringMapsproto2(r randyMapsproto2) string {
-	v34 := r.Intn(100)
-	tmps := make([]rune, v34)
-	for i := 0; i < v34; i++ {
+	v70 := r.Intn(100)
+	tmps := make([]rune, v70)
+	for i := 0; i < v70; i++ {
 		tmps[i] = randUTF8RuneMapsproto2(r)
 	}
 	return string(tmps)
 }
-func randUnrecognizedMapsproto2(r randyMapsproto2, maxFieldNumber int) (data []byte) {
+func randUnrecognizedMapsproto2(r randyMapsproto2, maxFieldNumber int) (dAtA []byte) {
 	l := r.Intn(5)
 	for i := 0; i < l; i++ {
 		wire := r.Intn(4)
@@ -3002,49 +3527,106 @@ func randUnrecognizedMapsproto2(r randyMapsproto2, maxFieldNumber int) (data []b
 			wire = 5
 		}
 		fieldNumber := maxFieldNumber + r.Intn(100)
-		data = randFieldMapsproto2(data, r, fieldNumber, wire)
+		dAtA = randFieldMapsproto2(dAtA, r, fieldNumber, wire)
 	}
-	return data
+	return dAtA
 }
-func randFieldMapsproto2(data []byte, r randyMapsproto2, fieldNumber int, wire int) []byte {
+func randFieldMapsproto2(dAtA []byte, r randyMapsproto2, fieldNumber int, wire int) []byte {
 	key := uint32(fieldNumber)<<3 | uint32(wire)
 	switch wire {
 	case 0:
-		data = encodeVarintPopulateMapsproto2(data, uint64(key))
-		v35 := r.Int63()
+		dAtA = encodeVarintPopulateMapsproto2(dAtA, uint64(key))
+		v71 := r.Int63()
 		if r.Intn(2) == 0 {
-			v35 *= -1
+			v71 *= -1
 		}
-		data = encodeVarintPopulateMapsproto2(data, uint64(v35))
+		dAtA = encodeVarintPopulateMapsproto2(dAtA, uint64(v71))
 	case 1:
-		data = encodeVarintPopulateMapsproto2(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateMapsproto2(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	case 2:
-		data = encodeVarintPopulateMapsproto2(data, uint64(key))
+		dAtA = encodeVarintPopulateMapsproto2(dAtA, uint64(key))
 		ll := r.Intn(100)
-		data = encodeVarintPopulateMapsproto2(data, uint64(ll))
+		dAtA = encodeVarintPopulateMapsproto2(dAtA, uint64(ll))
 		for j := 0; j < ll; j++ {
-			data = append(data, byte(r.Intn(256)))
+			dAtA = append(dAtA, byte(r.Intn(256)))
 		}
 	default:
-		data = encodeVarintPopulateMapsproto2(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateMapsproto2(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	}
-	return data
+	return dAtA
 }
-func encodeVarintPopulateMapsproto2(data []byte, v uint64) []byte {
+func encodeVarintPopulateMapsproto2(dAtA []byte, v uint64) []byte {
 	for v >= 1<<7 {
-		data = append(data, uint8(uint64(v)&0x7f|0x80))
+		dAtA = append(dAtA, uint8(uint64(v)&0x7f|0x80))
 		v >>= 7
 	}
-	data = append(data, uint8(v))
-	return data
+	dAtA = append(dAtA, uint8(v))
+	return dAtA
 }
 func (m *FloatingPoint) Size() (n int) {
 	var l int
 	_ = l
 	if m.F != nil {
 		n += 9
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *CustomMap) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Nullable128S) > 0 {
+		for k, v := range m.Nullable128S {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = v.Size()
+				l += 1 + sovMapsproto2(uint64(l))
+			}
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Uint128S) > 0 {
+		for k, v := range m.Uint128S {
+			_ = k
+			_ = v
+			l = 0
+			l = v.Size()
+			l += 1 + sovMapsproto2(uint64(l))
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.NullableIds) > 0 {
+		for k, v := range m.NullableIds {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = v.Size()
+				l += 1 + sovMapsproto2(uint64(l))
+			}
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Ids) > 0 {
+		for k, v := range m.Ids {
+			_ = k
+			_ = v
+			l = 0
+			l = v.Size()
+			l += 1 + sovMapsproto2(uint64(l))
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -3171,7 +3753,11 @@ func (m *AllMaps) Size() (n int) {
 		for k, v := range m.StringToBytesMap {
 			_ = k
 			_ = v
-			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			l = 0
+			if v != nil {
+				l = 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			}
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
 			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
 		}
 	}
@@ -3190,8 +3776,163 @@ func (m *AllMaps) Size() (n int) {
 			l = 0
 			if v != nil {
 				l = v.Size()
+				l += 1 + sovMapsproto2(uint64(l))
 			}
-			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + l + sovMapsproto2(uint64(l))
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
+			n += mapEntrySize + 2 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *AllMapsOrdered) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.StringToDoubleMap) > 0 {
+		for k, v := range m.StringToDoubleMap {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + 8
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.StringToFloatMap) > 0 {
+		for k, v := range m.StringToFloatMap {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + 4
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Int32Map) > 0 {
+		for k, v := range m.Int32Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Int64Map) > 0 {
+		for k, v := range m.Int64Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Uint32Map) > 0 {
+		for k, v := range m.Uint32Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Uint64Map) > 0 {
+		for k, v := range m.Uint64Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + sovMapsproto2(uint64(k)) + 1 + sovMapsproto2(uint64(v))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Sint32Map) > 0 {
+		for k, v := range m.Sint32Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + sozMapsproto2(uint64(k)) + 1 + sozMapsproto2(uint64(v))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Sint64Map) > 0 {
+		for k, v := range m.Sint64Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + sozMapsproto2(uint64(k)) + 1 + sozMapsproto2(uint64(v))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Fixed32Map) > 0 {
+		for k, v := range m.Fixed32Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + 4 + 1 + 4
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Sfixed32Map) > 0 {
+		for k, v := range m.Sfixed32Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + 4 + 1 + 4
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Fixed64Map) > 0 {
+		for k, v := range m.Fixed64Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + 8 + 1 + 8
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.Sfixed64Map) > 0 {
+		for k, v := range m.Sfixed64Map {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + 8 + 1 + 8
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.BoolMap) > 0 {
+		for k, v := range m.BoolMap {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + 1 + 1 + 1
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.StringMap) > 0 {
+		for k, v := range m.StringMap {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.StringToBytesMap) > 0 {
+		for k, v := range m.StringToBytesMap {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = 1 + len(v) + sovMapsproto2(uint64(len(v)))
+			}
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.StringToEnumMap) > 0 {
+		for k, v := range m.StringToEnumMap {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + 1 + sovMapsproto2(uint64(v))
+			n += mapEntrySize + 2 + sovMapsproto2(uint64(mapEntrySize))
+		}
+	}
+	if len(m.StringToMsgMap) > 0 {
+		for k, v := range m.StringToMsgMap {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = v.Size()
+				l += 1 + sovMapsproto2(uint64(l))
+			}
+			mapEntrySize := 1 + len(k) + sovMapsproto2(uint64(len(k))) + l
 			n += mapEntrySize + 2 + sovMapsproto2(uint64(mapEntrySize))
 		}
 	}
@@ -3220,6 +3961,60 @@ func (this *FloatingPoint) String() string {
 	}
 	s := strings.Join([]string{`&FloatingPoint{`,
 		`F:` + valueToStringMapsproto2(this.F) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *CustomMap) String() string {
+	if this == nil {
+		return "nil"
+	}
+	keysForNullable128S := make([]string, 0, len(this.Nullable128S))
+	for k := range this.Nullable128S {
+		keysForNullable128S = append(keysForNullable128S, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForNullable128S)
+	mapStringForNullable128S := "map[string]*github_com_gogo_protobuf_test_custom.Uint128{"
+	for _, k := range keysForNullable128S {
+		mapStringForNullable128S += fmt.Sprintf("%v: %v,", k, this.Nullable128S[k])
+	}
+	mapStringForNullable128S += "}"
+	keysForUint128S := make([]string, 0, len(this.Uint128S))
+	for k := range this.Uint128S {
+		keysForUint128S = append(keysForUint128S, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForUint128S)
+	mapStringForUint128S := "map[string]github_com_gogo_protobuf_test_custom.Uint128{"
+	for _, k := range keysForUint128S {
+		mapStringForUint128S += fmt.Sprintf("%v: %v,", k, this.Uint128S[k])
+	}
+	mapStringForUint128S += "}"
+	keysForNullableIds := make([]string, 0, len(this.NullableIds))
+	for k := range this.NullableIds {
+		keysForNullableIds = append(keysForNullableIds, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForNullableIds)
+	mapStringForNullableIds := "map[string]*github_com_gogo_protobuf_test.Uuid{"
+	for _, k := range keysForNullableIds {
+		mapStringForNullableIds += fmt.Sprintf("%v: %v,", k, this.NullableIds[k])
+	}
+	mapStringForNullableIds += "}"
+	keysForIds := make([]string, 0, len(this.Ids))
+	for k := range this.Ids {
+		keysForIds = append(keysForIds, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForIds)
+	mapStringForIds := "map[string]github_com_gogo_protobuf_test.Uuid{"
+	for _, k := range keysForIds {
+		mapStringForIds += fmt.Sprintf("%v: %v,", k, this.Ids[k])
+	}
+	mapStringForIds += "}"
+	s := strings.Join([]string{`&CustomMap{`,
+		`Nullable128S:` + mapStringForNullable128S + `,`,
+		`Uint128S:` + mapStringForUint128S + `,`,
+		`NullableIds:` + mapStringForNullableIds + `,`,
+		`Ids:` + mapStringForIds + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -3422,6 +4217,203 @@ func (this *AllMaps) String() string {
 	}, "")
 	return s
 }
+func (this *AllMapsOrdered) String() string {
+	if this == nil {
+		return "nil"
+	}
+	keysForStringToDoubleMap := make([]string, 0, len(this.StringToDoubleMap))
+	for k := range this.StringToDoubleMap {
+		keysForStringToDoubleMap = append(keysForStringToDoubleMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToDoubleMap)
+	mapStringForStringToDoubleMap := "map[string]float64{"
+	for _, k := range keysForStringToDoubleMap {
+		mapStringForStringToDoubleMap += fmt.Sprintf("%v: %v,", k, this.StringToDoubleMap[k])
+	}
+	mapStringForStringToDoubleMap += "}"
+	keysForStringToFloatMap := make([]string, 0, len(this.StringToFloatMap))
+	for k := range this.StringToFloatMap {
+		keysForStringToFloatMap = append(keysForStringToFloatMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToFloatMap)
+	mapStringForStringToFloatMap := "map[string]float32{"
+	for _, k := range keysForStringToFloatMap {
+		mapStringForStringToFloatMap += fmt.Sprintf("%v: %v,", k, this.StringToFloatMap[k])
+	}
+	mapStringForStringToFloatMap += "}"
+	keysForInt32Map := make([]int32, 0, len(this.Int32Map))
+	for k := range this.Int32Map {
+		keysForInt32Map = append(keysForInt32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(keysForInt32Map)
+	mapStringForInt32Map := "map[int32]int32{"
+	for _, k := range keysForInt32Map {
+		mapStringForInt32Map += fmt.Sprintf("%v: %v,", k, this.Int32Map[k])
+	}
+	mapStringForInt32Map += "}"
+	keysForInt64Map := make([]int64, 0, len(this.Int64Map))
+	for k := range this.Int64Map {
+		keysForInt64Map = append(keysForInt64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int64s(keysForInt64Map)
+	mapStringForInt64Map := "map[int64]int64{"
+	for _, k := range keysForInt64Map {
+		mapStringForInt64Map += fmt.Sprintf("%v: %v,", k, this.Int64Map[k])
+	}
+	mapStringForInt64Map += "}"
+	keysForUint32Map := make([]uint32, 0, len(this.Uint32Map))
+	for k := range this.Uint32Map {
+		keysForUint32Map = append(keysForUint32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint32s(keysForUint32Map)
+	mapStringForUint32Map := "map[uint32]uint32{"
+	for _, k := range keysForUint32Map {
+		mapStringForUint32Map += fmt.Sprintf("%v: %v,", k, this.Uint32Map[k])
+	}
+	mapStringForUint32Map += "}"
+	keysForUint64Map := make([]uint64, 0, len(this.Uint64Map))
+	for k := range this.Uint64Map {
+		keysForUint64Map = append(keysForUint64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint64s(keysForUint64Map)
+	mapStringForUint64Map := "map[uint64]uint64{"
+	for _, k := range keysForUint64Map {
+		mapStringForUint64Map += fmt.Sprintf("%v: %v,", k, this.Uint64Map[k])
+	}
+	mapStringForUint64Map += "}"
+	keysForSint32Map := make([]int32, 0, len(this.Sint32Map))
+	for k := range this.Sint32Map {
+		keysForSint32Map = append(keysForSint32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(keysForSint32Map)
+	mapStringForSint32Map := "map[int32]int32{"
+	for _, k := range keysForSint32Map {
+		mapStringForSint32Map += fmt.Sprintf("%v: %v,", k, this.Sint32Map[k])
+	}
+	mapStringForSint32Map += "}"
+	keysForSint64Map := make([]int64, 0, len(this.Sint64Map))
+	for k := range this.Sint64Map {
+		keysForSint64Map = append(keysForSint64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int64s(keysForSint64Map)
+	mapStringForSint64Map := "map[int64]int64{"
+	for _, k := range keysForSint64Map {
+		mapStringForSint64Map += fmt.Sprintf("%v: %v,", k, this.Sint64Map[k])
+	}
+	mapStringForSint64Map += "}"
+	keysForFixed32Map := make([]uint32, 0, len(this.Fixed32Map))
+	for k := range this.Fixed32Map {
+		keysForFixed32Map = append(keysForFixed32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint32s(keysForFixed32Map)
+	mapStringForFixed32Map := "map[uint32]uint32{"
+	for _, k := range keysForFixed32Map {
+		mapStringForFixed32Map += fmt.Sprintf("%v: %v,", k, this.Fixed32Map[k])
+	}
+	mapStringForFixed32Map += "}"
+	keysForSfixed32Map := make([]int32, 0, len(this.Sfixed32Map))
+	for k := range this.Sfixed32Map {
+		keysForSfixed32Map = append(keysForSfixed32Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(keysForSfixed32Map)
+	mapStringForSfixed32Map := "map[int32]int32{"
+	for _, k := range keysForSfixed32Map {
+		mapStringForSfixed32Map += fmt.Sprintf("%v: %v,", k, this.Sfixed32Map[k])
+	}
+	mapStringForSfixed32Map += "}"
+	keysForFixed64Map := make([]uint64, 0, len(this.Fixed64Map))
+	for k := range this.Fixed64Map {
+		keysForFixed64Map = append(keysForFixed64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Uint64s(keysForFixed64Map)
+	mapStringForFixed64Map := "map[uint64]uint64{"
+	for _, k := range keysForFixed64Map {
+		mapStringForFixed64Map += fmt.Sprintf("%v: %v,", k, this.Fixed64Map[k])
+	}
+	mapStringForFixed64Map += "}"
+	keysForSfixed64Map := make([]int64, 0, len(this.Sfixed64Map))
+	for k := range this.Sfixed64Map {
+		keysForSfixed64Map = append(keysForSfixed64Map, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Int64s(keysForSfixed64Map)
+	mapStringForSfixed64Map := "map[int64]int64{"
+	for _, k := range keysForSfixed64Map {
+		mapStringForSfixed64Map += fmt.Sprintf("%v: %v,", k, this.Sfixed64Map[k])
+	}
+	mapStringForSfixed64Map += "}"
+	keysForBoolMap := make([]bool, 0, len(this.BoolMap))
+	for k := range this.BoolMap {
+		keysForBoolMap = append(keysForBoolMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Bools(keysForBoolMap)
+	mapStringForBoolMap := "map[bool]bool{"
+	for _, k := range keysForBoolMap {
+		mapStringForBoolMap += fmt.Sprintf("%v: %v,", k, this.BoolMap[k])
+	}
+	mapStringForBoolMap += "}"
+	keysForStringMap := make([]string, 0, len(this.StringMap))
+	for k := range this.StringMap {
+		keysForStringMap = append(keysForStringMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringMap)
+	mapStringForStringMap := "map[string]string{"
+	for _, k := range keysForStringMap {
+		mapStringForStringMap += fmt.Sprintf("%v: %v,", k, this.StringMap[k])
+	}
+	mapStringForStringMap += "}"
+	keysForStringToBytesMap := make([]string, 0, len(this.StringToBytesMap))
+	for k := range this.StringToBytesMap {
+		keysForStringToBytesMap = append(keysForStringToBytesMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToBytesMap)
+	mapStringForStringToBytesMap := "map[string][]byte{"
+	for _, k := range keysForStringToBytesMap {
+		mapStringForStringToBytesMap += fmt.Sprintf("%v: %v,", k, this.StringToBytesMap[k])
+	}
+	mapStringForStringToBytesMap += "}"
+	keysForStringToEnumMap := make([]string, 0, len(this.StringToEnumMap))
+	for k := range this.StringToEnumMap {
+		keysForStringToEnumMap = append(keysForStringToEnumMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToEnumMap)
+	mapStringForStringToEnumMap := "map[string]MapEnum{"
+	for _, k := range keysForStringToEnumMap {
+		mapStringForStringToEnumMap += fmt.Sprintf("%v: %v,", k, this.StringToEnumMap[k])
+	}
+	mapStringForStringToEnumMap += "}"
+	keysForStringToMsgMap := make([]string, 0, len(this.StringToMsgMap))
+	for k := range this.StringToMsgMap {
+		keysForStringToMsgMap = append(keysForStringToMsgMap, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForStringToMsgMap)
+	mapStringForStringToMsgMap := "map[string]*FloatingPoint{"
+	for _, k := range keysForStringToMsgMap {
+		mapStringForStringToMsgMap += fmt.Sprintf("%v: %v,", k, this.StringToMsgMap[k])
+	}
+	mapStringForStringToMsgMap += "}"
+	s := strings.Join([]string{`&AllMapsOrdered{`,
+		`StringToDoubleMap:` + mapStringForStringToDoubleMap + `,`,
+		`StringToFloatMap:` + mapStringForStringToFloatMap + `,`,
+		`Int32Map:` + mapStringForInt32Map + `,`,
+		`Int64Map:` + mapStringForInt64Map + `,`,
+		`Uint32Map:` + mapStringForUint32Map + `,`,
+		`Uint64Map:` + mapStringForUint64Map + `,`,
+		`Sint32Map:` + mapStringForSint32Map + `,`,
+		`Sint64Map:` + mapStringForSint64Map + `,`,
+		`Fixed32Map:` + mapStringForFixed32Map + `,`,
+		`Sfixed32Map:` + mapStringForSfixed32Map + `,`,
+		`Fixed64Map:` + mapStringForFixed64Map + `,`,
+		`Sfixed64Map:` + mapStringForSfixed64Map + `,`,
+		`BoolMap:` + mapStringForBoolMap + `,`,
+		`StringMap:` + mapStringForStringMap + `,`,
+		`StringToBytesMap:` + mapStringForStringToBytesMap + `,`,
+		`StringToEnumMap:` + mapStringForStringToEnumMap + `,`,
+		`StringToMsgMap:` + mapStringForStringToMsgMap + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
 func valueToStringMapsproto2(v interface{}) string {
 	rv := reflect.ValueOf(v)
 	if rv.IsNil() {
@@ -3429,4 +4421,82 @@ func valueToStringMapsproto2(v interface{}) string {
 	}
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("*%v", pv)
+}
+
+func init() { proto.RegisterFile("combos/marshaler/mapsproto2.proto", fileDescriptorMapsproto2) }
+
+var fileDescriptorMapsproto2 = []byte{
+	// 1148 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x97, 0xcd, 0x6f, 0x1a, 0x47,
+	0x18, 0xc6, 0x19, 0x30, 0x06, 0x86, 0xef, 0x89, 0x5b, 0x21, 0xa4, 0x0e, 0x36, 0xfd, 0x22, 0x24,
+	0x05, 0x9b, 0x46, 0x91, 0xe5, 0xb4, 0xa9, 0x8c, 0xed, 0x14, 0x2b, 0xc5, 0x8d, 0xa0, 0xe9, 0x97,
+	0x64, 0xa9, 0x60, 0x16, 0x82, 0x0a, 0x2c, 0x65, 0x97, 0xa8, 0xbe, 0x54, 0xf9, 0x33, 0x7a, 0xed,
+	0xad, 0xc7, 0x1e, 0x7b, 0xec, 0xd1, 0x52, 0x2f, 0x39, 0x46, 0x51, 0x65, 0x85, 0xed, 0x25, 0xc7,
+	0x1c, 0x73, 0xac, 0x76, 0x76, 0x17, 0x66, 0x77, 0xdf, 0xdd, 0x85, 0x9e, 0x72, 0xf0, 0x09, 0xcf,
+	0xf2, 0x3e, 0xbf, 0xe7, 0xdd, 0xdd, 0x99, 0x97, 0xc7, 0x78, 0xeb, 0x4c, 0x1c, 0xb6, 0x45, 0xa9,
+	0x3c, 0x6c, 0x4d, 0xa4, 0x47, 0xad, 0x81, 0x30, 0x29, 0x0f, 0x5b, 0x63, 0x69, 0x3c, 0x11, 0x65,
+	0xb1, 0x52, 0x62, 0x1f, 0x24, 0xaa, 0xaf, 0xd4, 0x2f, 0xb2, 0x1f, 0xf5, 0xfa, 0xf2, 0xa3, 0x69,
+	0xbb, 0x74, 0x26, 0x0e, 0xcb, 0x3d, 0xb1, 0x27, 0x96, 0xd9, 0x97, 0xed, 0x69, 0x97, 0xad, 0xd8,
+	0x82, 0xfd, 0xa5, 0x69, 0xf3, 0xef, 0xe0, 0xf8, 0xbd, 0x81, 0xd8, 0x92, 0xfb, 0xa3, 0xde, 0x03,
+	0xb1, 0x3f, 0x92, 0x49, 0x0c, 0xa3, 0x6e, 0x06, 0x6d, 0xa2, 0x02, 0x6a, 0xa0, 0x6e, 0xfe, 0xef,
+	0x20, 0x8e, 0x1c, 0x4c, 0x25, 0x59, 0x1c, 0xd6, 0x5b, 0x63, 0xf2, 0x0b, 0x8e, 0x9d, 0x4c, 0x07,
+	0x83, 0x56, 0x7b, 0x20, 0xec, 0x54, 0x76, 0xa5, 0x0c, 0xda, 0x0c, 0x14, 0xa2, 0x95, 0x42, 0x89,
+	0xf3, 0x2f, 0xcd, 0xab, 0x4b, 0x7c, 0xe9, 0xd1, 0x48, 0x9e, 0x9c, 0x57, 0xb7, 0x9f, 0x5f, 0xe6,
+	0x6e, 0x3a, 0xf6, 0x27, 0x0b, 0x92, 0x5c, 0x3e, 0x63, 0xf2, 0xd2, 0xc3, 0xfe, 0x48, 0xde, 0xa9,
+	0xec, 0x36, 0x4c, 0x7e, 0xe4, 0x31, 0x0e, 0xeb, 0x5f, 0x48, 0x19, 0x3f, 0xf3, 0x7e, 0xcf, 0xc1,
+	0xdb, 0x28, 0xd3, 0x7c, 0x6f, 0x5d, 0x5c, 0xe6, 0x7c, 0x2b, 0x7b, 0xcf, 0xbd, 0xc8, 0x4f, 0x38,
+	0x6a, 0xf4, 0x71, 0xdc, 0x91, 0x32, 0x01, 0x66, 0xfd, 0xa1, 0xc7, 0x6d, 0x1f, 0x77, 0x74, 0xf7,
+	0x0f, 0x9e, 0x5f, 0xe6, 0xf2, 0xae, 0xce, 0xa5, 0x87, 0xd3, 0x7e, 0xa7, 0xc1, 0x7b, 0x90, 0x53,
+	0x1c, 0x50, 0xad, 0xd6, 0x98, 0x55, 0xce, 0xc1, 0x6a, 0x6e, 0x51, 0xd4, 0x6f, 0x70, 0x19, 0x1b,
+	0x95, 0x9b, 0xfd, 0x0c, 0xa7, 0x6d, 0xaf, 0x87, 0xa4, 0x70, 0xe0, 0x47, 0xe1, 0x9c, 0xbd, 0xfc,
+	0x48, 0x43, 0xfd, 0x93, 0x6c, 0xe0, 0xe0, 0xe3, 0xd6, 0x60, 0x2a, 0x64, 0xfc, 0x9b, 0xa8, 0x10,
+	0x6b, 0x68, 0x8b, 0x3d, 0xff, 0x2e, 0xca, 0xde, 0xc1, 0x71, 0xd3, 0x33, 0x5e, 0x49, 0x7c, 0x17,
+	0xa7, 0xac, 0x4f, 0x69, 0x25, 0xfd, 0x6d, 0x1c, 0xfe, 0x3f, 0xba, 0xfc, 0x33, 0x82, 0x43, 0xfb,
+	0x83, 0x41, 0xbd, 0x35, 0x96, 0xc8, 0x77, 0x38, 0xdd, 0x94, 0x27, 0xfd, 0x51, 0xef, 0x2b, 0xf1,
+	0x50, 0x9c, 0xb6, 0x07, 0x42, 0xbd, 0x35, 0xd6, 0x37, 0xf4, 0x0d, 0xd3, 0xe3, 0xd6, 0x05, 0x25,
+	0x5b, 0x35, 0xf3, 0x6f, 0xd8, 0x29, 0xe4, 0x6b, 0x9c, 0x32, 0x2e, 0xb2, 0xb3, 0xa5, 0x92, 0xb5,
+	0xed, 0x5a, 0x74, 0x25, 0x1b, 0xc5, 0x1a, 0xd8, 0xc6, 0x20, 0x77, 0x71, 0xf8, 0x78, 0x24, 0x7f,
+	0x5c, 0x51, 0x79, 0xda, 0x1e, 0xcc, 0x83, 0x3c, 0xa3, 0x48, 0xe3, 0xcc, 0x35, 0xba, 0xfe, 0xf6,
+	0x2d, 0x55, 0xbf, 0xe6, 0xae, 0x67, 0x45, 0x0b, 0x3d, 0x5b, 0x92, 0x7d, 0x1c, 0x51, 0xdf, 0xb9,
+	0xd6, 0x40, 0x90, 0x01, 0xde, 0x05, 0x01, 0xf3, 0x2a, 0x8d, 0xb0, 0x50, 0x19, 0x08, 0xad, 0x87,
+	0x75, 0x0f, 0x04, 0xd7, 0xc4, 0x42, 0xa5, 0x22, 0x9a, 0xf3, 0x2e, 0x42, 0x2e, 0x88, 0xa6, 0xa5,
+	0x8b, 0x26, 0xdf, 0x45, 0x73, 0xde, 0x45, 0xd8, 0x03, 0xc1, 0x77, 0x31, 0x5f, 0x93, 0x43, 0x8c,
+	0xef, 0xf5, 0x7f, 0x16, 0x3a, 0x5a, 0x1b, 0x11, 0x60, 0x18, 0x19, 0x8c, 0x45, 0x99, 0x06, 0xe1,
+	0x74, 0xe4, 0x73, 0x1c, 0x6d, 0x76, 0x17, 0x18, 0xcc, 0x30, 0xef, 0xc3, 0xad, 0x74, 0x2d, 0x1c,
+	0x5e, 0x39, 0x6f, 0x47, 0xbb, 0xa5, 0xa8, 0x57, 0x3b, 0xdc, 0x3d, 0x71, 0xba, 0x45, 0x3b, 0x1a,
+	0x26, 0xe6, 0xd9, 0x0e, 0xc7, 0xe1, 0x95, 0xe4, 0x0e, 0x0e, 0x55, 0x45, 0x51, 0xad, 0xcc, 0xc4,
+	0x19, 0x64, 0x0b, 0x84, 0xe8, 0x35, 0x1a, 0xc0, 0x50, 0xb0, 0xb7, 0xc3, 0xb6, 0xbe, 0x2a, 0x4f,
+	0xb8, 0xbd, 0x1d, 0xa3, 0xca, 0x78, 0x3b, 0xc6, 0x9a, 0x3f, 0x81, 0xd5, 0x73, 0x59, 0x90, 0x54,
+	0x52, 0x72, 0x89, 0x13, 0x68, 0x14, 0x5b, 0x4e, 0xa0, 0x71, 0x99, 0x34, 0x71, 0xd2, 0xb8, 0x76,
+	0x34, 0x9a, 0xaa, 0x33, 0x38, 0x93, 0x62, 0xd8, 0xeb, 0xae, 0x58, 0xbd, 0x56, 0xa3, 0x5a, 0x09,
+	0xe4, 0x01, 0x4e, 0x18, 0x97, 0xea, 0x12, 0xbb, 0xe9, 0x34, 0xf0, 0xbb, 0x6a, 0x65, 0x6a, 0xa5,
+	0x1a, 0xd2, 0xa2, 0xcf, 0x1e, 0xe2, 0xb7, 0xe1, 0x69, 0xe5, 0x35, 0x2d, 0x11, 0x3f, 0x65, 0x0f,
+	0xf0, 0x5b, 0xe0, 0x64, 0xf2, 0x82, 0xf8, 0x2d, 0xbf, 0x13, 0xa6, 0x71, 0xc4, 0x8b, 0x83, 0x80,
+	0x38, 0x68, 0x17, 0x2f, 0x36, 0x19, 0x2f, 0x0e, 0x00, 0xe2, 0x00, 0x2f, 0xfe, 0x04, 0x27, 0xcc,
+	0x73, 0x88, 0x57, 0xc7, 0x01, 0x75, 0x1c, 0x50, 0xc3, 0xde, 0x6b, 0x80, 0x7a, 0xcd, 0xa2, 0x6e,
+	0x3a, 0x7a, 0xa7, 0x01, 0x75, 0x1a, 0x50, 0xc3, 0xde, 0x04, 0x50, 0x13, 0x5e, 0xfd, 0x29, 0x4e,
+	0x5a, 0x46, 0x0e, 0x2f, 0x0f, 0x01, 0xf2, 0x90, 0xe5, 0xb7, 0xd9, 0x3a, 0x6a, 0x78, 0x7d, 0x12,
+	0xd0, 0x27, 0x21, 0x7b, 0xb8, 0xfb, 0x75, 0x40, 0xbe, 0x0e, 0xda, 0xc3, 0xfa, 0x14, 0xa0, 0x4f,
+	0xf1, 0xfa, 0x3d, 0x1c, 0xe3, 0xa7, 0x0a, 0xaf, 0x0d, 0x03, 0xda, 0xb0, 0xf5, 0xb9, 0x9b, 0x46,
+	0x8a, 0xd7, 0x4e, 0x8f, 0x38, 0x1c, 0x17, 0xd3, 0x18, 0x59, 0x29, 0xd9, 0x7c, 0x8b, 0x37, 0xa0,
+	0xa1, 0x01, 0x30, 0x8a, 0x3c, 0x23, 0x51, 0xd9, 0x30, 0x0d, 0x0b, 0xa6, 0x9b, 0x0e, 0x79, 0xf2,
+	0x29, 0xbe, 0x06, 0x8c, 0x0e, 0x00, 0xbc, 0xcd, 0x83, 0xa3, 0x95, 0xac, 0x09, 0x6c, 0xfa, 0x5f,
+	0x81, 0x8f, 0x56, 0xff, 0x5c, 0xc3, 0x09, 0x7d, 0x44, 0x7d, 0x39, 0xe9, 0x08, 0x13, 0xa1, 0x43,
+	0x7e, 0x70, 0x4e, 0x58, 0x15, 0x68, 0xb4, 0xe9, 0xba, 0x15, 0x82, 0xd6, 0xa9, 0x63, 0xd0, 0xda,
+	0x59, 0xc6, 0xc0, 0x2b, 0x6f, 0x1d, 0xd9, 0xf2, 0xd6, 0x75, 0x37, 0xac, 0x53, 0xec, 0x3a, 0xb2,
+	0xc5, 0x2e, 0x2f, 0x0c, 0x98, 0xbe, 0x6a, 0xf6, 0xf4, 0x55, 0x74, 0xe3, 0x38, 0x87, 0xb0, 0x9a,
+	0x3d, 0x84, 0x79, 0x92, 0xe0, 0x2c, 0x56, 0xb3, 0x67, 0x31, 0x57, 0x92, 0x73, 0x24, 0xab, 0xd9,
+	0x23, 0x99, 0x27, 0x09, 0x4e, 0x66, 0xf7, 0x81, 0x64, 0x76, 0xc3, 0x0d, 0xe5, 0x16, 0xd0, 0x4e,
+	0xa0, 0x80, 0x76, 0xd3, 0xb5, 0x31, 0xd7, 0x9c, 0x76, 0x1f, 0xc8, 0x69, 0xde, 0xcd, 0x39, 0xc4,
+	0xb5, 0x13, 0x28, 0xae, 0x2d, 0xd1, 0x9c, 0x53, 0x6a, 0xab, 0x5a, 0x53, 0x5b, 0xc1, 0x8d, 0x05,
+	0x87, 0xb7, 0x9a, 0x3d, 0xbc, 0x15, 0xbd, 0xcf, 0x22, 0x94, 0xe1, 0x4e, 0x1d, 0x33, 0xdc, 0x52,
+	0x87, 0xdb, 0x2b, 0xca, 0x7d, 0xef, 0x14, 0xe5, 0xb6, 0x97, 0xa1, 0xbb, 0x27, 0xba, 0x6f, 0x1c,
+	0x12, 0x5d, 0x79, 0x19, 0xf4, 0x55, 0xb0, 0xbb, 0x0a, 0x76, 0x57, 0xc1, 0xee, 0x2a, 0xd8, 0xbd,
+	0x19, 0xc1, 0x6e, 0x6f, 0xed, 0xd7, 0xdf, 0x72, 0xa8, 0xb8, 0x85, 0x43, 0xba, 0x35, 0x59, 0xc7,
+	0xfe, 0xfa, 0x7e, 0xca, 0xc7, 0x3e, 0xab, 0x29, 0xc4, 0x3e, 0x0f, 0x52, 0xfe, 0xea, 0x17, 0x17,
+	0x33, 0xea, 0x7b, 0x3a, 0xa3, 0xbe, 0x67, 0x33, 0xea, 0x7b, 0x31, 0xa3, 0xe8, 0xe5, 0x8c, 0xa2,
+	0x57, 0x33, 0x8a, 0x5e, 0xcf, 0x28, 0x7a, 0xa2, 0x50, 0xf4, 0xbb, 0x42, 0xd1, 0x1f, 0x0a, 0x45,
+	0x7f, 0x2a, 0x14, 0xfd, 0xa5, 0x50, 0x74, 0xa1, 0x50, 0xf4, 0x54, 0xa1, 0xbe, 0x17, 0x0a, 0x45,
+	0x2f, 0x15, 0xea, 0x7b, 0xa5, 0x50, 0xf4, 0x5a, 0xa1, 0xbe, 0x27, 0xff, 0x52, 0xdf, 0x7f, 0x01,
+	0x00, 0x00, 0xff, 0xff, 0xec, 0x4e, 0x18, 0x12, 0xf7, 0x16, 0x00, 0x00,
 }

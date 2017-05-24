@@ -1,7 +1,7 @@
-# Extensions for Protocol Buffers to create more go like structures.
+# Protocol Buffers for Go with Gadgets
 #
-# Copyright (c) 2013, Vastech SA (PTY) LTD. All rights reserved.
-# http://github.com/gogo/protobuf/gogoproto
+# Copyright (c) 2013, The GoGo Authors. All rights reserved.
+# http://github.com/gogo/protobuf
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -26,11 +26,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-.PHONY: nuke regenerate tests clean install gofmt vet
+GO_VERSION:=$(shell go version)
+
+.PHONY: nuke regenerate tests clean install gofmt vet contributors
 
 all: clean install regenerate install tests errcheck vet
 
-buildserverall: clean install regenerate install tests vet
+buildserverall: clean install regenerate install tests vet js
 
 install:
 	go install ./proto
@@ -41,8 +43,10 @@ install:
 	go install ./protoc-gen-gogofast
 	go install ./protoc-gen-gogofaster
 	go install ./protoc-gen-gogoslick
+	go install ./protoc-gen-gostring
 	go install ./protoc-min-version
 	go install ./protoc-gen-combo
+	go install ./gogoreplace
 
 clean:
 	go clean ./...
@@ -56,9 +60,12 @@ gofmt:
 regenerate:
 	make -C protoc-gen-gogo/descriptor regenerate
 	make -C protoc-gen-gogo/plugin regenerate
+	make -C protoc-gen-gogo/testdata regenerate
 	make -C gogoproto regenerate
 	make -C proto/testdata regenerate
 	make -C jsonpb/jsonpb_test_proto regenerate
+	make -C _conformance regenerate
+	make -C types regenerate
 	make -C test regenerate
 	make -C test/example regenerate
 	make -C test/unrecognized regenerate
@@ -69,6 +76,7 @@ regenerate:
 	make -C test/moredefaults regenerate
 	make -C test/issue8 regenerate
 	make -C test/enumprefix regenerate
+	make -C test/enumcustomname regenerate
 	make -C test/packed regenerate
 	make -C test/protosize regenerate
 	make -C test/tags regenerate
@@ -91,6 +99,19 @@ regenerate:
 	make -C test/fuzztests regenerate
 	make -C test/oneofembed regenerate
 	make -C test/asymetric-issue125 regenerate
+	make -C test/filedotname regenerate
+	make -C test/nopackage regenerate
+	make -C test/types regenerate
+	make -C test/proto3extension regenerate
+	make -C test/stdtypes regenerate
+	make -C test/data regenerate
+	make -C test/typedecl regenerate
+	make -C test/issue260 regenerate
+	make -C test/issue261 regenerate
+	make -C test/issue262 regenerate
+	make -C test/enumdecl regenerate
+	make -C test/typedecl_all regenerate
+	make -C test/enumdecl_all regenerate
 	make gofmt
 
 tests:
@@ -102,7 +123,7 @@ vet:
 	go tool vet --shadow .
 
 errcheck:
-	go get -u github.com/kisielk/errcheck
+	go get github.com/kisielk/errcheck
 	errcheck ./test/...
 
 drone:
@@ -110,11 +131,24 @@ drone:
 	(cd $(GOPATH)/src/github.com/gogo/protobuf && make buildserverall)
 
 testall:
+	go get -u github.com/golang/protobuf/proto
 	make -C protoc-gen-gogo/testdata test
 	make -C vanity/test test
+	make -C test/registration test
 	make tests
 
 bench:
 	(cd test/mixbench && go build .)
 	(cd test/mixbench && ./mixbench)
 
+contributors:
+	git log --format='%aN <%aE>' | sort -fu > CONTRIBUTORS
+
+js:
+ifeq (go1.8, $(findstring go1.8, $(GO_VERSION)))
+	go get github.com/gopherjs/gopherjs
+	gopherjs build github.com/gogo/protobuf/protoc-gen-gogo
+endif
+
+update:
+	(cd protobuf && make update)

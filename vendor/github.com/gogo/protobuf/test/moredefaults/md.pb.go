@@ -27,14 +27,21 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+
 type MoreDefaultsB struct {
 	Field1           *string `protobuf:"bytes,1,opt,name=Field1" json:"Field1,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *MoreDefaultsB) Reset()         { *m = MoreDefaultsB{} }
-func (m *MoreDefaultsB) String() string { return proto.CompactTextString(m) }
-func (*MoreDefaultsB) ProtoMessage()    {}
+func (m *MoreDefaultsB) Reset()                    { *m = MoreDefaultsB{} }
+func (m *MoreDefaultsB) String() string            { return proto.CompactTextString(m) }
+func (*MoreDefaultsB) ProtoMessage()               {}
+func (*MoreDefaultsB) Descriptor() ([]byte, []int) { return fileDescriptorMd, []int{0} }
 
 func (m *MoreDefaultsB) GetField1() string {
 	if m != nil && m.Field1 != nil {
@@ -53,9 +60,10 @@ type MoreDefaultsA struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *MoreDefaultsA) Reset()         { *m = MoreDefaultsA{} }
-func (m *MoreDefaultsA) String() string { return proto.CompactTextString(m) }
-func (*MoreDefaultsA) ProtoMessage()    {}
+func (m *MoreDefaultsA) Reset()                    { *m = MoreDefaultsA{} }
+func (m *MoreDefaultsA) String() string            { return proto.CompactTextString(m) }
+func (*MoreDefaultsA) ProtoMessage()               {}
+func (*MoreDefaultsA) Descriptor() ([]byte, []int) { return fileDescriptorMd, []int{1} }
 
 const Default_MoreDefaultsA_Field1 int64 = 1234
 
@@ -201,7 +209,7 @@ func (this *MoreDefaultsA) Equal(that interface{}) bool {
 func NewPopulatedMoreDefaultsB(r randyMd, easy bool) *MoreDefaultsB {
 	this := &MoreDefaultsB{}
 	if r.Intn(10) != 0 {
-		v1 := randStringMd(r)
+		v1 := string(randStringMd(r))
 		this.Field1 = &v1
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -265,7 +273,7 @@ func randStringMd(r randyMd) string {
 	}
 	return string(tmps)
 }
-func randUnrecognizedMd(r randyMd, maxFieldNumber int) (data []byte) {
+func randUnrecognizedMd(r randyMd, maxFieldNumber int) (dAtA []byte) {
 	l := r.Intn(5)
 	for i := 0; i < l; i++ {
 		wire := r.Intn(4)
@@ -273,41 +281,64 @@ func randUnrecognizedMd(r randyMd, maxFieldNumber int) (data []byte) {
 			wire = 5
 		}
 		fieldNumber := maxFieldNumber + r.Intn(100)
-		data = randFieldMd(data, r, fieldNumber, wire)
+		dAtA = randFieldMd(dAtA, r, fieldNumber, wire)
 	}
-	return data
+	return dAtA
 }
-func randFieldMd(data []byte, r randyMd, fieldNumber int, wire int) []byte {
+func randFieldMd(dAtA []byte, r randyMd, fieldNumber int, wire int) []byte {
 	key := uint32(fieldNumber)<<3 | uint32(wire)
 	switch wire {
 	case 0:
-		data = encodeVarintPopulateMd(data, uint64(key))
+		dAtA = encodeVarintPopulateMd(dAtA, uint64(key))
 		v6 := r.Int63()
 		if r.Intn(2) == 0 {
 			v6 *= -1
 		}
-		data = encodeVarintPopulateMd(data, uint64(v6))
+		dAtA = encodeVarintPopulateMd(dAtA, uint64(v6))
 	case 1:
-		data = encodeVarintPopulateMd(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateMd(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	case 2:
-		data = encodeVarintPopulateMd(data, uint64(key))
+		dAtA = encodeVarintPopulateMd(dAtA, uint64(key))
 		ll := r.Intn(100)
-		data = encodeVarintPopulateMd(data, uint64(ll))
+		dAtA = encodeVarintPopulateMd(dAtA, uint64(ll))
 		for j := 0; j < ll; j++ {
-			data = append(data, byte(r.Intn(256)))
+			dAtA = append(dAtA, byte(r.Intn(256)))
 		}
 	default:
-		data = encodeVarintPopulateMd(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateMd(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	}
-	return data
+	return dAtA
 }
-func encodeVarintPopulateMd(data []byte, v uint64) []byte {
+func encodeVarintPopulateMd(dAtA []byte, v uint64) []byte {
 	for v >= 1<<7 {
-		data = append(data, uint8(uint64(v)&0x7f|0x80))
+		dAtA = append(dAtA, uint8(uint64(v)&0x7f|0x80))
 		v >>= 7
 	}
-	data = append(data, uint8(v))
-	return data
+	dAtA = append(dAtA, uint8(v))
+	return dAtA
+}
+
+func init() { proto.RegisterFile("md.proto", fileDescriptorMd) }
+
+var fileDescriptorMd = []byte{
+	// 258 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xc8, 0x4d, 0xd1, 0x2b,
+	0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xc9, 0xcd, 0x2f, 0x4a, 0x4d, 0x49, 0x4d, 0x4b, 0x2c, 0xcd,
+	0x29, 0x29, 0x96, 0xd2, 0x4d, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f,
+	0xcf, 0x4f, 0xcf, 0xd7, 0x07, 0x2b, 0x4a, 0x2a, 0x4d, 0x03, 0xf3, 0xc0, 0x1c, 0x30, 0x0b, 0xa2,
+	0x59, 0xca, 0x18, 0xa7, 0xf2, 0x92, 0xd4, 0xe2, 0x12, 0xfd, 0xd4, 0x8a, 0xc4, 0xdc, 0x82, 0x9c,
+	0x54, 0x18, 0x0d, 0xd1, 0xa4, 0xa4, 0xce, 0xc5, 0xeb, 0x9b, 0x5f, 0x94, 0xea, 0x02, 0xb5, 0xd3,
+	0x49, 0x48, 0x8c, 0x8b, 0xcd, 0x2d, 0x33, 0x35, 0x27, 0xc5, 0x50, 0x82, 0x51, 0x81, 0x51, 0x83,
+	0x33, 0x08, 0xca, 0x53, 0x7a, 0xcc, 0x88, 0xaa, 0xd2, 0x51, 0x48, 0x06, 0x45, 0x25, 0xb3, 0x15,
+	0x8b, 0xa1, 0x91, 0xb1, 0x09, 0x4c, 0x3d, 0x5c, 0xd6, 0x48, 0x82, 0x09, 0x24, 0xeb, 0xc4, 0x72,
+	0xe2, 0x9e, 0x3c, 0x03, 0x54, 0xd6, 0x48, 0x48, 0x9b, 0x8b, 0xc9, 0xc9, 0x50, 0x82, 0x59, 0x81,
+	0x51, 0x83, 0xdb, 0x48, 0x5a, 0x0f, 0xd9, 0xd7, 0x7a, 0x28, 0xce, 0x09, 0x62, 0x72, 0x32, 0x14,
+	0x32, 0xe4, 0x62, 0x72, 0x32, 0x92, 0x60, 0x21, 0xa8, 0x18, 0x6a, 0x07, 0x93, 0x93, 0x91, 0x90,
+	0x38, 0x17, 0x93, 0xa3, 0xa1, 0x04, 0x2b, 0x58, 0x0b, 0xbb, 0x1e, 0xc8, 0xff, 0x7a, 0x8e, 0x41,
+	0x4c, 0x8e, 0x86, 0x42, 0xb2, 0x5c, 0x4c, 0x8e, 0x46, 0x12, 0x6c, 0x28, 0x12, 0x30, 0x7d, 0x8e,
+	0x46, 0x4e, 0x02, 0x27, 0x1e, 0xca, 0x31, 0xfe, 0x78, 0x28, 0xc7, 0xb8, 0xe2, 0x91, 0x1c, 0xe3,
+	0x8e, 0x47, 0x72, 0x8c, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xf2, 0xf0, 0x3f, 0xeb, 0x9d, 0x01,
+	0x00, 0x00,
 }

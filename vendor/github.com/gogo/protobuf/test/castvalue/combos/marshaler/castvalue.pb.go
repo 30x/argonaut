@@ -19,24 +19,26 @@ import fmt "fmt"
 import math "math"
 import _ "github.com/gogo/protobuf/gogoproto"
 
-import "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
-
-import bytes "bytes"
-
+import github_com_gogo_protobuf_protoc_gen_gogo_descriptor "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
+import compress_gzip "compress/gzip"
+import bytes "bytes"
+import io_ioutil "io/ioutil"
 
 import strings "strings"
-import sort "sort"
-import strconv "strconv"
 import reflect "reflect"
 import github_com_gogo_protobuf_sortkeys "github.com/gogo/protobuf/sortkeys"
-
-import errors "errors"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type Castaway struct {
 	CastMapValueMessage         map[int32]MyWilson  `protobuf:"bytes,1,rep,name=CastMapValueMessage,castvalue=MyWilson,castvaluetype=castvalue.Wilson" json:"CastMapValueMessage" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -44,1177 +46,285 @@ type Castaway struct {
 	XXX_unrecognized            []byte              `json:"-"`
 }
 
-func (m *Castaway) Reset()      { *m = Castaway{} }
-func (*Castaway) ProtoMessage() {}
+func (m *Castaway) Reset()                    { *m = Castaway{} }
+func (*Castaway) ProtoMessage()               {}
+func (*Castaway) Descriptor() ([]byte, []int) { return fileDescriptorCastvalue, []int{0} }
 
 type Wilson struct {
 	Int64            *int64 `protobuf:"varint,1,opt,name=Int64" json:"Int64,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Wilson) Reset()      { *m = Wilson{} }
-func (*Wilson) ProtoMessage() {}
+func (m *Wilson) Reset()                    { *m = Wilson{} }
+func (*Wilson) ProtoMessage()               {}
+func (*Wilson) Descriptor() ([]byte, []int) { return fileDescriptorCastvalue, []int{1} }
 
 func init() {
 	proto.RegisterType((*Castaway)(nil), "castvalue.Castaway")
 	proto.RegisterType((*Wilson)(nil), "castvalue.Wilson")
 }
-func (this *Castaway) Description() (desc *descriptor.FileDescriptorSet) {
+func (this *Castaway) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
 	return CastvalueDescription()
 }
-func (this *Wilson) Description() (desc *descriptor.FileDescriptorSet) {
+func (this *Wilson) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
 	return CastvalueDescription()
 }
-func CastvalueDescription() (desc *descriptor.FileDescriptorSet) {
-	return &descriptor.FileDescriptorSet{File: []*descriptor.FileDescriptorProto{{Name: func(v string) *string { return &v }("google/protobuf/descriptor.proto"),
-		Package: func(v string) *string { return &v }("google.protobuf"),
-		MessageType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("FileDescriptorSet"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("file"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FileDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("file"),
-			}},
-		}, {Name: func(v string) *string { return &v }("FileDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("package"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("package"),
-			}, {Name: func(v string) *string { return &v }("dependency"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("dependency"),
-			}, {Name: func(v string) *string { return &v }("public_dependency"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("publicDependency"),
-			}, {Name: func(v string) *string { return &v }("weak_dependency"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("weakDependency"),
-			}, {Name: func(v string) *string { return &v }("message_type"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto"),
-				JsonName: func(v string) *string { return &v }("messageType"),
-			}, {Name: func(v string) *string { return &v }("enum_type"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("enumType"),
-			}, {Name: func(v string) *string { return &v }("service"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.ServiceDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("service"),
-			}, {Name: func(v string) *string { return &v }("extension"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("extension"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("source_code_info"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.SourceCodeInfo"),
-				JsonName: func(v string) *string { return &v }("sourceCodeInfo"),
-			}, {Name: func(v string) *string { return &v }("syntax"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("syntax"),
-			}},
-		}, {Name: func(v string) *string { return &v }("DescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("field"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("field"),
-			}, {Name: func(v string) *string { return &v }("extension"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("extension"),
-			}, {Name: func(v string) *string { return &v }("nested_type"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto"),
-				JsonName: func(v string) *string { return &v }("nestedType"),
-			}, {Name: func(v string) *string { return &v }("enum_type"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("enumType"),
-			}, {Name: func(v string) *string { return &v }("extension_range"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto.ExtensionRange"),
-				JsonName: func(v string) *string { return &v }("extensionRange"),
-			}, {Name: func(v string) *string { return &v }("oneof_decl"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.OneofDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("oneofDecl"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("reserved_range"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto.ReservedRange"),
-				JsonName: func(v string) *string { return &v }("reservedRange"),
-			}, {Name: func(v string) *string { return &v }("reserved_name"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("reservedName"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("ExtensionRange"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("start"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("start"),
-				}, {Name: func(v string) *string { return &v }("end"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("end"),
-				}},
-			}, {Name: func(v string) *string { return &v }("ReservedRange"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("start"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("start"),
-				}, {Name: func(v string) *string { return &v }("end"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("end"),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("FieldDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("number"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("number"),
-			}, {Name: func(v string) *string { return &v }("label"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto.Label"),
-				JsonName: func(v string) *string { return &v }("label"),
-			}, {Name: func(v string) *string { return &v }("type"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto.Type"),
-				JsonName: func(v string) *string { return &v }("type"),
-			}, {Name: func(v string) *string { return &v }("type_name"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("typeName"),
-			}, {Name: func(v string) *string { return &v }("extendee"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("extendee"),
-			}, {Name: func(v string) *string { return &v }("default_value"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("defaultValue"),
-			}, {Name: func(v string) *string { return &v }("oneof_index"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("oneofIndex"),
-			}, {Name: func(v string) *string { return &v }("json_name"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("jsonName"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("Type"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("TYPE_DOUBLE"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("TYPE_FLOAT"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("TYPE_INT64"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}, {Name: func(v string) *string { return &v }("TYPE_UINT64"),
-					Number: func(v int32) *int32 { return &v }(4),
-				}, {Name: func(v string) *string { return &v }("TYPE_INT32"),
-					Number: func(v int32) *int32 { return &v }(5),
-				}, {Name: func(v string) *string { return &v }("TYPE_FIXED64"),
-					Number: func(v int32) *int32 { return &v }(6),
-				}, {Name: func(v string) *string { return &v }("TYPE_FIXED32"),
-					Number: func(v int32) *int32 { return &v }(7),
-				}, {Name: func(v string) *string { return &v }("TYPE_BOOL"),
-					Number: func(v int32) *int32 { return &v }(8),
-				}, {Name: func(v string) *string { return &v }("TYPE_STRING"),
-					Number: func(v int32) *int32 { return &v }(9),
-				}, {Name: func(v string) *string { return &v }("TYPE_GROUP"),
-					Number: func(v int32) *int32 { return &v }(10),
-				}, {Name: func(v string) *string { return &v }("TYPE_MESSAGE"),
-					Number: func(v int32) *int32 { return &v }(11),
-				}, {Name: func(v string) *string { return &v }("TYPE_BYTES"),
-					Number: func(v int32) *int32 { return &v }(12),
-				}, {Name: func(v string) *string { return &v }("TYPE_UINT32"),
-					Number: func(v int32) *int32 { return &v }(13),
-				}, {Name: func(v string) *string { return &v }("TYPE_ENUM"),
-					Number: func(v int32) *int32 { return &v }(14),
-				}, {Name: func(v string) *string { return &v }("TYPE_SFIXED32"),
-					Number: func(v int32) *int32 { return &v }(15),
-				}, {Name: func(v string) *string { return &v }("TYPE_SFIXED64"),
-					Number: func(v int32) *int32 { return &v }(16),
-				}, {Name: func(v string) *string { return &v }("TYPE_SINT32"),
-					Number: func(v int32) *int32 { return &v }(17),
-				}, {Name: func(v string) *string { return &v }("TYPE_SINT64"),
-					Number: func(v int32) *int32 { return &v }(18),
-				}},
-			}, {Name: func(v string) *string { return &v }("Label"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("LABEL_OPTIONAL"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("LABEL_REQUIRED"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("LABEL_REPEATED"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("OneofDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumValueDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("value"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumValueDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("number"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("number"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumValueOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("ServiceDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("method"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MethodDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("method"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.ServiceOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("MethodDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("input_type"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("inputType"),
-			}, {Name: func(v string) *string { return &v }("output_type"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("outputType"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MethodOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("client_streaming"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("clientStreaming"),
-			}, {Name: func(v string) *string { return &v }("server_streaming"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("serverStreaming"),
-			}},
-		}, {Name: func(v string) *string { return &v }("FileOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("java_package"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("javaPackage"),
-			}, {Name: func(v string) *string { return &v }("java_outer_classname"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("javaOuterClassname"),
-			}, {Name: func(v string) *string { return &v }("java_multiple_files"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaMultipleFiles"),
-			}, {Name: func(v string) *string { return &v }("java_generate_equals_and_hash"),
-				Number:       func(v int32) *int32 { return &v }(20),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaGenerateEqualsAndHash"),
-			}, {Name: func(v string) *string { return &v }("java_string_check_utf8"),
-				Number:       func(v int32) *int32 { return &v }(27),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaStringCheckUtf8"),
-			}, {Name: func(v string) *string { return &v }("optimize_for"),
-				Number:       func(v int32) *int32 { return &v }(9),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FileOptions.OptimizeMode"),
-				DefaultValue: func(v string) *string { return &v }("SPEED"),
-				JsonName:     func(v string) *string { return &v }("optimizeFor"),
-			}, {Name: func(v string) *string { return &v }("go_package"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("goPackage"),
-			}, {Name: func(v string) *string { return &v }("cc_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(16),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("ccGenericServices"),
-			}, {Name: func(v string) *string { return &v }("java_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(17),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaGenericServices"),
-			}, {Name: func(v string) *string { return &v }("py_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(18),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("pyGenericServices"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(23),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("cc_enable_arenas"),
-				Number:       func(v int32) *int32 { return &v }(31),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("ccEnableArenas"),
-			}, {Name: func(v string) *string { return &v }("objc_class_prefix"),
-				Number:   func(v int32) *int32 { return &v }(36),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("objcClassPrefix"),
-			}, {Name: func(v string) *string { return &v }("csharp_namespace"),
-				Number:   func(v int32) *int32 { return &v }(37),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("csharpNamespace"),
-			}, {Name: func(v string) *string { return &v }("javanano_use_deprecated_package"),
-				Number:   func(v int32) *int32 { return &v }(38),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("javananoUseDeprecatedPackage"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("OptimizeMode"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("SPEED"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("CODE_SIZE"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("LITE_RUNTIME"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}},
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("MessageOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("message_set_wire_format"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("messageSetWireFormat"),
-			}, {Name: func(v string) *string { return &v }("no_standard_descriptor_accessor"),
-				Number:       func(v int32) *int32 { return &v }(2),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("noStandardDescriptorAccessor"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("map_entry"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("mapEntry"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("FieldOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("ctype"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FieldOptions.CType"),
-				DefaultValue: func(v string) *string { return &v }("STRING"),
-				JsonName:     func(v string) *string { return &v }("ctype"),
-			}, {Name: func(v string) *string { return &v }("packed"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("packed"),
-			}, {Name: func(v string) *string { return &v }("jstype"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FieldOptions.JSType"),
-				DefaultValue: func(v string) *string { return &v }("JS_NORMAL"),
-				JsonName:     func(v string) *string { return &v }("jstype"),
-			}, {Name: func(v string) *string { return &v }("lazy"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("lazy"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("weak"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("weak"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("CType"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("STRING"),
-					Number: func(v int32) *int32 { return &v }(0),
-				}, {Name: func(v string) *string { return &v }("CORD"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("STRING_PIECE"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}},
-			}, {Name: func(v string) *string { return &v }("JSType"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("JS_NORMAL"),
-					Number: func(v int32) *int32 { return &v }(0),
-				}, {Name: func(v string) *string { return &v }("JS_STRING"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("JS_NUMBER"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}},
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("allow_alias"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("allowAlias"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumValueOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("ServiceOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(33),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("MethodOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(33),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("UninterpretedOption"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption.NamePart"),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("identifier_value"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("identifierValue"),
-			}, {Name: func(v string) *string { return &v }("positive_int_value"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("positiveIntValue"),
-			}, {Name: func(v string) *string { return &v }("negative_int_value"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("negativeIntValue"),
-			}, {Name: func(v string) *string { return &v }("double_value"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("doubleValue"),
-			}, {Name: func(v string) *string { return &v }("string_value"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("stringValue"),
-			}, {Name: func(v string) *string { return &v }("aggregate_value"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("aggregateValue"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("NamePart"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name_part"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(2),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("namePart"),
-				}, {Name: func(v string) *string { return &v }("is_extension"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(2),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-					JsonName: func(v string) *string { return &v }("isExtension"),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("SourceCodeInfo"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("location"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.SourceCodeInfo.Location"),
-				JsonName: func(v string) *string { return &v }("location"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("Location"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("path"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("path"),
-					Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-						XXX_extensions: map[int32]proto.Extension{},
-					},
-				}, {Name: func(v string) *string { return &v }("span"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("span"),
-					Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-						XXX_extensions: map[int32]proto.Extension{},
-					},
-				}, {Name: func(v string) *string { return &v }("leading_comments"),
-					Number:   func(v int32) *int32 { return &v }(3),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("leadingComments"),
-				}, {Name: func(v string) *string { return &v }("trailing_comments"),
-					Number:   func(v int32) *int32 { return &v }(4),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("trailingComments"),
-				}, {Name: func(v string) *string { return &v }("leading_detached_comments"),
-					Number:   func(v int32) *int32 { return &v }(6),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("leadingDetachedComments"),
-				}},
-			}},
-		}},
-		Options: &descriptor.FileOptions{JavaPackage: func(v string) *string { return &v }("com.google.protobuf"),
-			JavaOuterClassname: func(v string) *string { return &v }("DescriptorProtos"),
-			OptimizeFor:        func(v descriptor.FileOptions_OptimizeMode) *descriptor.FileOptions_OptimizeMode { return &v }(1),
-			GoPackage:          func(v string) *string { return &v }("descriptor"),
-			ObjcClassPrefix:    func(v string) *string { return &v }("GPB"),
-			CsharpNamespace:    func(v string) *string { return &v }("Google.Protobuf.Reflection"),
-			XXX_extensions:     map[int32]proto.Extension{},
-		},
-	}, {Name: func(v string) *string { return &v }("github.com/gogo/protobuf/gogoproto/gogo.proto"),
-		Package:    func(v string) *string { return &v }("gogoproto"),
-		Dependency: []string{"google/protobuf/descriptor.proto"},
-		Extension: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("goproto_enum_prefix"),
-			Number:   func(v int32) *int32 { return &v }(62001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumPrefix"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_stringer"),
-			Number:   func(v int32) *int32 { return &v }(62021),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumStringer"),
-		}, {Name: func(v string) *string { return &v }("enum_stringer"),
-			Number:   func(v int32) *int32 { return &v }(62022),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("enumStringer"),
-		}, {Name: func(v string) *string { return &v }("goproto_getters_all"),
-			Number:   func(v int32) *int32 { return &v }(63001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoGettersAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_prefix_all"),
-			Number:   func(v int32) *int32 { return &v }(63002),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumPrefixAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoStringerAll"),
-		}, {Name: func(v string) *string { return &v }("verbose_equal_all"),
-			Number:   func(v int32) *int32 { return &v }(63004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("verboseEqualAll"),
-		}, {Name: func(v string) *string { return &v }("face_all"),
-			Number:   func(v int32) *int32 { return &v }(63005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("faceAll"),
-		}, {Name: func(v string) *string { return &v }("gostring_all"),
-			Number:   func(v int32) *int32 { return &v }(63006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("gostringAll"),
-		}, {Name: func(v string) *string { return &v }("populate_all"),
-			Number:   func(v int32) *int32 { return &v }(63007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("populateAll"),
-		}, {Name: func(v string) *string { return &v }("stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("stringerAll"),
-		}, {Name: func(v string) *string { return &v }("onlyone_all"),
-			Number:   func(v int32) *int32 { return &v }(63009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("onlyoneAll"),
-		}, {Name: func(v string) *string { return &v }("equal_all"),
-			Number:   func(v int32) *int32 { return &v }(63013),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("equalAll"),
-		}, {Name: func(v string) *string { return &v }("description_all"),
-			Number:   func(v int32) *int32 { return &v }(63014),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("descriptionAll"),
-		}, {Name: func(v string) *string { return &v }("testgen_all"),
-			Number:   func(v int32) *int32 { return &v }(63015),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("testgenAll"),
-		}, {Name: func(v string) *string { return &v }("benchgen_all"),
-			Number:   func(v int32) *int32 { return &v }(63016),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("benchgenAll"),
-		}, {Name: func(v string) *string { return &v }("marshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63017),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("marshalerAll"),
-		}, {Name: func(v string) *string { return &v }("unmarshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63018),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unmarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("sizer_all"),
-			Number:   func(v int32) *int32 { return &v }(63020),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("sizerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63021),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumStringerAll"),
-		}, {Name: func(v string) *string { return &v }("enum_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63022),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("enumStringerAll"),
-		}, {Name: func(v string) *string { return &v }("unsafe_marshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63023),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeMarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("unsafe_unmarshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63024),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeUnmarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_extensions_map_all"),
-			Number:   func(v int32) *int32 { return &v }(63025),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoExtensionsMapAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_unrecognized_all"),
-			Number:   func(v int32) *int32 { return &v }(63026),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoUnrecognizedAll"),
-		}, {Name: func(v string) *string { return &v }("gogoproto_import"),
-			Number:   func(v int32) *int32 { return &v }(63027),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("gogoprotoImport"),
-		}, {Name: func(v string) *string { return &v }("protosizer_all"),
-			Number:   func(v int32) *int32 { return &v }(63028),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("protosizerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_getters"),
-			Number:   func(v int32) *int32 { return &v }(64001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoGetters"),
-		}, {Name: func(v string) *string { return &v }("goproto_stringer"),
-			Number:   func(v int32) *int32 { return &v }(64003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoStringer"),
-		}, {Name: func(v string) *string { return &v }("verbose_equal"),
-			Number:   func(v int32) *int32 { return &v }(64004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("verboseEqual"),
-		}, {Name: func(v string) *string { return &v }("face"),
-			Number:   func(v int32) *int32 { return &v }(64005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("face"),
-		}, {Name: func(v string) *string { return &v }("gostring"),
-			Number:   func(v int32) *int32 { return &v }(64006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("gostring"),
-		}, {Name: func(v string) *string { return &v }("populate"),
-			Number:   func(v int32) *int32 { return &v }(64007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("populate"),
-		}, {Name: func(v string) *string { return &v }("stringer"),
-			Number:   func(v int32) *int32 { return &v }(67008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("stringer"),
-		}, {Name: func(v string) *string { return &v }("onlyone"),
-			Number:   func(v int32) *int32 { return &v }(64009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("onlyone"),
-		}, {Name: func(v string) *string { return &v }("equal"),
-			Number:   func(v int32) *int32 { return &v }(64013),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("equal"),
-		}, {Name: func(v string) *string { return &v }("description"),
-			Number:   func(v int32) *int32 { return &v }(64014),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("description"),
-		}, {Name: func(v string) *string { return &v }("testgen"),
-			Number:   func(v int32) *int32 { return &v }(64015),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("testgen"),
-		}, {Name: func(v string) *string { return &v }("benchgen"),
-			Number:   func(v int32) *int32 { return &v }(64016),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("benchgen"),
-		}, {Name: func(v string) *string { return &v }("marshaler"),
-			Number:   func(v int32) *int32 { return &v }(64017),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("marshaler"),
-		}, {Name: func(v string) *string { return &v }("unmarshaler"),
-			Number:   func(v int32) *int32 { return &v }(64018),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unmarshaler"),
-		}, {Name: func(v string) *string { return &v }("sizer"),
-			Number:   func(v int32) *int32 { return &v }(64020),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("sizer"),
-		}, {Name: func(v string) *string { return &v }("unsafe_marshaler"),
-			Number:   func(v int32) *int32 { return &v }(64023),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeMarshaler"),
-		}, {Name: func(v string) *string { return &v }("unsafe_unmarshaler"),
-			Number:   func(v int32) *int32 { return &v }(64024),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeUnmarshaler"),
-		}, {Name: func(v string) *string { return &v }("goproto_extensions_map"),
-			Number:   func(v int32) *int32 { return &v }(64025),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoExtensionsMap"),
-		}, {Name: func(v string) *string { return &v }("goproto_unrecognized"),
-			Number:   func(v int32) *int32 { return &v }(64026),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoUnrecognized"),
-		}, {Name: func(v string) *string { return &v }("protosizer"),
-			Number:   func(v int32) *int32 { return &v }(64028),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("protosizer"),
-		}, {Name: func(v string) *string { return &v }("nullable"),
-			Number:   func(v int32) *int32 { return &v }(65001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("nullable"),
-		}, {Name: func(v string) *string { return &v }("embed"),
-			Number:   func(v int32) *int32 { return &v }(65002),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("embed"),
-		}, {Name: func(v string) *string { return &v }("customtype"),
-			Number:   func(v int32) *int32 { return &v }(65003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("customtype"),
-		}, {Name: func(v string) *string { return &v }("customname"),
-			Number:   func(v int32) *int32 { return &v }(65004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("customname"),
-		}, {Name: func(v string) *string { return &v }("jsontag"),
-			Number:   func(v int32) *int32 { return &v }(65005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("jsontag"),
-		}, {Name: func(v string) *string { return &v }("moretags"),
-			Number:   func(v int32) *int32 { return &v }(65006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("moretags"),
-		}, {Name: func(v string) *string { return &v }("casttype"),
-			Number:   func(v int32) *int32 { return &v }(65007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("casttype"),
-		}, {Name: func(v string) *string { return &v }("castkey"),
-			Number:   func(v int32) *int32 { return &v }(65008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("castkey"),
-		}, {Name: func(v string) *string { return &v }("castvalue"),
-			Number:   func(v int32) *int32 { return &v }(65009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("castvalue"),
-		}},
-		Options: &descriptor.FileOptions{JavaPackage: func(v string) *string { return &v }("com.google.protobuf"),
-			JavaOuterClassname: func(v string) *string { return &v }("GoGoProtos"),
-			XXX_extensions:     map[int32]proto.Extension{},
-		},
-	}, {Name: func(v string) *string { return &v }("combos/marshaler/castvalue.proto"),
-		Package:    func(v string) *string { return &v }("castvalue"),
-		Dependency: []string{"github.com/gogo/protobuf/gogoproto/gogo.proto"},
-		MessageType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("Castaway"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("CastMapValueMessage"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".castvalue.Castaway.CastMapValueMessageEntry"),
-				JsonName: func(v string) *string { return &v }("castMapValueMessage"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65009: proto.NewExtension([]byte{0x8a, 0xdf, 0x1f, 0x8, 0x4d, 0x79, 0x57, 0x69, 0x6c, 0x73, 0x6f, 0x6e})}},
-			}, {Name: func(v string) *string { return &v }("CastMapValueMessageNullable"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".castvalue.Castaway.CastMapValueMessageNullableEntry"),
-				JsonName: func(v string) *string { return &v }("castMapValueMessageNullable"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65009: proto.NewExtension([]byte{0x8a, 0xdf, 0x1f, 0x8, 0x4d, 0x79, 0x57, 0x69, 0x6c, 0x73, 0x6f, 0x6e})}},
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("CastMapValueMessageEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-					TypeName: func(v string) *string { return &v }(".castvalue.Wilson"),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("CastMapValueMessageNullableEntry"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("key"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("key"),
-				}, {Name: func(v string) *string { return &v }("value"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-					TypeName: func(v string) *string { return &v }(".castvalue.Wilson"),
-					JsonName: func(v string) *string { return &v }("value"),
-				}},
-				Options: &descriptor.MessageOptions{MapEntry: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}},
-		}, {Name: func(v string) *string { return &v }("Wilson"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Int64"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("int64"),
-			}},
-		}},
-		Options: &descriptor.FileOptions{XXX_extensions: map[int32]proto.Extension{63001: proto.NewExtension([]byte{0xc8, 0xe1, 0x1e, 0x0}), 63002: proto.NewExtension([]byte{0xd0, 0xe1, 0x1e, 0x0}), 63003: proto.NewExtension([]byte{0xd8, 0xe1, 0x1e, 0x0}), 63004: proto.NewExtension([]byte{0xe0, 0xe1, 0x1e, 0x1}), 63005: proto.NewExtension([]byte{0xe8, 0xe1, 0x1e, 0x1}), 63006: proto.NewExtension([]byte{0xf0, 0xe1, 0x1e, 0x1}), 63007: proto.NewExtension([]byte{0xf8, 0xe1, 0x1e, 0x1}), 63008: proto.NewExtension([]byte{0x80, 0xe2, 0x1e, 0x1}), 63013: proto.NewExtension([]byte{0xa8, 0xe2, 0x1e, 0x1}), 63014: proto.NewExtension([]byte{0xb0, 0xe2, 0x1e, 0x1}), 63015: proto.NewExtension([]byte{0xb8, 0xe2, 0x1e, 0x1}), 63016: proto.NewExtension([]byte{0xc0, 0xe2, 0x1e, 0x1}), 63017: proto.NewExtension([]byte{0xc8, 0xe2, 0x1e, 0x1}), 63018: proto.NewExtension([]byte{0xd0, 0xe2, 0x1e, 0x0}), 63020: proto.NewExtension([]byte{0xe0, 0xe2, 0x1e, 0x1}), 63021: proto.NewExtension([]byte{0xe8, 0xe2, 0x1e, 0x0}), 63022: proto.NewExtension([]byte{0xf0, 0xe2, 0x1e, 0x1}), 63023: proto.NewExtension([]byte{0xf8, 0xe2, 0x1e, 0x0}), 63024: proto.NewExtension([]byte{0x80, 0xe3, 0x1e, 0x0})}},
-	}},
+func CastvalueDescription() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	d := &github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet{}
+	var gzipped = []byte{
+		// 3793 bytes of a gzipped FileDescriptorSet
+		0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x5a, 0x5d, 0x70, 0x1b, 0xd7,
+		0x75, 0xe6, 0xe2, 0x87, 0x04, 0x0e, 0x40, 0x70, 0xb9, 0xa4, 0x29, 0x88, 0x8e, 0x21, 0x8a, 0xb1,
+		0x23, 0xda, 0x4e, 0xc8, 0x8c, 0x2c, 0xc9, 0x32, 0xd4, 0xc4, 0x03, 0x82, 0x10, 0x03, 0x95, 0x24,
+		0x90, 0x05, 0x19, 0x4b, 0xe9, 0xc3, 0xce, 0xe5, 0xe2, 0x02, 0x5c, 0x69, 0xb1, 0x8b, 0xec, 0x2e,
+		0x24, 0xd3, 0x4f, 0xea, 0x38, 0x6d, 0x27, 0xed, 0x34, 0xfd, 0x9d, 0x69, 0xe2, 0x3a, 0x6e, 0x9b,
+		0x99, 0xd6, 0x69, 0xd2, 0x9f, 0xa4, 0x3f, 0x69, 0xa6, 0x4f, 0xe9, 0x43, 0x5a, 0x3f, 0x75, 0x92,
+		0xb7, 0x3e, 0x74, 0x5a, 0x8b, 0xf1, 0x4c, 0xdd, 0xd6, 0x6d, 0xdd, 0xc6, 0x33, 0xcd, 0x8c, 0x5e,
+		0x3a, 0xf7, 0x6f, 0xb1, 0x0b, 0x80, 0x5c, 0x30, 0x1d, 0x27, 0x4f, 0xc4, 0x3d, 0xf7, 0x7c, 0xdf,
+		0x9e, 0x7b, 0xee, 0xb9, 0xe7, 0x9c, 0xbd, 0x4b, 0xf8, 0xfe, 0x65, 0x58, 0x6a, 0xdb, 0x76, 0xdb,
+		0xc4, 0x6b, 0x5d, 0xc7, 0xf6, 0xec, 0xfd, 0x5e, 0x6b, 0xad, 0x89, 0x5d, 0xdd, 0x31, 0xba, 0x9e,
+		0xed, 0xac, 0x52, 0x99, 0x32, 0xc3, 0x34, 0x56, 0x85, 0xc6, 0xf2, 0x36, 0xcc, 0x5e, 0x37, 0x4c,
+		0xbc, 0xe1, 0x2b, 0x36, 0xb0, 0xa7, 0x5c, 0x85, 0x44, 0xcb, 0x30, 0x71, 0x5e, 0x5a, 0x8a, 0xaf,
+		0x64, 0x2e, 0x3e, 0xbe, 0x3a, 0x00, 0x5a, 0x0d, 0x23, 0xea, 0x44, 0xac, 0x52, 0xc4, 0xf2, 0x5b,
+		0x09, 0x98, 0x1b, 0x31, 0xab, 0x28, 0x90, 0xb0, 0x50, 0x87, 0x30, 0x4a, 0x2b, 0x69, 0x95, 0xfe,
+		0x56, 0xf2, 0x30, 0xd5, 0x45, 0xfa, 0x1d, 0xd4, 0xc6, 0xf9, 0x18, 0x15, 0x8b, 0xa1, 0x52, 0x00,
+		0x68, 0xe2, 0x2e, 0xb6, 0x9a, 0xd8, 0xd2, 0x0f, 0xf3, 0xf1, 0xa5, 0xf8, 0x4a, 0x5a, 0x0d, 0x48,
+		0x94, 0xa7, 0x61, 0xb6, 0xdb, 0xdb, 0x37, 0x0d, 0x5d, 0x0b, 0xa8, 0xc1, 0x52, 0x7c, 0x25, 0xa9,
+		0xca, 0x6c, 0x62, 0xa3, 0xaf, 0x7c, 0x01, 0x66, 0xee, 0x61, 0x74, 0x27, 0xa8, 0x9a, 0xa1, 0xaa,
+		0x39, 0x22, 0x0e, 0x28, 0x96, 0x21, 0xdb, 0xc1, 0xae, 0x8b, 0xda, 0x58, 0xf3, 0x0e, 0xbb, 0x38,
+		0x9f, 0xa0, 0xab, 0x5f, 0x1a, 0x5a, 0xfd, 0xe0, 0xca, 0x33, 0x1c, 0xb5, 0x7b, 0xd8, 0xc5, 0x4a,
+		0x09, 0xd2, 0xd8, 0xea, 0x75, 0x18, 0x43, 0xf2, 0x18, 0xff, 0x55, 0xac, 0x5e, 0x67, 0x90, 0x25,
+		0x45, 0x60, 0x9c, 0x62, 0xca, 0xc5, 0xce, 0x5d, 0x43, 0xc7, 0xf9, 0x49, 0x4a, 0x70, 0x61, 0x88,
+		0xa0, 0xc1, 0xe6, 0x07, 0x39, 0x04, 0x4e, 0x29, 0x43, 0x1a, 0xbf, 0xe8, 0x61, 0xcb, 0x35, 0x6c,
+		0x2b, 0x3f, 0x45, 0x49, 0x9e, 0x18, 0xb1, 0x8b, 0xd8, 0x6c, 0x0e, 0x52, 0xf4, 0x71, 0xca, 0x15,
+		0x98, 0xb2, 0xbb, 0x9e, 0x61, 0x5b, 0x6e, 0x3e, 0xb5, 0x24, 0xad, 0x64, 0x2e, 0x7e, 0x60, 0x64,
+		0x20, 0xd4, 0x98, 0x8e, 0x2a, 0x94, 0x95, 0x2a, 0xc8, 0xae, 0xdd, 0x73, 0x74, 0xac, 0xe9, 0x76,
+		0x13, 0x6b, 0x86, 0xd5, 0xb2, 0xf3, 0x69, 0x4a, 0x70, 0x6e, 0x78, 0x21, 0x54, 0xb1, 0x6c, 0x37,
+		0x71, 0xd5, 0x6a, 0xd9, 0x6a, 0xce, 0x0d, 0x8d, 0x95, 0x05, 0x98, 0x74, 0x0f, 0x2d, 0x0f, 0xbd,
+		0x98, 0xcf, 0xd2, 0x08, 0xe1, 0xa3, 0xe5, 0xff, 0x4d, 0xc2, 0xcc, 0x38, 0x21, 0x76, 0x0d, 0x92,
+		0x2d, 0xb2, 0xca, 0x7c, 0xec, 0x34, 0x3e, 0x60, 0x98, 0xb0, 0x13, 0x27, 0x7f, 0x44, 0x27, 0x96,
+		0x20, 0x63, 0x61, 0xd7, 0xc3, 0x4d, 0x16, 0x11, 0xf1, 0x31, 0x63, 0x0a, 0x18, 0x68, 0x38, 0xa4,
+		0x12, 0x3f, 0x52, 0x48, 0xdd, 0x84, 0x19, 0xdf, 0x24, 0xcd, 0x41, 0x56, 0x5b, 0xc4, 0xe6, 0x5a,
+		0x94, 0x25, 0xab, 0x15, 0x81, 0x53, 0x09, 0x4c, 0xcd, 0xe1, 0xd0, 0x58, 0xd9, 0x00, 0xb0, 0x2d,
+		0x6c, 0xb7, 0xb4, 0x26, 0xd6, 0xcd, 0x7c, 0xea, 0x18, 0x2f, 0xd5, 0x88, 0xca, 0x90, 0x97, 0x6c,
+		0x26, 0xd5, 0x4d, 0xe5, 0xb9, 0x7e, 0xa8, 0x4d, 0x1d, 0x13, 0x29, 0xdb, 0xec, 0x90, 0x0d, 0x45,
+		0xdb, 0x1e, 0xe4, 0x1c, 0x4c, 0xe2, 0x1e, 0x37, 0xf9, 0xca, 0xd2, 0xd4, 0x88, 0xd5, 0xc8, 0x95,
+		0xa9, 0x1c, 0xc6, 0x16, 0x36, 0xed, 0x04, 0x87, 0xca, 0x07, 0xc1, 0x17, 0x68, 0x34, 0xac, 0x80,
+		0x66, 0xa1, 0xac, 0x10, 0xee, 0xa0, 0x0e, 0x5e, 0xbc, 0x0a, 0xb9, 0xb0, 0x7b, 0x94, 0x79, 0x48,
+		0xba, 0x1e, 0x72, 0x3c, 0x1a, 0x85, 0x49, 0x95, 0x0d, 0x14, 0x19, 0xe2, 0xd8, 0x6a, 0xd2, 0x2c,
+		0x97, 0x54, 0xc9, 0xcf, 0xc5, 0x67, 0x61, 0x3a, 0xf4, 0xf8, 0x71, 0x81, 0xcb, 0x5f, 0x98, 0x84,
+		0xf9, 0x51, 0x31, 0x37, 0x32, 0xfc, 0x17, 0x60, 0xd2, 0xea, 0x75, 0xf6, 0xb1, 0x93, 0x8f, 0x53,
+		0x06, 0x3e, 0x52, 0x4a, 0x90, 0x34, 0xd1, 0x3e, 0x36, 0xf3, 0x89, 0x25, 0x69, 0x25, 0x77, 0xf1,
+		0xe9, 0xb1, 0xa2, 0x7a, 0x75, 0x8b, 0x40, 0x54, 0x86, 0x54, 0x3e, 0x0e, 0x09, 0x9e, 0xe2, 0x08,
+		0xc3, 0x53, 0xe3, 0x31, 0x90, 0x58, 0x54, 0x29, 0x4e, 0x79, 0x14, 0xd2, 0xe4, 0x2f, 0xf3, 0xed,
+		0x24, 0xb5, 0x39, 0x45, 0x04, 0xc4, 0xaf, 0xca, 0x22, 0xa4, 0x68, 0x98, 0x35, 0xb1, 0x28, 0x0d,
+		0xfe, 0x98, 0x6c, 0x4c, 0x13, 0xb7, 0x50, 0xcf, 0xf4, 0xb4, 0xbb, 0xc8, 0xec, 0x61, 0x1a, 0x30,
+		0x69, 0x35, 0xcb, 0x85, 0x9f, 0x22, 0x32, 0xe5, 0x1c, 0x64, 0x58, 0x54, 0x1a, 0x56, 0x13, 0xbf,
+		0x48, 0xb3, 0x4f, 0x52, 0x65, 0x81, 0x5a, 0x25, 0x12, 0xf2, 0xf8, 0xdb, 0xae, 0x6d, 0x89, 0xad,
+		0xa5, 0x8f, 0x20, 0x02, 0xfa, 0xf8, 0x67, 0x07, 0x13, 0xdf, 0x63, 0xa3, 0x97, 0x37, 0x18, 0x8b,
+		0xcb, 0xdf, 0x8c, 0x41, 0x82, 0x9e, 0xb7, 0x19, 0xc8, 0xec, 0xde, 0xaa, 0x57, 0xb4, 0x8d, 0xda,
+		0xde, 0xfa, 0x56, 0x45, 0x96, 0x94, 0x1c, 0x00, 0x15, 0x5c, 0xdf, 0xaa, 0x95, 0x76, 0xe5, 0x98,
+		0x3f, 0xae, 0xee, 0xec, 0x5e, 0xb9, 0x24, 0xc7, 0x7d, 0xc0, 0x1e, 0x13, 0x24, 0x82, 0x0a, 0xcf,
+		0x5c, 0x94, 0x93, 0x8a, 0x0c, 0x59, 0x46, 0x50, 0xbd, 0x59, 0xd9, 0xb8, 0x72, 0x49, 0x9e, 0x0c,
+		0x4b, 0x9e, 0xb9, 0x28, 0x4f, 0x29, 0xd3, 0x90, 0xa6, 0x92, 0xf5, 0x5a, 0x6d, 0x4b, 0x4e, 0xf9,
+		0x9c, 0x8d, 0x5d, 0xb5, 0xba, 0xb3, 0x29, 0xa7, 0x7d, 0xce, 0x4d, 0xb5, 0xb6, 0x57, 0x97, 0xc1,
+		0x67, 0xd8, 0xae, 0x34, 0x1a, 0xa5, 0xcd, 0x8a, 0x9c, 0xf1, 0x35, 0xd6, 0x6f, 0xed, 0x56, 0x1a,
+		0x72, 0x36, 0x64, 0xd6, 0x33, 0x17, 0xe5, 0x69, 0xff, 0x11, 0x95, 0x9d, 0xbd, 0x6d, 0x39, 0xa7,
+		0xcc, 0xc2, 0x34, 0x7b, 0x84, 0x30, 0x62, 0x66, 0x40, 0x74, 0xe5, 0x92, 0x2c, 0xf7, 0x0d, 0x61,
+		0x2c, 0xb3, 0x21, 0xc1, 0x95, 0x4b, 0xb2, 0xb2, 0x5c, 0x86, 0x24, 0x8d, 0x2e, 0x45, 0x81, 0xdc,
+		0x56, 0x69, 0xbd, 0xb2, 0xa5, 0xd5, 0xea, 0xbb, 0xd5, 0xda, 0x4e, 0x69, 0x4b, 0x96, 0xfa, 0x32,
+		0xb5, 0xf2, 0xc9, 0xbd, 0xaa, 0x5a, 0xd9, 0x90, 0x63, 0x41, 0x59, 0xbd, 0x52, 0xda, 0xad, 0x6c,
+		0xc8, 0xf1, 0x65, 0x1d, 0xe6, 0x47, 0xe5, 0x99, 0x91, 0x27, 0x23, 0xb0, 0xc5, 0xb1, 0x63, 0xb6,
+		0x98, 0x72, 0x0d, 0x6d, 0xf1, 0x97, 0x25, 0x98, 0x1b, 0x91, 0x6b, 0x47, 0x3e, 0xe4, 0x79, 0x48,
+		0xb2, 0x10, 0x65, 0xd5, 0xe7, 0xc9, 0x91, 0x49, 0x9b, 0x06, 0xec, 0x50, 0x05, 0xa2, 0xb8, 0x60,
+		0x05, 0x8e, 0x1f, 0x53, 0x81, 0x09, 0xc5, 0x90, 0x91, 0x2f, 0x4b, 0x90, 0x3f, 0x8e, 0x3b, 0x22,
+		0x51, 0xc4, 0x42, 0x89, 0xe2, 0xda, 0xa0, 0x01, 0xe7, 0x8f, 0x5f, 0xc3, 0x90, 0x15, 0xaf, 0x4b,
+		0xb0, 0x30, 0xba, 0x51, 0x19, 0x69, 0xc3, 0xc7, 0x61, 0xb2, 0x83, 0xbd, 0x03, 0x5b, 0x14, 0xeb,
+		0x0f, 0x8d, 0x28, 0x01, 0x64, 0x7a, 0xd0, 0x57, 0x1c, 0x15, 0xac, 0x21, 0xf1, 0xe3, 0xba, 0x0d,
+		0x66, 0xcd, 0x90, 0xa5, 0x9f, 0x8b, 0xc1, 0x23, 0x23, 0xc9, 0x47, 0x1a, 0xfa, 0x18, 0x80, 0x61,
+		0x75, 0x7b, 0x1e, 0x2b, 0xc8, 0x2c, 0x3f, 0xa5, 0xa9, 0x84, 0x9e, 0x7d, 0x92, 0x7b, 0x7a, 0x9e,
+		0x3f, 0x1f, 0xa7, 0xf3, 0xc0, 0x44, 0x54, 0xe1, 0x6a, 0xdf, 0xd0, 0x04, 0x35, 0xb4, 0x70, 0xcc,
+		0x4a, 0x87, 0x6a, 0xdd, 0x47, 0x41, 0xd6, 0x4d, 0x03, 0x5b, 0x9e, 0xe6, 0x7a, 0x0e, 0x46, 0x1d,
+		0xc3, 0x6a, 0xd3, 0x04, 0x9c, 0x2a, 0x26, 0x5b, 0xc8, 0x74, 0xb1, 0x3a, 0xc3, 0xa6, 0x1b, 0x62,
+		0x96, 0x20, 0x68, 0x95, 0x71, 0x02, 0x88, 0xc9, 0x10, 0x82, 0x4d, 0xfb, 0x88, 0xe5, 0xaf, 0x4d,
+		0x41, 0x26, 0xd0, 0xd6, 0x29, 0xe7, 0x21, 0x7b, 0x1b, 0xdd, 0x45, 0x9a, 0x68, 0xd5, 0x99, 0x27,
+		0x32, 0x44, 0x56, 0xe7, 0xed, 0xfa, 0x47, 0x61, 0x9e, 0xaa, 0xd8, 0x3d, 0x0f, 0x3b, 0x9a, 0x6e,
+		0x22, 0xd7, 0xa5, 0x4e, 0x4b, 0x51, 0x55, 0x85, 0xcc, 0xd5, 0xc8, 0x54, 0x59, 0xcc, 0x28, 0x97,
+		0x61, 0x8e, 0x22, 0x3a, 0x3d, 0xd3, 0x33, 0xba, 0x26, 0xd6, 0xc8, 0xcb, 0x83, 0x4b, 0x13, 0xb1,
+		0x6f, 0xd9, 0x2c, 0xd1, 0xd8, 0xe6, 0x0a, 0xc4, 0x22, 0x57, 0xd9, 0x80, 0xc7, 0x28, 0xac, 0x8d,
+		0x2d, 0xec, 0x20, 0x0f, 0x6b, 0xf8, 0x33, 0x3d, 0x64, 0xba, 0x1a, 0xb2, 0x9a, 0xda, 0x01, 0x72,
+		0x0f, 0xf2, 0xf3, 0x84, 0x60, 0x3d, 0x96, 0x97, 0xd4, 0xb3, 0x44, 0x71, 0x93, 0xeb, 0x55, 0xa8,
+		0x5a, 0xc9, 0x6a, 0x7e, 0x02, 0xb9, 0x07, 0x4a, 0x11, 0x16, 0x28, 0x8b, 0xeb, 0x39, 0x86, 0xd5,
+		0xd6, 0xf4, 0x03, 0xac, 0xdf, 0xd1, 0x7a, 0x5e, 0xeb, 0x6a, 0xfe, 0xd1, 0xe0, 0xf3, 0xa9, 0x85,
+		0x0d, 0xaa, 0x53, 0x26, 0x2a, 0x7b, 0x5e, 0xeb, 0xaa, 0xd2, 0x80, 0x2c, 0xd9, 0x8c, 0x8e, 0xf1,
+		0x12, 0xd6, 0x5a, 0xb6, 0x43, 0x2b, 0x4b, 0x6e, 0xc4, 0xc9, 0x0e, 0x78, 0x70, 0xb5, 0xc6, 0x01,
+		0xdb, 0x76, 0x13, 0x17, 0x93, 0x8d, 0x7a, 0xa5, 0xb2, 0xa1, 0x66, 0x04, 0xcb, 0x75, 0xdb, 0x21,
+		0x01, 0xd5, 0xb6, 0x7d, 0x07, 0x67, 0x58, 0x40, 0xb5, 0x6d, 0xe1, 0xde, 0xcb, 0x30, 0xa7, 0xeb,
+		0x6c, 0xcd, 0x86, 0xae, 0xf1, 0x16, 0xdf, 0xcd, 0xcb, 0x21, 0x67, 0xe9, 0xfa, 0x26, 0x53, 0xe0,
+		0x31, 0xee, 0x2a, 0xcf, 0xc1, 0x23, 0x7d, 0x67, 0x05, 0x81, 0xb3, 0x43, 0xab, 0x1c, 0x84, 0x5e,
+		0x86, 0xb9, 0xee, 0xe1, 0x30, 0x50, 0x09, 0x3d, 0xb1, 0x7b, 0x38, 0x08, 0x7b, 0x82, 0xbe, 0xb6,
+		0x39, 0x58, 0x47, 0x1e, 0x6e, 0xe6, 0xcf, 0x04, 0xb5, 0x03, 0x13, 0xca, 0x1a, 0xc8, 0xba, 0xae,
+		0x61, 0x0b, 0xed, 0x9b, 0x58, 0x43, 0x0e, 0xb6, 0x90, 0x9b, 0x3f, 0x17, 0x54, 0xce, 0xe9, 0x7a,
+		0x85, 0xce, 0x96, 0xe8, 0xa4, 0xf2, 0x14, 0xcc, 0xda, 0xfb, 0xb7, 0x75, 0x16, 0x59, 0x5a, 0xd7,
+		0xc1, 0x2d, 0xe3, 0xc5, 0xfc, 0xe3, 0xd4, 0x4d, 0x33, 0x64, 0x82, 0xc6, 0x55, 0x9d, 0x8a, 0x95,
+		0x27, 0x41, 0xd6, 0xdd, 0x03, 0xe4, 0x74, 0x69, 0x69, 0x77, 0xbb, 0x48, 0xc7, 0xf9, 0x27, 0x98,
+		0x2a, 0x93, 0xef, 0x08, 0x31, 0x89, 0x6c, 0xf7, 0x9e, 0xd1, 0xf2, 0x04, 0xe3, 0x05, 0x16, 0xd9,
+		0x54, 0xc6, 0xd9, 0x6e, 0xc2, 0x7c, 0xcf, 0x32, 0x2c, 0x0f, 0x3b, 0x5d, 0x07, 0x93, 0x26, 0x9e,
+		0x9d, 0xc4, 0xfc, 0xbf, 0x4c, 0x1d, 0xd3, 0x86, 0xef, 0x05, 0xb5, 0x59, 0x00, 0xa8, 0x73, 0xbd,
+		0x61, 0xe1, 0x72, 0x11, 0xb2, 0xc1, 0xb8, 0x50, 0xd2, 0xc0, 0x22, 0x43, 0x96, 0x48, 0x8d, 0x2d,
+		0xd7, 0x36, 0x48, 0x75, 0xfc, 0x74, 0x45, 0x8e, 0x91, 0x2a, 0xbd, 0x55, 0xdd, 0xad, 0x68, 0xea,
+		0xde, 0xce, 0x6e, 0x75, 0xbb, 0x22, 0xc7, 0x9f, 0x4a, 0xa7, 0xde, 0x9e, 0x92, 0xef, 0xdf, 0xbf,
+		0x7f, 0x3f, 0xb6, 0xfc, 0x9d, 0x18, 0xe4, 0xc2, 0x9d, 0xb1, 0xf2, 0x53, 0x70, 0x46, 0xbc, 0xc6,
+		0xba, 0xd8, 0xd3, 0xee, 0x19, 0x0e, 0x0d, 0xd5, 0x0e, 0x62, 0xbd, 0xa5, 0xef, 0xe5, 0x79, 0xae,
+		0xd5, 0xc0, 0xde, 0x0b, 0x86, 0x43, 0x02, 0xb1, 0x83, 0x3c, 0x65, 0x0b, 0xce, 0x59, 0xb6, 0xe6,
+		0x7a, 0xc8, 0x6a, 0x22, 0xa7, 0xa9, 0xf5, 0x2f, 0x10, 0x34, 0xa4, 0xeb, 0xd8, 0x75, 0x6d, 0x56,
+		0x22, 0x7c, 0x96, 0x0f, 0x58, 0x76, 0x83, 0x2b, 0xf7, 0x73, 0x67, 0x89, 0xab, 0x0e, 0x44, 0x44,
+		0xfc, 0xb8, 0x88, 0x78, 0x14, 0xd2, 0x1d, 0xd4, 0xd5, 0xb0, 0xe5, 0x39, 0x87, 0xb4, 0x9f, 0x4b,
+		0xa9, 0xa9, 0x0e, 0xea, 0x56, 0xc8, 0xf8, 0xfd, 0xdb, 0x83, 0xa0, 0x1f, 0xff, 0x31, 0x0e, 0xd9,
+		0x60, 0x4f, 0x47, 0x5a, 0x64, 0x9d, 0xe6, 0x6f, 0x89, 0x9e, 0xf0, 0x0f, 0x9e, 0xd8, 0x01, 0xae,
+		0x96, 0x49, 0x62, 0x2f, 0x4e, 0xb2, 0x4e, 0x4b, 0x65, 0x48, 0x52, 0x54, 0xc9, 0x99, 0xc6, 0xac,
+		0x7f, 0x4f, 0xa9, 0x7c, 0xa4, 0x6c, 0xc2, 0xe4, 0x6d, 0x97, 0x72, 0x4f, 0x52, 0xee, 0xc7, 0x4f,
+		0xe6, 0xbe, 0xd1, 0xa0, 0xe4, 0xe9, 0x1b, 0x0d, 0x6d, 0xa7, 0xa6, 0x6e, 0x97, 0xb6, 0x54, 0x0e,
+		0x57, 0xce, 0x42, 0xc2, 0x44, 0x2f, 0x1d, 0x86, 0x4b, 0x00, 0x15, 0x8d, 0xeb, 0xf8, 0xb3, 0x90,
+		0xb8, 0x87, 0xd1, 0x9d, 0x70, 0xe2, 0xa5, 0xa2, 0xf7, 0x31, 0xf4, 0xd7, 0x20, 0x49, 0xfd, 0xa5,
+		0x00, 0x70, 0x8f, 0xc9, 0x13, 0x4a, 0x0a, 0x12, 0xe5, 0x9a, 0x4a, 0xc2, 0x5f, 0x86, 0x2c, 0x93,
+		0x6a, 0xf5, 0x6a, 0xa5, 0x5c, 0x91, 0x63, 0xcb, 0x97, 0x61, 0x92, 0x39, 0x81, 0x1c, 0x0d, 0xdf,
+		0x0d, 0xf2, 0x04, 0x1f, 0x72, 0x0e, 0x49, 0xcc, 0xee, 0x6d, 0xaf, 0x57, 0x54, 0x39, 0x16, 0xdc,
+		0x5e, 0x17, 0xb2, 0xc1, 0x76, 0xee, 0xc7, 0x13, 0x53, 0x7f, 0x2d, 0x41, 0x26, 0xd0, 0x9e, 0x91,
+		0xc6, 0x00, 0x99, 0xa6, 0x7d, 0x4f, 0x43, 0xa6, 0x81, 0x5c, 0x1e, 0x14, 0x40, 0x45, 0x25, 0x22,
+		0x19, 0x77, 0xd3, 0x7e, 0x2c, 0xc6, 0xbf, 0x26, 0x81, 0x3c, 0xd8, 0xda, 0x0d, 0x18, 0x28, 0xfd,
+		0x44, 0x0d, 0x7c, 0x55, 0x82, 0x5c, 0xb8, 0x9f, 0x1b, 0x30, 0xef, 0xfc, 0x4f, 0xd4, 0xbc, 0x37,
+		0x63, 0x30, 0x1d, 0xea, 0xe2, 0xc6, 0xb5, 0xee, 0x33, 0x30, 0x6b, 0x34, 0x71, 0xa7, 0x6b, 0x7b,
+		0xd8, 0xd2, 0x0f, 0x35, 0x13, 0xdf, 0xc5, 0x66, 0x7e, 0x99, 0x26, 0x8a, 0xb5, 0x93, 0xfb, 0xc4,
+		0xd5, 0x6a, 0x1f, 0xb7, 0x45, 0x60, 0xc5, 0xb9, 0xea, 0x46, 0x65, 0xbb, 0x5e, 0xdb, 0xad, 0xec,
+		0x94, 0x6f, 0x69, 0x7b, 0x3b, 0x3f, 0xbd, 0x53, 0x7b, 0x61, 0x47, 0x95, 0x8d, 0x01, 0xb5, 0xf7,
+		0xf1, 0xa8, 0xd7, 0x41, 0x1e, 0x34, 0x4a, 0x39, 0x03, 0xa3, 0xcc, 0x92, 0x27, 0x94, 0x39, 0x98,
+		0xd9, 0xa9, 0x69, 0x8d, 0xea, 0x46, 0x45, 0xab, 0x5c, 0xbf, 0x5e, 0x29, 0xef, 0x36, 0xd8, 0x8b,
+		0xb3, 0xaf, 0xbd, 0x1b, 0x3e, 0xd4, 0xaf, 0xc4, 0x61, 0x6e, 0x84, 0x25, 0x4a, 0x89, 0xf7, 0xec,
+		0xec, 0x35, 0xe2, 0x23, 0xe3, 0x58, 0xbf, 0x4a, 0xba, 0x82, 0x3a, 0x72, 0x3c, 0xde, 0xe2, 0x3f,
+		0x09, 0xc4, 0x4b, 0x96, 0x67, 0xb4, 0x0c, 0xec, 0xf0, 0x7b, 0x06, 0xd6, 0xc8, 0xcf, 0xf4, 0xe5,
+		0xec, 0xaa, 0xe1, 0xc3, 0xa0, 0x74, 0x6d, 0xd7, 0xf0, 0x8c, 0xbb, 0x58, 0x33, 0x2c, 0x71, 0x29,
+		0x41, 0x1a, 0xfb, 0x84, 0x2a, 0x8b, 0x99, 0xaa, 0xe5, 0xf9, 0xda, 0x16, 0x6e, 0xa3, 0x01, 0x6d,
+		0x92, 0xc0, 0xe3, 0xaa, 0x2c, 0x66, 0x7c, 0xed, 0xf3, 0x90, 0x6d, 0xda, 0x3d, 0xd2, 0x26, 0x31,
+		0x3d, 0x52, 0x2f, 0x24, 0x35, 0xc3, 0x64, 0xbe, 0x0a, 0xef, 0x63, 0xfb, 0xb7, 0x21, 0x59, 0x35,
+		0xc3, 0x64, 0x4c, 0xe5, 0x02, 0xcc, 0xa0, 0x76, 0xdb, 0x21, 0xe4, 0x82, 0x88, 0x75, 0xe6, 0x39,
+		0x5f, 0x4c, 0x15, 0x17, 0x6f, 0x40, 0x4a, 0xf8, 0x81, 0x94, 0x64, 0xe2, 0x09, 0xad, 0xcb, 0xee,
+		0xa4, 0x62, 0x2b, 0x69, 0x35, 0x65, 0x89, 0xc9, 0xf3, 0x90, 0x35, 0x5c, 0xad, 0x7f, 0x39, 0x1a,
+		0x5b, 0x8a, 0xad, 0xa4, 0xd4, 0x8c, 0xe1, 0xfa, 0xb7, 0x61, 0xcb, 0xaf, 0xc7, 0x20, 0x17, 0xbe,
+		0xdc, 0x55, 0x36, 0x20, 0x65, 0xda, 0x3a, 0xa2, 0xa1, 0xc5, 0xbe, 0x2c, 0xac, 0x44, 0xdc, 0x07,
+		0xaf, 0x6e, 0x71, 0x7d, 0xd5, 0x47, 0x2e, 0xfe, 0xbd, 0x04, 0x29, 0x21, 0x56, 0x16, 0x20, 0xd1,
+		0x45, 0xde, 0x01, 0xa5, 0x4b, 0xae, 0xc7, 0x64, 0x49, 0xa5, 0x63, 0x22, 0x77, 0xbb, 0xc8, 0xa2,
+		0x21, 0xc0, 0xe5, 0x64, 0x4c, 0xf6, 0xd5, 0xc4, 0xa8, 0x49, 0xdb, 0x7e, 0xbb, 0xd3, 0xc1, 0x96,
+		0xe7, 0x8a, 0x7d, 0xe5, 0xf2, 0x32, 0x17, 0x2b, 0x4f, 0xc3, 0xac, 0xe7, 0x20, 0xc3, 0x0c, 0xe9,
+		0x26, 0xa8, 0xae, 0x2c, 0x26, 0x7c, 0xe5, 0x22, 0x9c, 0x15, 0xbc, 0x4d, 0xec, 0x21, 0xfd, 0x00,
+		0x37, 0xfb, 0xa0, 0x49, 0x7a, 0x73, 0x78, 0x86, 0x2b, 0x6c, 0xf0, 0x79, 0x81, 0x5d, 0xfe, 0x9e,
+		0x04, 0xb3, 0xe2, 0x45, 0xa5, 0xe9, 0x3b, 0x6b, 0x1b, 0x00, 0x59, 0x96, 0xed, 0x05, 0xdd, 0x35,
+		0x1c, 0xca, 0x43, 0xb8, 0xd5, 0x92, 0x0f, 0x52, 0x03, 0x04, 0x8b, 0x1d, 0x80, 0xfe, 0xcc, 0xb1,
+		0x6e, 0x3b, 0x07, 0x19, 0x7e, 0x73, 0x4f, 0x3f, 0xff, 0xb0, 0x57, 0x5b, 0x60, 0x22, 0xf2, 0x46,
+		0xa3, 0xcc, 0x43, 0x72, 0x1f, 0xb7, 0x0d, 0x8b, 0xdf, 0x27, 0xb2, 0x81, 0xb8, 0xa5, 0x4c, 0xf8,
+		0xb7, 0x94, 0xeb, 0x37, 0x61, 0x4e, 0xb7, 0x3b, 0x83, 0xe6, 0xae, 0xcb, 0x03, 0xaf, 0xd7, 0xee,
+		0x27, 0xa4, 0x4f, 0x43, 0xbf, 0xc5, 0xfc, 0x72, 0x2c, 0xbe, 0x59, 0x5f, 0xff, 0x6a, 0x6c, 0x71,
+		0x93, 0xe1, 0xea, 0x62, 0x99, 0x2a, 0x6e, 0x99, 0x58, 0x27, 0xa6, 0xc3, 0x0f, 0x3e, 0x04, 0x1f,
+		0x69, 0x1b, 0xde, 0x41, 0x6f, 0x7f, 0x55, 0xb7, 0x3b, 0x6b, 0x6d, 0xbb, 0x6d, 0xf7, 0x3f, 0x77,
+		0x91, 0x11, 0x1d, 0xd0, 0x5f, 0xfc, 0x93, 0x57, 0xda, 0x97, 0x2e, 0x46, 0x7e, 0x1f, 0x2b, 0xee,
+		0xc0, 0x1c, 0x57, 0xd6, 0xe8, 0x9d, 0x3b, 0x7b, 0x35, 0x50, 0x4e, 0xbc, 0x77, 0xc9, 0x7f, 0xe3,
+		0x2d, 0x5a, 0xab, 0xd5, 0x59, 0x0e, 0x25, 0x73, 0xec, 0x05, 0xa2, 0xa8, 0xc2, 0x23, 0x21, 0x3e,
+		0x76, 0x2e, 0xb1, 0x13, 0xc1, 0xf8, 0x1d, 0xce, 0x38, 0x17, 0x60, 0x6c, 0x70, 0x68, 0xb1, 0x0c,
+		0xd3, 0xa7, 0xe1, 0xfa, 0x5b, 0xce, 0x95, 0xc5, 0x41, 0x92, 0x4d, 0x98, 0xa1, 0x24, 0x7a, 0xcf,
+		0xf5, 0xec, 0x0e, 0x4d, 0x7a, 0x27, 0xd3, 0xfc, 0xdd, 0x5b, 0xec, 0xa0, 0xe4, 0x08, 0xac, 0xec,
+		0xa3, 0x8a, 0x45, 0xa0, 0x9f, 0x19, 0x9a, 0x58, 0x37, 0x23, 0x18, 0xde, 0xe0, 0x86, 0xf8, 0xfa,
+		0xc5, 0x4f, 0xc1, 0x3c, 0xf9, 0x4d, 0x73, 0x52, 0xd0, 0x92, 0xe8, 0x5b, 0xa6, 0xfc, 0xf7, 0x5e,
+		0x66, 0x67, 0x71, 0xce, 0x27, 0x08, 0xd8, 0x14, 0xd8, 0xc5, 0x36, 0xf6, 0x3c, 0xec, 0xb8, 0x1a,
+		0x32, 0x47, 0x99, 0x17, 0x78, 0x4d, 0xcf, 0x7f, 0xf1, 0x9d, 0xf0, 0x2e, 0x6e, 0x32, 0x64, 0xc9,
+		0x34, 0x8b, 0x7b, 0x70, 0x66, 0x44, 0x54, 0x8c, 0xc1, 0xf9, 0x0a, 0xe7, 0x9c, 0x1f, 0x8a, 0x0c,
+		0x42, 0x5b, 0x07, 0x21, 0xf7, 0xf7, 0x72, 0x0c, 0xce, 0xdf, 0xe6, 0x9c, 0x0a, 0xc7, 0x8a, 0x2d,
+		0x25, 0x8c, 0x37, 0x60, 0xf6, 0x2e, 0x76, 0xf6, 0x6d, 0x97, 0x5f, 0x8d, 0x8c, 0x41, 0xf7, 0x2a,
+		0xa7, 0x9b, 0xe1, 0x40, 0x7a, 0x57, 0x42, 0xb8, 0x9e, 0x83, 0x54, 0x0b, 0xe9, 0x78, 0x0c, 0x8a,
+		0x2f, 0x71, 0x8a, 0x29, 0xa2, 0x4f, 0xa0, 0x25, 0xc8, 0xb6, 0x6d, 0x5e, 0x96, 0xa2, 0xe1, 0xaf,
+		0x71, 0x78, 0x46, 0x60, 0x38, 0x45, 0xd7, 0xee, 0xf6, 0x4c, 0x52, 0xb3, 0xa2, 0x29, 0x7e, 0x47,
+		0x50, 0x08, 0x0c, 0xa7, 0x38, 0x85, 0x5b, 0x7f, 0x57, 0x50, 0xb8, 0x01, 0x7f, 0x3e, 0x0f, 0x19,
+		0xdb, 0x32, 0x0f, 0x6d, 0x6b, 0x1c, 0x23, 0x7e, 0x8f, 0x33, 0x00, 0x87, 0x10, 0x82, 0x6b, 0x90,
+		0x1e, 0x77, 0x23, 0x7e, 0xff, 0x1d, 0x71, 0x3c, 0xc4, 0x0e, 0x6c, 0xc2, 0x8c, 0x48, 0x50, 0x86,
+		0x6d, 0x8d, 0x41, 0xf1, 0x07, 0x9c, 0x22, 0x17, 0x80, 0xf1, 0x65, 0x78, 0xd8, 0xf5, 0xda, 0x78,
+		0x1c, 0x92, 0xd7, 0xc5, 0x32, 0x38, 0x84, 0xbb, 0x72, 0x1f, 0x5b, 0xfa, 0xc1, 0x78, 0x0c, 0x5f,
+		0x11, 0xae, 0x14, 0x18, 0x42, 0x51, 0x86, 0xe9, 0x0e, 0x72, 0xdc, 0x03, 0x64, 0x8e, 0xb5, 0x1d,
+		0x7f, 0xc8, 0x39, 0xb2, 0x3e, 0x88, 0x7b, 0xa4, 0x67, 0x9d, 0x86, 0xe6, 0xab, 0xc2, 0x23, 0x01,
+		0x18, 0x3f, 0x7a, 0xae, 0x47, 0x2f, 0xa0, 0x4e, 0xc3, 0xf6, 0x35, 0x71, 0xf4, 0x18, 0x76, 0x3b,
+		0xc8, 0x78, 0x0d, 0xd2, 0xae, 0xf1, 0xd2, 0x58, 0x34, 0x7f, 0x24, 0x76, 0x9a, 0x02, 0x08, 0xf8,
+		0x16, 0x9c, 0x1d, 0x59, 0x26, 0xc6, 0x20, 0xfb, 0x63, 0x4e, 0xb6, 0x30, 0xa2, 0x54, 0xf0, 0x94,
+		0x70, 0x5a, 0xca, 0x3f, 0x11, 0x29, 0x01, 0x0f, 0x70, 0xd5, 0xc9, 0x8b, 0x82, 0x8b, 0x5a, 0xa7,
+		0xf3, 0xda, 0x9f, 0x0a, 0xaf, 0x31, 0x6c, 0xc8, 0x6b, 0xbb, 0xb0, 0xc0, 0x19, 0x4f, 0xb7, 0xaf,
+		0x5f, 0x17, 0x89, 0x95, 0xa1, 0xf7, 0xc2, 0xbb, 0xfb, 0x33, 0xb0, 0xe8, 0xbb, 0x53, 0x74, 0xa4,
+		0xae, 0xd6, 0x41, 0xdd, 0x31, 0x98, 0xbf, 0xc1, 0x99, 0x45, 0xc6, 0xf7, 0x5b, 0x5a, 0x77, 0x1b,
+		0x75, 0x09, 0xf9, 0x4d, 0xc8, 0x0b, 0xf2, 0x9e, 0xe5, 0x60, 0xdd, 0x6e, 0x5b, 0xc6, 0x4b, 0xb8,
+		0x39, 0x06, 0xf5, 0x9f, 0x0d, 0x6c, 0xd5, 0x5e, 0x00, 0x4e, 0x98, 0xab, 0x20, 0xfb, 0xbd, 0x8a,
+		0x66, 0x74, 0xba, 0xb6, 0xe3, 0x45, 0x30, 0xfe, 0xb9, 0xd8, 0x29, 0x1f, 0x57, 0xa5, 0xb0, 0x62,
+		0x05, 0x72, 0x74, 0x38, 0x6e, 0x48, 0xfe, 0x05, 0x27, 0x9a, 0xee, 0xa3, 0x78, 0xe2, 0xd0, 0xed,
+		0x4e, 0x17, 0x39, 0xe3, 0xe4, 0xbf, 0xbf, 0x14, 0x89, 0x83, 0x43, 0x78, 0xe2, 0xf0, 0x0e, 0xbb,
+		0x98, 0x54, 0xfb, 0x31, 0x18, 0xbe, 0x29, 0x12, 0x87, 0xc0, 0x70, 0x0a, 0xd1, 0x30, 0x8c, 0x41,
+		0xf1, 0x57, 0x82, 0x42, 0x60, 0x08, 0xc5, 0x27, 0xfb, 0x85, 0xd6, 0xc1, 0x6d, 0xc3, 0xf5, 0x1c,
+		0xd6, 0x07, 0x9f, 0x4c, 0xf5, 0xad, 0x77, 0xc2, 0x4d, 0x98, 0x1a, 0x80, 0x16, 0x6f, 0xc0, 0xcc,
+		0x40, 0x8b, 0xa1, 0x44, 0xfd, 0xcf, 0x42, 0xfe, 0x67, 0xdf, 0xe3, 0xc9, 0x28, 0xdc, 0x61, 0x14,
+		0xb7, 0xc8, 0xbe, 0x87, 0xfb, 0x80, 0x68, 0xb2, 0x97, 0xdf, 0xf3, 0xb7, 0x3e, 0xd4, 0x06, 0x14,
+		0xaf, 0xc3, 0x74, 0xa8, 0x07, 0x88, 0xa6, 0xfa, 0x2c, 0xa7, 0xca, 0x06, 0x5b, 0x80, 0xe2, 0x65,
+		0x48, 0x90, 0x7a, 0x1e, 0x0d, 0xff, 0x39, 0x0e, 0xa7, 0xea, 0xc5, 0x8f, 0x41, 0x4a, 0xd4, 0xf1,
+		0x68, 0xe8, 0xcf, 0x73, 0xa8, 0x0f, 0x21, 0x70, 0x51, 0xc3, 0xa3, 0xe1, 0xbf, 0x20, 0xe0, 0x02,
+		0x42, 0xe0, 0xe3, 0xbb, 0xf0, 0xdb, 0xbf, 0x94, 0xe0, 0x79, 0x58, 0xf8, 0xee, 0x1a, 0x4c, 0xf1,
+		0xe2, 0x1d, 0x8d, 0xfe, 0x1c, 0x7f, 0xb8, 0x40, 0x14, 0x9f, 0x85, 0xe4, 0x98, 0x0e, 0xff, 0x65,
+		0x0e, 0x65, 0xfa, 0xc5, 0x32, 0x64, 0x02, 0x05, 0x3b, 0x1a, 0xfe, 0x79, 0x0e, 0x0f, 0xa2, 0x88,
+		0xe9, 0xbc, 0x60, 0x47, 0x13, 0xfc, 0x8a, 0x30, 0x9d, 0x23, 0x88, 0xdb, 0x44, 0xad, 0x8e, 0x46,
+		0xff, 0xaa, 0xf0, 0xba, 0x80, 0x14, 0x9f, 0x87, 0xb4, 0x9f, 0x7f, 0xa3, 0xf1, 0xbf, 0xc6, 0xf1,
+		0x7d, 0x0c, 0xf1, 0x40, 0x20, 0xff, 0x47, 0x53, 0xfc, 0xba, 0xf0, 0x40, 0x00, 0x45, 0x8e, 0xd1,
+		0x60, 0x4d, 0x8f, 0x66, 0xfa, 0x0d, 0x71, 0x8c, 0x06, 0x4a, 0x3a, 0xd9, 0x4d, 0x9a, 0x06, 0xa3,
+		0x29, 0x7e, 0x53, 0xec, 0x26, 0xd5, 0x27, 0x66, 0x0c, 0x16, 0xc9, 0x68, 0x8e, 0xdf, 0x12, 0x66,
+		0x0c, 0xd4, 0xc8, 0x62, 0x1d, 0x94, 0xe1, 0x02, 0x19, 0xcd, 0xf7, 0x05, 0xce, 0x37, 0x3b, 0x54,
+		0x1f, 0x8b, 0x2f, 0xc0, 0xc2, 0xe8, 0xe2, 0x18, 0xcd, 0xfa, 0xc5, 0xf7, 0x06, 0x5e, 0x67, 0x82,
+		0xb5, 0xb1, 0xb8, 0xdb, 0xcf, 0xb2, 0xc1, 0xc2, 0x18, 0x4d, 0xfb, 0xca, 0x7b, 0xe1, 0x44, 0x1b,
+		0xac, 0x8b, 0xc5, 0x12, 0x40, 0xbf, 0x26, 0x45, 0x73, 0xbd, 0xca, 0xb9, 0x02, 0x20, 0x72, 0x34,
+		0x78, 0x49, 0x8a, 0xc6, 0x7f, 0x49, 0x1c, 0x0d, 0x8e, 0x20, 0x47, 0x43, 0x54, 0xa3, 0x68, 0xf4,
+		0x6b, 0xe2, 0x68, 0x08, 0x48, 0xf1, 0x1a, 0xa4, 0xac, 0x9e, 0x69, 0x92, 0xd8, 0x52, 0x4e, 0xfe,
+		0x37, 0xa2, 0xfc, 0xbf, 0x3e, 0xe4, 0x60, 0x01, 0x28, 0x5e, 0x86, 0x24, 0xee, 0xec, 0xe3, 0x66,
+		0x14, 0xf2, 0xdf, 0x1e, 0x8a, 0x7c, 0x42, 0xb4, 0x8b, 0xcf, 0x03, 0xb0, 0x97, 0x69, 0xfa, 0x95,
+		0x28, 0x02, 0xfb, 0xef, 0x0f, 0xf9, 0x7f, 0x28, 0xf4, 0x21, 0x7d, 0x02, 0xf6, 0xff, 0x0e, 0x27,
+		0x13, 0xbc, 0x13, 0x26, 0xa0, 0x2f, 0xe0, 0xcf, 0xc1, 0xd4, 0x6d, 0xd7, 0xb6, 0x3c, 0xd4, 0x8e,
+		0x42, 0xff, 0x07, 0x47, 0x0b, 0x7d, 0xe2, 0xb0, 0x8e, 0xed, 0x60, 0x0f, 0xb5, 0xdd, 0x28, 0xec,
+		0x7f, 0x72, 0xac, 0x0f, 0x20, 0x60, 0x1d, 0xb9, 0xde, 0x38, 0xeb, 0xfe, 0x2f, 0x01, 0x16, 0x00,
+		0x62, 0x34, 0xf9, 0x7d, 0x07, 0x1f, 0x46, 0x61, 0xdf, 0x15, 0x46, 0x73, 0xfd, 0xe2, 0xc7, 0x20,
+		0x4d, 0x7e, 0xb2, 0xff, 0xda, 0x89, 0x00, 0xff, 0x37, 0x07, 0xf7, 0x11, 0xe4, 0xc9, 0xae, 0xd7,
+		0xf4, 0x8c, 0x68, 0x67, 0xff, 0x0f, 0xdf, 0x69, 0xa1, 0x5f, 0x2c, 0x41, 0xc6, 0xf5, 0x9a, 0xcd,
+		0x1e, 0xef, 0x68, 0x22, 0xe0, 0x3f, 0x78, 0xe8, 0xbf, 0xe4, 0xfa, 0x98, 0xf5, 0xf3, 0xa3, 0x2f,
+		0xeb, 0x60, 0xd3, 0xde, 0xb4, 0xd9, 0x35, 0x1d, 0x7c, 0x3e, 0x09, 0x4b, 0xba, 0xdd, 0xd9, 0xb7,
+		0xdd, 0x35, 0x3f, 0x91, 0xac, 0xf9, 0xf6, 0x8b, 0x8b, 0x36, 0x5f, 0xb0, 0x78, 0xba, 0x2b, 0xba,
+		0xe5, 0xbf, 0x89, 0x43, 0xaa, 0x8c, 0x5c, 0x0f, 0xdd, 0x43, 0x87, 0x4a, 0x17, 0xe6, 0xc8, 0xef,
+		0x6d, 0xd4, 0xa5, 0x17, 0x3e, 0xfc, 0x84, 0xf1, 0x2b, 0xd0, 0x0f, 0xaf, 0xf6, 0x9f, 0x2a, 0x10,
+		0xab, 0x23, 0xd4, 0xe9, 0xa7, 0xe3, 0x75, 0xf9, 0x8d, 0x7f, 0x3a, 0x37, 0xf1, 0x8b, 0xff, 0x7c,
+		0x2e, 0xb5, 0x7d, 0xf8, 0x82, 0x61, 0xba, 0xb6, 0xa5, 0x8e, 0xa2, 0x56, 0x3e, 0x2b, 0xc1, 0xa3,
+		0x23, 0xe4, 0x3b, 0xfc, 0x18, 0xf2, 0x0f, 0x09, 0x97, 0xc6, 0x7c, 0xb4, 0x80, 0x31, 0x13, 0xb2,
+		0xa1, 0xc7, 0x9f, 0xf4, 0x98, 0xc5, 0x5b, 0x90, 0x3f, 0x6e, 0x25, 0x8a, 0x0c, 0xf1, 0x3b, 0xf8,
+		0x90, 0xff, 0x73, 0x28, 0xf9, 0xa9, 0x5c, 0xe8, 0xff, 0x73, 0x99, 0xb4, 0x92, 0xb9, 0x38, 0x1b,
+		0xb0, 0x8e, 0x3f, 0x8c, 0xcd, 0x17, 0x63, 0x57, 0xa5, 0x45, 0x04, 0x4b, 0x51, 0x96, 0xfe, 0x3f,
+		0x1f, 0xb1, 0x5c, 0x80, 0x49, 0x26, 0x54, 0xe6, 0x21, 0x59, 0xb5, 0xbc, 0x2b, 0x97, 0x28, 0x55,
+		0x5c, 0x65, 0x83, 0xf5, 0xad, 0x37, 0x1e, 0x14, 0x26, 0xbe, 0xfb, 0xa0, 0x30, 0xf1, 0x0f, 0x0f,
+		0x0a, 0x13, 0x6f, 0x3e, 0x28, 0x48, 0x6f, 0x3f, 0x28, 0x48, 0xef, 0x3e, 0x28, 0x48, 0x3f, 0x7c,
+		0x50, 0x90, 0xee, 0x1f, 0x15, 0xa4, 0xaf, 0x1c, 0x15, 0xa4, 0xaf, 0x1f, 0x15, 0xa4, 0x6f, 0x1d,
+		0x15, 0xa4, 0x6f, 0x1f, 0x15, 0xa4, 0x37, 0x8e, 0x0a, 0xd2, 0x77, 0x8f, 0x0a, 0x13, 0x6f, 0x1e,
+		0x15, 0xa4, 0xb7, 0x8f, 0x0a, 0x13, 0xef, 0x1e, 0x15, 0xa4, 0x1f, 0x1e, 0x15, 0x26, 0xee, 0x7f,
+		0xbf, 0x30, 0xf1, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xbc, 0xdc, 0x4a, 0xcd, 0xed, 0x30, 0x00,
+		0x00,
 	}
+	r := bytes.NewReader(gzipped)
+	gzipr, err := compress_gzip.NewReader(r)
+	if err != nil {
+		panic(err)
+	}
+	ungzipped, err := io_ioutil.ReadAll(gzipr)
+	if err != nil {
+		panic(err)
+	}
+	if err := github_com_gogo_protobuf_proto.Unmarshal(ungzipped, d); err != nil {
+		panic(err)
+	}
+	return d
 }
 func (this *Castaway) VerboseEqual(that interface{}) error {
 	if that == nil {
@@ -1508,53 +618,40 @@ func valueToGoStringCastvalue(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
-func extensionToGoStringCastvalue(e map[int32]github_com_gogo_protobuf_proto.Extension) string {
-	if e == nil {
-		return "nil"
-	}
-	s := "map[int32]proto.Extension{"
-	keys := make([]int, 0, len(e))
-	for k := range e {
-		keys = append(keys, int(k))
-	}
-	sort.Ints(keys)
-	ss := []string{}
-	for _, k := range keys {
-		ss = append(ss, strconv.Itoa(k)+": "+e[int32(k)].GoString())
-	}
-	s += strings.Join(ss, ",") + "}"
-	return s
-}
-func (m *Castaway) Marshal() (data []byte, err error) {
+func (m *Castaway) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
-	data = make([]byte, size)
-	n, err := m.MarshalTo(data)
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
 	if err != nil {
 		return nil, err
 	}
-	return data[:n], nil
+	return dAtA[:n], nil
 }
 
-func (m *Castaway) MarshalTo(data []byte) (int, error) {
+func (m *Castaway) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
 	if len(m.CastMapValueMessage) > 0 {
 		for k := range m.CastMapValueMessage {
-			data[i] = 0xa
+			dAtA[i] = 0xa
 			i++
 			v := m.CastMapValueMessage[k]
-			msgSize := ((*Wilson)(&v)).Size()
-			mapSize := 1 + sovCastvalue(uint64(k)) + 1 + msgSize + sovCastvalue(uint64(msgSize))
-			i = encodeVarintCastvalue(data, i, uint64(mapSize))
-			data[i] = 0x8
+			msgSize := 0
+			if ((*Wilson)(&v)) != nil {
+				msgSize = ((*Wilson)(&v)).Size()
+				msgSize += 1 + sovCastvalue(uint64(msgSize))
+			}
+			mapSize := 1 + sovCastvalue(uint64(k)) + msgSize
+			i = encodeVarintCastvalue(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintCastvalue(data, i, uint64(k))
-			data[i] = 0x12
+			i = encodeVarintCastvalue(dAtA, i, uint64(k))
+			dAtA[i] = 0x12
 			i++
-			i = encodeVarintCastvalue(data, i, uint64(((*Wilson)(&v)).Size()))
-			n1, err := ((*Wilson)(&v)).MarshalTo(data[i:])
+			i = encodeVarintCastvalue(dAtA, i, uint64(((*Wilson)(&v)).Size()))
+			n1, err := ((*Wilson)(&v)).MarshalTo(dAtA[i:])
 			if err != nil {
 				return 0, err
 			}
@@ -1563,85 +660,88 @@ func (m *Castaway) MarshalTo(data []byte) (int, error) {
 	}
 	if len(m.CastMapValueMessageNullable) > 0 {
 		for k := range m.CastMapValueMessageNullable {
-			data[i] = 0x12
+			dAtA[i] = 0x12
 			i++
 			v := m.CastMapValueMessageNullable[k]
-			if v == nil {
-				return 0, errors.New("proto: map has nil element")
+			msgSize := 0
+			if ((*Wilson)(v)) != nil {
+				msgSize = ((*Wilson)(v)).Size()
+				msgSize += 1 + sovCastvalue(uint64(msgSize))
 			}
-			msgSize := ((*Wilson)(v)).Size()
-			mapSize := 1 + sovCastvalue(uint64(k)) + 1 + msgSize + sovCastvalue(uint64(msgSize))
-			i = encodeVarintCastvalue(data, i, uint64(mapSize))
-			data[i] = 0x8
+			mapSize := 1 + sovCastvalue(uint64(k)) + msgSize
+			i = encodeVarintCastvalue(dAtA, i, uint64(mapSize))
+			dAtA[i] = 0x8
 			i++
-			i = encodeVarintCastvalue(data, i, uint64(k))
-			data[i] = 0x12
-			i++
-			i = encodeVarintCastvalue(data, i, uint64(((*Wilson)(v)).Size()))
-			n2, err := ((*Wilson)(v)).MarshalTo(data[i:])
-			if err != nil {
-				return 0, err
+			i = encodeVarintCastvalue(dAtA, i, uint64(k))
+			if ((*Wilson)(v)) != nil {
+				dAtA[i] = 0x12
+				i++
+				i = encodeVarintCastvalue(dAtA, i, uint64(((*Wilson)(v)).Size()))
+				n2, err := ((*Wilson)(v)).MarshalTo(dAtA[i:])
+				if err != nil {
+					return 0, err
+				}
+				i += n2
 			}
-			i += n2
 		}
 	}
 	if m.XXX_unrecognized != nil {
-		i += copy(data[i:], m.XXX_unrecognized)
+		i += copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	return i, nil
 }
 
-func (m *Wilson) Marshal() (data []byte, err error) {
+func (m *Wilson) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
-	data = make([]byte, size)
-	n, err := m.MarshalTo(data)
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
 	if err != nil {
 		return nil, err
 	}
-	return data[:n], nil
+	return dAtA[:n], nil
 }
 
-func (m *Wilson) MarshalTo(data []byte) (int, error) {
+func (m *Wilson) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
 	if m.Int64 != nil {
-		data[i] = 0x8
+		dAtA[i] = 0x8
 		i++
-		i = encodeVarintCastvalue(data, i, uint64(*m.Int64))
+		i = encodeVarintCastvalue(dAtA, i, uint64(*m.Int64))
 	}
 	if m.XXX_unrecognized != nil {
-		i += copy(data[i:], m.XXX_unrecognized)
+		i += copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	return i, nil
 }
 
-func encodeFixed64Castvalue(data []byte, offset int, v uint64) int {
-	data[offset] = uint8(v)
-	data[offset+1] = uint8(v >> 8)
-	data[offset+2] = uint8(v >> 16)
-	data[offset+3] = uint8(v >> 24)
-	data[offset+4] = uint8(v >> 32)
-	data[offset+5] = uint8(v >> 40)
-	data[offset+6] = uint8(v >> 48)
-	data[offset+7] = uint8(v >> 56)
+func encodeFixed64Castvalue(dAtA []byte, offset int, v uint64) int {
+	dAtA[offset] = uint8(v)
+	dAtA[offset+1] = uint8(v >> 8)
+	dAtA[offset+2] = uint8(v >> 16)
+	dAtA[offset+3] = uint8(v >> 24)
+	dAtA[offset+4] = uint8(v >> 32)
+	dAtA[offset+5] = uint8(v >> 40)
+	dAtA[offset+6] = uint8(v >> 48)
+	dAtA[offset+7] = uint8(v >> 56)
 	return offset + 8
 }
-func encodeFixed32Castvalue(data []byte, offset int, v uint32) int {
-	data[offset] = uint8(v)
-	data[offset+1] = uint8(v >> 8)
-	data[offset+2] = uint8(v >> 16)
-	data[offset+3] = uint8(v >> 24)
+func encodeFixed32Castvalue(dAtA []byte, offset int, v uint32) int {
+	dAtA[offset] = uint8(v)
+	dAtA[offset+1] = uint8(v >> 8)
+	dAtA[offset+2] = uint8(v >> 16)
+	dAtA[offset+3] = uint8(v >> 24)
 	return offset + 4
 }
-func encodeVarintCastvalue(data []byte, offset int, v uint64) int {
+func encodeVarintCastvalue(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
-		data[offset] = uint8(v&0x7f | 0x80)
+		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
-	data[offset] = uint8(v)
+	dAtA[offset] = uint8(v)
 	return offset + 1
 }
 func NewPopulatedCastaway(r randyCastvalue, easy bool) *Castaway {
@@ -1707,7 +807,7 @@ func randStringCastvalue(r randyCastvalue) string {
 	}
 	return string(tmps)
 }
-func randUnrecognizedCastvalue(r randyCastvalue, maxFieldNumber int) (data []byte) {
+func randUnrecognizedCastvalue(r randyCastvalue, maxFieldNumber int) (dAtA []byte) {
 	l := r.Intn(5)
 	for i := 0; i < l; i++ {
 		wire := r.Intn(4)
@@ -1715,43 +815,43 @@ func randUnrecognizedCastvalue(r randyCastvalue, maxFieldNumber int) (data []byt
 			wire = 5
 		}
 		fieldNumber := maxFieldNumber + r.Intn(100)
-		data = randFieldCastvalue(data, r, fieldNumber, wire)
+		dAtA = randFieldCastvalue(dAtA, r, fieldNumber, wire)
 	}
-	return data
+	return dAtA
 }
-func randFieldCastvalue(data []byte, r randyCastvalue, fieldNumber int, wire int) []byte {
+func randFieldCastvalue(dAtA []byte, r randyCastvalue, fieldNumber int, wire int) []byte {
 	key := uint32(fieldNumber)<<3 | uint32(wire)
 	switch wire {
 	case 0:
-		data = encodeVarintPopulateCastvalue(data, uint64(key))
+		dAtA = encodeVarintPopulateCastvalue(dAtA, uint64(key))
 		v5 := r.Int63()
 		if r.Intn(2) == 0 {
 			v5 *= -1
 		}
-		data = encodeVarintPopulateCastvalue(data, uint64(v5))
+		dAtA = encodeVarintPopulateCastvalue(dAtA, uint64(v5))
 	case 1:
-		data = encodeVarintPopulateCastvalue(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateCastvalue(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	case 2:
-		data = encodeVarintPopulateCastvalue(data, uint64(key))
+		dAtA = encodeVarintPopulateCastvalue(dAtA, uint64(key))
 		ll := r.Intn(100)
-		data = encodeVarintPopulateCastvalue(data, uint64(ll))
+		dAtA = encodeVarintPopulateCastvalue(dAtA, uint64(ll))
 		for j := 0; j < ll; j++ {
-			data = append(data, byte(r.Intn(256)))
+			dAtA = append(dAtA, byte(r.Intn(256)))
 		}
 	default:
-		data = encodeVarintPopulateCastvalue(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateCastvalue(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	}
-	return data
+	return dAtA
 }
-func encodeVarintPopulateCastvalue(data []byte, v uint64) []byte {
+func encodeVarintPopulateCastvalue(dAtA []byte, v uint64) []byte {
 	for v >= 1<<7 {
-		data = append(data, uint8(uint64(v)&0x7f|0x80))
+		dAtA = append(dAtA, uint8(uint64(v)&0x7f|0x80))
 		v >>= 7
 	}
-	data = append(data, uint8(v))
-	return data
+	dAtA = append(dAtA, uint8(v))
+	return dAtA
 }
 func (m *Castaway) Size() (n int) {
 	var l int
@@ -1772,8 +872,9 @@ func (m *Castaway) Size() (n int) {
 			l = 0
 			if v != nil {
 				l = ((*Wilson)(v)).Size()
+				l += 1 + sovCastvalue(uint64(l))
 			}
-			mapEntrySize := 1 + sovCastvalue(uint64(k)) + 1 + l + sovCastvalue(uint64(l))
+			mapEntrySize := 1 + sovCastvalue(uint64(k)) + l
 			n += mapEntrySize + 1 + sovCastvalue(uint64(mapEntrySize))
 		}
 	}
@@ -1858,4 +959,33 @@ func valueToStringCastvalue(v interface{}) string {
 	}
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("*%v", pv)
+}
+
+func init() { proto.RegisterFile("combos/marshaler/castvalue.proto", fileDescriptorCastvalue) }
+
+var fileDescriptorCastvalue = []byte{
+	// 358 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x8f, 0xbd, 0x4f, 0x2a, 0x41,
+	0x14, 0xc5, 0xe7, 0xb2, 0xe1, 0x85, 0x37, 0xbc, 0x82, 0xb7, 0xef, 0x15, 0x1b, 0x4c, 0x2e, 0x1b,
+	0x1a, 0x29, 0x74, 0x37, 0x21, 0xc4, 0x18, 0x4b, 0x8c, 0x85, 0x89, 0x58, 0x50, 0x68, 0x2c, 0x67,
+	0xc9, 0xba, 0x10, 0x17, 0x86, 0xec, 0x87, 0x66, 0x3b, 0x0a, 0x2b, 0xff, 0x12, 0x4b, 0x4b, 0x4b,
+	0xed, 0x28, 0x29, 0xad, 0x94, 0x19, 0x1b, 0x4a, 0x4a, 0x4a, 0xc3, 0xac, 0xf8, 0x91, 0xe0, 0x47,
+	0x62, 0x77, 0xef, 0x99, 0x7b, 0xce, 0xef, 0x0c, 0x35, 0x5b, 0xbc, 0xeb, 0xf0, 0xd0, 0xee, 0xb2,
+	0x20, 0x6c, 0x33, 0xdf, 0x0d, 0xec, 0x16, 0x0b, 0xa3, 0x53, 0xe6, 0xc7, 0xae, 0xd5, 0x0f, 0x78,
+	0xc4, 0xf5, 0xdf, 0x2f, 0x42, 0x71, 0xdd, 0xeb, 0x44, 0xed, 0xd8, 0xb1, 0x5a, 0xbc, 0x6b, 0x7b,
+	0xdc, 0xe3, 0xb6, 0xba, 0x70, 0xe2, 0x63, 0xb5, 0xa9, 0x45, 0x4d, 0xa9, 0xb3, 0x7c, 0xab, 0xd1,
+	0xdc, 0x36, 0x0b, 0x23, 0x76, 0xc6, 0x12, 0xbd, 0x4f, 0xff, 0xcd, 0xe7, 0x06, 0xeb, 0x1f, 0xcc,
+	0xb3, 0x1a, 0x6e, 0x18, 0x32, 0xcf, 0x35, 0xc0, 0xd4, 0x2a, 0xf9, 0xea, 0x9a, 0xf5, 0x4a, 0x5d,
+	0x38, 0xac, 0x25, 0xe7, 0x3b, 0xbd, 0x28, 0x48, 0xea, 0x85, 0xe1, 0x7d, 0x89, 0x5c, 0x3c, 0x94,
+	0x72, 0x8d, 0xe4, 0xb0, 0xe3, 0x87, 0xbc, 0xd7, 0x5c, 0x16, 0xad, 0x9f, 0x03, 0x5d, 0x59, 0xa2,
+	0xef, 0xc7, 0xbe, 0xcf, 0x1c, 0xdf, 0x35, 0x32, 0x0a, 0x5d, 0xfb, 0x26, 0x7a, 0x61, 0x4b, 0x2b,
+	0xfc, 0x79, 0x87, 0xff, 0x0c, 0x53, 0x3c, 0xa2, 0xc6, 0x47, 0x3f, 0xd1, 0x0b, 0x54, 0x3b, 0x71,
+	0x13, 0x03, 0x4c, 0xa8, 0x64, 0x9b, 0xf3, 0x51, 0x5f, 0xa5, 0x59, 0xd5, 0xc5, 0xc8, 0x98, 0x50,
+	0xc9, 0x57, 0xff, 0xbe, 0x69, 0xf7, 0x0c, 0x4b, 0xdf, 0xb7, 0x32, 0x9b, 0x50, 0x64, 0xd4, 0xfc,
+	0xaa, 0xe9, 0x0f, 0x11, 0x65, 0xa4, 0xbf, 0x52, 0x51, 0xff, 0x4f, 0xb3, 0xbb, 0xbd, 0x68, 0xa3,
+	0xa6, 0xa2, 0xb4, 0x66, 0xba, 0xd4, 0xf7, 0x86, 0x02, 0xc9, 0x48, 0x20, 0xb9, 0x13, 0x48, 0xc6,
+	0x02, 0x61, 0x22, 0x10, 0xa6, 0x02, 0x61, 0x26, 0x10, 0x06, 0x12, 0xe1, 0x52, 0x22, 0x5c, 0x49,
+	0x84, 0x6b, 0x89, 0x70, 0x23, 0x11, 0x86, 0x12, 0x61, 0x24, 0x91, 0x8c, 0x25, 0xc2, 0x44, 0x22,
+	0x99, 0x4a, 0x84, 0x99, 0x44, 0x32, 0x78, 0x44, 0xf2, 0x14, 0x00, 0x00, 0xff, 0xff, 0xc3, 0x22,
+	0x8c, 0x46, 0x8e, 0x02, 0x00, 0x00,
 }

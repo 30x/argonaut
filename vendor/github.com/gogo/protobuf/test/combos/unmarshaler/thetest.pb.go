@@ -67,6 +67,12 @@
 		UnrecognizedWithInner
 		UnrecognizedWithEmbed
 		Node
+		NonByteCustomType
+		NidOptNonByteCustomType
+		NinOptNonByteCustomType
+		NidRepNonByteCustomType
+		NinRepNonByteCustomType
+		ProtoType
 */
 package test
 
@@ -78,13 +84,15 @@ import _ "github.com/gogo/protobuf/gogoproto"
 import github_com_gogo_protobuf_test_custom "github.com/gogo/protobuf/test/custom"
 import github_com_gogo_protobuf_test_custom_dash_type "github.com/gogo/protobuf/test/custom-dash-type"
 
-import "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+import bytes "bytes"
+import github_com_gogo_protobuf_sortkeys "github.com/gogo/protobuf/sortkeys"
+import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
+
+import github_com_gogo_protobuf_protoc_gen_gogo_descriptor "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+import compress_gzip "compress/gzip"
+import io_ioutil "io/ioutil"
 
 import strconv "strconv"
-
-import bytes "bytes"
-
-import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 
 import strings "strings"
 import sort "sort"
@@ -96,6 +104,12 @@ import io "io"
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type TheTestEnum int32
 
@@ -132,6 +146,7 @@ func (x *TheTestEnum) UnmarshalJSON(data []byte) error {
 	*x = TheTestEnum(value)
 	return nil
 }
+func (TheTestEnum) EnumDescriptor() ([]byte, []int) { return fileDescriptorThetest, []int{0} }
 
 type AnotherTestEnum int32
 
@@ -165,6 +180,79 @@ func (x *AnotherTestEnum) UnmarshalJSON(data []byte) error {
 	*x = AnotherTestEnum(value)
 	return nil
 }
+func (AnotherTestEnum) EnumDescriptor() ([]byte, []int) { return fileDescriptorThetest, []int{1} }
+
+// YetAnotherTestEnum is used to test cross-package import of custom name
+// fields and default resolution.
+type YetAnotherTestEnum int32
+
+const (
+	AA          YetAnotherTestEnum = 0
+	BetterYetBB YetAnotherTestEnum = 1
+)
+
+var YetAnotherTestEnum_name = map[int32]string{
+	0: "AA",
+	1: "BB",
+}
+var YetAnotherTestEnum_value = map[string]int32{
+	"AA": 0,
+	"BB": 1,
+}
+
+func (x YetAnotherTestEnum) Enum() *YetAnotherTestEnum {
+	p := new(YetAnotherTestEnum)
+	*p = x
+	return p
+}
+func (x YetAnotherTestEnum) MarshalJSON() ([]byte, error) {
+	return proto.MarshalJSONEnum(YetAnotherTestEnum_name, int32(x))
+}
+func (x *YetAnotherTestEnum) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(YetAnotherTestEnum_value, data, "YetAnotherTestEnum")
+	if err != nil {
+		return err
+	}
+	*x = YetAnotherTestEnum(value)
+	return nil
+}
+func (YetAnotherTestEnum) EnumDescriptor() ([]byte, []int) { return fileDescriptorThetest, []int{2} }
+
+// YetAnotherTestEnum is used to test cross-package import of custom name
+// fields and default resolution.
+type YetYetAnotherTestEnum int32
+
+const (
+	YetYetAnotherTestEnum_CC          YetYetAnotherTestEnum = 0
+	YetYetAnotherTestEnum_BetterYetDD YetYetAnotherTestEnum = 1
+)
+
+var YetYetAnotherTestEnum_name = map[int32]string{
+	0: "CC",
+	1: "DD",
+}
+var YetYetAnotherTestEnum_value = map[string]int32{
+	"CC": 0,
+	"DD": 1,
+}
+
+func (x YetYetAnotherTestEnum) Enum() *YetYetAnotherTestEnum {
+	p := new(YetYetAnotherTestEnum)
+	*p = x
+	return p
+}
+func (x YetYetAnotherTestEnum) MarshalJSON() ([]byte, error) {
+	return proto.MarshalJSONEnum(YetYetAnotherTestEnum_name, int32(x))
+}
+func (x *YetYetAnotherTestEnum) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(YetYetAnotherTestEnum_value, data, "YetYetAnotherTestEnum")
+	if err != nil {
+		return err
+	}
+	*x = YetYetAnotherTestEnum(value)
+	return nil
+}
+func (YetYetAnotherTestEnum) EnumDescriptor() ([]byte, []int) { return fileDescriptorThetest, []int{3} }
 
 type NestedDefinition_NestedEnum int32
 
@@ -195,6 +283,9 @@ func (x *NestedDefinition_NestedEnum) UnmarshalJSON(data []byte) error {
 	*x = NestedDefinition_NestedEnum(value)
 	return nil
 }
+func (NestedDefinition_NestedEnum) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptorThetest, []int{42, 0}
+}
 
 type NidOptNative struct {
 	Field1           float64 `protobuf:"fixed64,1,opt,name=Field1" json:"Field1"`
@@ -215,8 +306,9 @@ type NidOptNative struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *NidOptNative) Reset()      { *m = NidOptNative{} }
-func (*NidOptNative) ProtoMessage() {}
+func (m *NidOptNative) Reset()                    { *m = NidOptNative{} }
+func (*NidOptNative) ProtoMessage()               {}
+func (*NidOptNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{0} }
 
 type NinOptNative struct {
 	Field1           *float64 `protobuf:"fixed64,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -237,8 +329,9 @@ type NinOptNative struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *NinOptNative) Reset()      { *m = NinOptNative{} }
-func (*NinOptNative) ProtoMessage() {}
+func (m *NinOptNative) Reset()                    { *m = NinOptNative{} }
+func (*NinOptNative) ProtoMessage()               {}
+func (*NinOptNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{1} }
 
 type NidRepNative struct {
 	Field1           []float64 `protobuf:"fixed64,1,rep,name=Field1" json:"Field1,omitempty"`
@@ -259,8 +352,9 @@ type NidRepNative struct {
 	XXX_unrecognized []byte    `json:"-"`
 }
 
-func (m *NidRepNative) Reset()      { *m = NidRepNative{} }
-func (*NidRepNative) ProtoMessage() {}
+func (m *NidRepNative) Reset()                    { *m = NidRepNative{} }
+func (*NidRepNative) ProtoMessage()               {}
+func (*NidRepNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{2} }
 
 type NinRepNative struct {
 	Field1           []float64 `protobuf:"fixed64,1,rep,name=Field1" json:"Field1,omitempty"`
@@ -281,8 +375,9 @@ type NinRepNative struct {
 	XXX_unrecognized []byte    `json:"-"`
 }
 
-func (m *NinRepNative) Reset()      { *m = NinRepNative{} }
-func (*NinRepNative) ProtoMessage() {}
+func (m *NinRepNative) Reset()                    { *m = NinRepNative{} }
+func (*NinRepNative) ProtoMessage()               {}
+func (*NinRepNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{3} }
 
 type NidRepPackedNative struct {
 	Field1           []float64 `protobuf:"fixed64,1,rep,packed,name=Field1" json:"Field1,omitempty"`
@@ -301,8 +396,9 @@ type NidRepPackedNative struct {
 	XXX_unrecognized []byte    `json:"-"`
 }
 
-func (m *NidRepPackedNative) Reset()      { *m = NidRepPackedNative{} }
-func (*NidRepPackedNative) ProtoMessage() {}
+func (m *NidRepPackedNative) Reset()                    { *m = NidRepPackedNative{} }
+func (*NidRepPackedNative) ProtoMessage()               {}
+func (*NidRepPackedNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{4} }
 
 type NinRepPackedNative struct {
 	Field1           []float64 `protobuf:"fixed64,1,rep,packed,name=Field1" json:"Field1,omitempty"`
@@ -321,8 +417,9 @@ type NinRepPackedNative struct {
 	XXX_unrecognized []byte    `json:"-"`
 }
 
-func (m *NinRepPackedNative) Reset()      { *m = NinRepPackedNative{} }
-func (*NinRepPackedNative) ProtoMessage() {}
+func (m *NinRepPackedNative) Reset()                    { *m = NinRepPackedNative{} }
+func (*NinRepPackedNative) ProtoMessage()               {}
+func (*NinRepPackedNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{5} }
 
 type NidOptStruct struct {
 	Field1           float64      `protobuf:"fixed64,1,opt,name=Field1" json:"Field1"`
@@ -338,8 +435,9 @@ type NidOptStruct struct {
 	XXX_unrecognized []byte       `json:"-"`
 }
 
-func (m *NidOptStruct) Reset()      { *m = NidOptStruct{} }
-func (*NidOptStruct) ProtoMessage() {}
+func (m *NidOptStruct) Reset()                    { *m = NidOptStruct{} }
+func (*NidOptStruct) ProtoMessage()               {}
+func (*NidOptStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{6} }
 
 type NinOptStruct struct {
 	Field1           *float64      `protobuf:"fixed64,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -355,8 +453,9 @@ type NinOptStruct struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *NinOptStruct) Reset()      { *m = NinOptStruct{} }
-func (*NinOptStruct) ProtoMessage() {}
+func (m *NinOptStruct) Reset()                    { *m = NinOptStruct{} }
+func (*NinOptStruct) ProtoMessage()               {}
+func (*NinOptStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{7} }
 
 type NidRepStruct struct {
 	Field1           []float64      `protobuf:"fixed64,1,rep,name=Field1" json:"Field1,omitempty"`
@@ -372,8 +471,9 @@ type NidRepStruct struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *NidRepStruct) Reset()      { *m = NidRepStruct{} }
-func (*NidRepStruct) ProtoMessage() {}
+func (m *NidRepStruct) Reset()                    { *m = NidRepStruct{} }
+func (*NidRepStruct) ProtoMessage()               {}
+func (*NidRepStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{8} }
 
 type NinRepStruct struct {
 	Field1           []float64       `protobuf:"fixed64,1,rep,name=Field1" json:"Field1,omitempty"`
@@ -389,8 +489,9 @@ type NinRepStruct struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *NinRepStruct) Reset()      { *m = NinRepStruct{} }
-func (*NinRepStruct) ProtoMessage() {}
+func (m *NinRepStruct) Reset()                    { *m = NinRepStruct{} }
+func (*NinRepStruct) ProtoMessage()               {}
+func (*NinRepStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{9} }
 
 type NidEmbeddedStruct struct {
 	*NidOptNative    `protobuf:"bytes,1,opt,name=Field1,embedded=Field1" json:"Field1,omitempty"`
@@ -399,8 +500,9 @@ type NidEmbeddedStruct struct {
 	XXX_unrecognized []byte       `json:"-"`
 }
 
-func (m *NidEmbeddedStruct) Reset()      { *m = NidEmbeddedStruct{} }
-func (*NidEmbeddedStruct) ProtoMessage() {}
+func (m *NidEmbeddedStruct) Reset()                    { *m = NidEmbeddedStruct{} }
+func (*NidEmbeddedStruct) ProtoMessage()               {}
+func (*NidEmbeddedStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{10} }
 
 type NinEmbeddedStruct struct {
 	*NidOptNative    `protobuf:"bytes,1,opt,name=Field1,embedded=Field1" json:"Field1,omitempty"`
@@ -409,8 +511,9 @@ type NinEmbeddedStruct struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *NinEmbeddedStruct) Reset()      { *m = NinEmbeddedStruct{} }
-func (*NinEmbeddedStruct) ProtoMessage() {}
+func (m *NinEmbeddedStruct) Reset()                    { *m = NinEmbeddedStruct{} }
+func (*NinEmbeddedStruct) ProtoMessage()               {}
+func (*NinEmbeddedStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{11} }
 
 type NidNestedStruct struct {
 	Field1           NidOptStruct   `protobuf:"bytes,1,opt,name=Field1" json:"Field1"`
@@ -418,8 +521,9 @@ type NidNestedStruct struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *NidNestedStruct) Reset()      { *m = NidNestedStruct{} }
-func (*NidNestedStruct) ProtoMessage() {}
+func (m *NidNestedStruct) Reset()                    { *m = NidNestedStruct{} }
+func (*NidNestedStruct) ProtoMessage()               {}
+func (*NidNestedStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{12} }
 
 type NinNestedStruct struct {
 	Field1           *NinOptStruct   `protobuf:"bytes,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -427,8 +531,9 @@ type NinNestedStruct struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *NinNestedStruct) Reset()      { *m = NinNestedStruct{} }
-func (*NinNestedStruct) ProtoMessage() {}
+func (m *NinNestedStruct) Reset()                    { *m = NinNestedStruct{} }
+func (*NinNestedStruct) ProtoMessage()               {}
+func (*NinNestedStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{13} }
 
 type NidOptCustom struct {
 	Id               Uuid                                         `protobuf:"bytes,1,opt,name=Id,customtype=Uuid" json:"Id"`
@@ -436,16 +541,18 @@ type NidOptCustom struct {
 	XXX_unrecognized []byte                                       `json:"-"`
 }
 
-func (m *NidOptCustom) Reset()      { *m = NidOptCustom{} }
-func (*NidOptCustom) ProtoMessage() {}
+func (m *NidOptCustom) Reset()                    { *m = NidOptCustom{} }
+func (*NidOptCustom) ProtoMessage()               {}
+func (*NidOptCustom) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{14} }
 
 type CustomDash struct {
 	Value            *github_com_gogo_protobuf_test_custom_dash_type.Bytes `protobuf:"bytes,1,opt,name=Value,customtype=github.com/gogo/protobuf/test/custom-dash-type.Bytes" json:"Value,omitempty"`
 	XXX_unrecognized []byte                                                `json:"-"`
 }
 
-func (m *CustomDash) Reset()      { *m = CustomDash{} }
-func (*CustomDash) ProtoMessage() {}
+func (m *CustomDash) Reset()                    { *m = CustomDash{} }
+func (*CustomDash) ProtoMessage()               {}
+func (*CustomDash) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{15} }
 
 type NinOptCustom struct {
 	Id               *Uuid                                         `protobuf:"bytes,1,opt,name=Id,customtype=Uuid" json:"Id,omitempty"`
@@ -453,8 +560,9 @@ type NinOptCustom struct {
 	XXX_unrecognized []byte                                        `json:"-"`
 }
 
-func (m *NinOptCustom) Reset()      { *m = NinOptCustom{} }
-func (*NinOptCustom) ProtoMessage() {}
+func (m *NinOptCustom) Reset()                    { *m = NinOptCustom{} }
+func (*NinOptCustom) ProtoMessage()               {}
+func (*NinOptCustom) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{16} }
 
 type NidRepCustom struct {
 	Id               []Uuid                                         `protobuf:"bytes,1,rep,name=Id,customtype=Uuid" json:"Id"`
@@ -462,8 +570,9 @@ type NidRepCustom struct {
 	XXX_unrecognized []byte                                         `json:"-"`
 }
 
-func (m *NidRepCustom) Reset()      { *m = NidRepCustom{} }
-func (*NidRepCustom) ProtoMessage() {}
+func (m *NidRepCustom) Reset()                    { *m = NidRepCustom{} }
+func (*NidRepCustom) ProtoMessage()               {}
+func (*NidRepCustom) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{17} }
 
 type NinRepCustom struct {
 	Id               []Uuid                                         `protobuf:"bytes,1,rep,name=Id,customtype=Uuid" json:"Id,omitempty"`
@@ -471,8 +580,9 @@ type NinRepCustom struct {
 	XXX_unrecognized []byte                                         `json:"-"`
 }
 
-func (m *NinRepCustom) Reset()      { *m = NinRepCustom{} }
-func (*NinRepCustom) ProtoMessage() {}
+func (m *NinRepCustom) Reset()                    { *m = NinRepCustom{} }
+func (*NinRepCustom) ProtoMessage()               {}
+func (*NinRepCustom) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{18} }
 
 type NinOptNativeUnion struct {
 	Field1           *float64 `protobuf:"fixed64,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -487,8 +597,9 @@ type NinOptNativeUnion struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *NinOptNativeUnion) Reset()      { *m = NinOptNativeUnion{} }
-func (*NinOptNativeUnion) ProtoMessage() {}
+func (m *NinOptNativeUnion) Reset()                    { *m = NinOptNativeUnion{} }
+func (*NinOptNativeUnion) ProtoMessage()               {}
+func (*NinOptNativeUnion) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{19} }
 
 type NinOptStructUnion struct {
 	Field1           *float64      `protobuf:"fixed64,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -503,8 +614,9 @@ type NinOptStructUnion struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *NinOptStructUnion) Reset()      { *m = NinOptStructUnion{} }
-func (*NinOptStructUnion) ProtoMessage() {}
+func (m *NinOptStructUnion) Reset()                    { *m = NinOptStructUnion{} }
+func (*NinOptStructUnion) ProtoMessage()               {}
+func (*NinOptStructUnion) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{20} }
 
 type NinEmbeddedStructUnion struct {
 	*NidOptNative    `protobuf:"bytes,1,opt,name=Field1,embedded=Field1" json:"Field1,omitempty"`
@@ -513,8 +625,9 @@ type NinEmbeddedStructUnion struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *NinEmbeddedStructUnion) Reset()      { *m = NinEmbeddedStructUnion{} }
-func (*NinEmbeddedStructUnion) ProtoMessage() {}
+func (m *NinEmbeddedStructUnion) Reset()                    { *m = NinEmbeddedStructUnion{} }
+func (*NinEmbeddedStructUnion) ProtoMessage()               {}
+func (*NinEmbeddedStructUnion) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{21} }
 
 type NinNestedStructUnion struct {
 	Field1           *NinOptNativeUnion      `protobuf:"bytes,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -523,8 +636,9 @@ type NinNestedStructUnion struct {
 	XXX_unrecognized []byte                  `json:"-"`
 }
 
-func (m *NinNestedStructUnion) Reset()      { *m = NinNestedStructUnion{} }
-func (*NinNestedStructUnion) ProtoMessage() {}
+func (m *NinNestedStructUnion) Reset()                    { *m = NinNestedStructUnion{} }
+func (*NinNestedStructUnion) ProtoMessage()               {}
+func (*NinNestedStructUnion) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{22} }
 
 type Tree struct {
 	Or               *OrBranch  `protobuf:"bytes,1,opt,name=Or" json:"Or,omitempty"`
@@ -533,8 +647,9 @@ type Tree struct {
 	XXX_unrecognized []byte     `json:"-"`
 }
 
-func (m *Tree) Reset()      { *m = Tree{} }
-func (*Tree) ProtoMessage() {}
+func (m *Tree) Reset()                    { *m = Tree{} }
+func (*Tree) ProtoMessage()               {}
+func (*Tree) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{23} }
 
 type OrBranch struct {
 	Left             Tree   `protobuf:"bytes,1,opt,name=Left" json:"Left"`
@@ -542,8 +657,9 @@ type OrBranch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OrBranch) Reset()      { *m = OrBranch{} }
-func (*OrBranch) ProtoMessage() {}
+func (m *OrBranch) Reset()                    { *m = OrBranch{} }
+func (*OrBranch) ProtoMessage()               {}
+func (*OrBranch) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{24} }
 
 type AndBranch struct {
 	Left             Tree   `protobuf:"bytes,1,opt,name=Left" json:"Left"`
@@ -551,8 +667,9 @@ type AndBranch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *AndBranch) Reset()      { *m = AndBranch{} }
-func (*AndBranch) ProtoMessage() {}
+func (m *AndBranch) Reset()                    { *m = AndBranch{} }
+func (*AndBranch) ProtoMessage()               {}
+func (*AndBranch) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{25} }
 
 type Leaf struct {
 	Value            int64  `protobuf:"varint,1,opt,name=Value" json:"Value"`
@@ -560,8 +677,9 @@ type Leaf struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Leaf) Reset()      { *m = Leaf{} }
-func (*Leaf) ProtoMessage() {}
+func (m *Leaf) Reset()                    { *m = Leaf{} }
+func (*Leaf) ProtoMessage()               {}
+func (*Leaf) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{26} }
 
 type DeepTree struct {
 	Down             *ADeepBranch   `protobuf:"bytes,1,opt,name=Down" json:"Down,omitempty"`
@@ -570,16 +688,18 @@ type DeepTree struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *DeepTree) Reset()      { *m = DeepTree{} }
-func (*DeepTree) ProtoMessage() {}
+func (m *DeepTree) Reset()                    { *m = DeepTree{} }
+func (*DeepTree) ProtoMessage()               {}
+func (*DeepTree) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{27} }
 
 type ADeepBranch struct {
 	Down             DeepTree `protobuf:"bytes,2,opt,name=Down" json:"Down"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *ADeepBranch) Reset()      { *m = ADeepBranch{} }
-func (*ADeepBranch) ProtoMessage() {}
+func (m *ADeepBranch) Reset()                    { *m = ADeepBranch{} }
+func (*ADeepBranch) ProtoMessage()               {}
+func (*ADeepBranch) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{28} }
 
 type AndDeepBranch struct {
 	Left             DeepTree `protobuf:"bytes,1,opt,name=Left" json:"Left"`
@@ -587,65 +707,83 @@ type AndDeepBranch struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *AndDeepBranch) Reset()      { *m = AndDeepBranch{} }
-func (*AndDeepBranch) ProtoMessage() {}
+func (m *AndDeepBranch) Reset()                    { *m = AndDeepBranch{} }
+func (*AndDeepBranch) ProtoMessage()               {}
+func (*AndDeepBranch) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{29} }
 
 type DeepLeaf struct {
 	Tree             Tree   `protobuf:"bytes,1,opt,name=Tree" json:"Tree"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DeepLeaf) Reset()      { *m = DeepLeaf{} }
-func (*DeepLeaf) ProtoMessage() {}
+func (m *DeepLeaf) Reset()                    { *m = DeepLeaf{} }
+func (*DeepLeaf) ProtoMessage()               {}
+func (*DeepLeaf) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{30} }
 
 type Nil struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Nil) Reset()      { *m = Nil{} }
-func (*Nil) ProtoMessage() {}
+func (m *Nil) Reset()                    { *m = Nil{} }
+func (*Nil) ProtoMessage()               {}
+func (*Nil) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{31} }
 
 type NidOptEnum struct {
 	Field1           TheTestEnum `protobuf:"varint,1,opt,name=Field1,enum=test.TheTestEnum" json:"Field1"`
 	XXX_unrecognized []byte      `json:"-"`
 }
 
-func (m *NidOptEnum) Reset()      { *m = NidOptEnum{} }
-func (*NidOptEnum) ProtoMessage() {}
+func (m *NidOptEnum) Reset()                    { *m = NidOptEnum{} }
+func (*NidOptEnum) ProtoMessage()               {}
+func (*NidOptEnum) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{32} }
 
 type NinOptEnum struct {
-	Field1           *TheTestEnum `protobuf:"varint,1,opt,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
+	Field1           *TheTestEnum           `protobuf:"varint,1,opt,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
+	Field2           *YetAnotherTestEnum    `protobuf:"varint,2,opt,name=Field2,enum=test.YetAnotherTestEnum" json:"Field2,omitempty"`
+	Field3           *YetYetAnotherTestEnum `protobuf:"varint,3,opt,name=Field3,enum=test.YetYetAnotherTestEnum" json:"Field3,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *NinOptEnum) Reset()      { *m = NinOptEnum{} }
-func (*NinOptEnum) ProtoMessage() {}
+func (m *NinOptEnum) Reset()                    { *m = NinOptEnum{} }
+func (*NinOptEnum) ProtoMessage()               {}
+func (*NinOptEnum) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{33} }
 
 type NidRepEnum struct {
-	Field1           []TheTestEnum `protobuf:"varint,1,rep,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
+	Field1           []TheTestEnum           `protobuf:"varint,1,rep,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
+	Field2           []YetAnotherTestEnum    `protobuf:"varint,2,rep,name=Field2,enum=test.YetAnotherTestEnum" json:"Field2,omitempty"`
+	Field3           []YetYetAnotherTestEnum `protobuf:"varint,3,rep,name=Field3,enum=test.YetYetAnotherTestEnum" json:"Field3,omitempty"`
+	XXX_unrecognized []byte                  `json:"-"`
 }
 
-func (m *NidRepEnum) Reset()      { *m = NidRepEnum{} }
-func (*NidRepEnum) ProtoMessage() {}
+func (m *NidRepEnum) Reset()                    { *m = NidRepEnum{} }
+func (*NidRepEnum) ProtoMessage()               {}
+func (*NidRepEnum) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{34} }
 
 type NinRepEnum struct {
-	Field1           []TheTestEnum `protobuf:"varint,1,rep,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
+	Field1           []TheTestEnum           `protobuf:"varint,1,rep,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
+	Field2           []YetAnotherTestEnum    `protobuf:"varint,2,rep,name=Field2,enum=test.YetAnotherTestEnum" json:"Field2,omitempty"`
+	Field3           []YetYetAnotherTestEnum `protobuf:"varint,3,rep,name=Field3,enum=test.YetYetAnotherTestEnum" json:"Field3,omitempty"`
+	XXX_unrecognized []byte                  `json:"-"`
 }
 
-func (m *NinRepEnum) Reset()      { *m = NinRepEnum{} }
-func (*NinRepEnum) ProtoMessage() {}
+func (m *NinRepEnum) Reset()                    { *m = NinRepEnum{} }
+func (*NinRepEnum) ProtoMessage()               {}
+func (*NinRepEnum) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{35} }
 
 type NinOptEnumDefault struct {
-	Field1           *TheTestEnum `protobuf:"varint,1,opt,name=Field1,enum=test.TheTestEnum,def=2" json:"Field1,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
+	Field1           *TheTestEnum           `protobuf:"varint,1,opt,name=Field1,enum=test.TheTestEnum,def=2" json:"Field1,omitempty"`
+	Field2           *YetAnotherTestEnum    `protobuf:"varint,2,opt,name=Field2,enum=test.YetAnotherTestEnum,def=1" json:"Field2,omitempty"`
+	Field3           *YetYetAnotherTestEnum `protobuf:"varint,3,opt,name=Field3,enum=test.YetYetAnotherTestEnum,def=0" json:"Field3,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *NinOptEnumDefault) Reset()      { *m = NinOptEnumDefault{} }
-func (*NinOptEnumDefault) ProtoMessage() {}
+func (m *NinOptEnumDefault) Reset()                    { *m = NinOptEnumDefault{} }
+func (*NinOptEnumDefault) ProtoMessage()               {}
+func (*NinOptEnumDefault) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{36} }
 
 const Default_NinOptEnumDefault_Field1 TheTestEnum = C
+const Default_NinOptEnumDefault_Field2 YetAnotherTestEnum = BetterYetBB
+const Default_NinOptEnumDefault_Field3 YetYetAnotherTestEnum = YetYetAnotherTestEnum_CC
 
 func (m *NinOptEnumDefault) GetField1() TheTestEnum {
 	if m != nil && m.Field1 != nil {
@@ -654,29 +792,65 @@ func (m *NinOptEnumDefault) GetField1() TheTestEnum {
 	return Default_NinOptEnumDefault_Field1
 }
 
-type AnotherNinOptEnum struct {
-	Field1           *AnotherTestEnum `protobuf:"varint,1,opt,name=Field1,enum=test.AnotherTestEnum" json:"Field1,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
+func (m *NinOptEnumDefault) GetField2() YetAnotherTestEnum {
+	if m != nil && m.Field2 != nil {
+		return *m.Field2
+	}
+	return Default_NinOptEnumDefault_Field2
 }
 
-func (m *AnotherNinOptEnum) Reset()      { *m = AnotherNinOptEnum{} }
-func (*AnotherNinOptEnum) ProtoMessage() {}
+func (m *NinOptEnumDefault) GetField3() YetYetAnotherTestEnum {
+	if m != nil && m.Field3 != nil {
+		return *m.Field3
+	}
+	return Default_NinOptEnumDefault_Field3
+}
+
+type AnotherNinOptEnum struct {
+	Field1           *AnotherTestEnum       `protobuf:"varint,1,opt,name=Field1,enum=test.AnotherTestEnum" json:"Field1,omitempty"`
+	Field2           *YetAnotherTestEnum    `protobuf:"varint,2,opt,name=Field2,enum=test.YetAnotherTestEnum" json:"Field2,omitempty"`
+	Field3           *YetYetAnotherTestEnum `protobuf:"varint,3,opt,name=Field3,enum=test.YetYetAnotherTestEnum" json:"Field3,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
+}
+
+func (m *AnotherNinOptEnum) Reset()                    { *m = AnotherNinOptEnum{} }
+func (*AnotherNinOptEnum) ProtoMessage()               {}
+func (*AnotherNinOptEnum) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{37} }
 
 type AnotherNinOptEnumDefault struct {
-	Field1           *AnotherTestEnum `protobuf:"varint,1,opt,name=Field1,enum=test.AnotherTestEnum,def=11" json:"Field1,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
+	Field1           *AnotherTestEnum       `protobuf:"varint,1,opt,name=Field1,enum=test.AnotherTestEnum,def=11" json:"Field1,omitempty"`
+	Field2           *YetAnotherTestEnum    `protobuf:"varint,2,opt,name=Field2,enum=test.YetAnotherTestEnum,def=1" json:"Field2,omitempty"`
+	Field3           *YetYetAnotherTestEnum `protobuf:"varint,3,opt,name=Field3,enum=test.YetYetAnotherTestEnum,def=0" json:"Field3,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *AnotherNinOptEnumDefault) Reset()      { *m = AnotherNinOptEnumDefault{} }
-func (*AnotherNinOptEnumDefault) ProtoMessage() {}
+func (m *AnotherNinOptEnumDefault) Reset()                    { *m = AnotherNinOptEnumDefault{} }
+func (*AnotherNinOptEnumDefault) ProtoMessage()               {}
+func (*AnotherNinOptEnumDefault) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{38} }
 
 const Default_AnotherNinOptEnumDefault_Field1 AnotherTestEnum = E
+const Default_AnotherNinOptEnumDefault_Field2 YetAnotherTestEnum = BetterYetBB
+const Default_AnotherNinOptEnumDefault_Field3 YetYetAnotherTestEnum = YetYetAnotherTestEnum_CC
 
 func (m *AnotherNinOptEnumDefault) GetField1() AnotherTestEnum {
 	if m != nil && m.Field1 != nil {
 		return *m.Field1
 	}
 	return Default_AnotherNinOptEnumDefault_Field1
+}
+
+func (m *AnotherNinOptEnumDefault) GetField2() YetAnotherTestEnum {
+	if m != nil && m.Field2 != nil {
+		return *m.Field2
+	}
+	return Default_AnotherNinOptEnumDefault_Field2
+}
+
+func (m *AnotherNinOptEnumDefault) GetField3() YetYetAnotherTestEnum {
+	if m != nil && m.Field3 != nil {
+		return *m.Field3
+	}
+	return Default_AnotherNinOptEnumDefault_Field3
 }
 
 type Timer struct {
@@ -686,56 +860,47 @@ type Timer struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Timer) Reset()      { *m = Timer{} }
-func (*Timer) ProtoMessage() {}
+func (m *Timer) Reset()                    { *m = Timer{} }
+func (*Timer) ProtoMessage()               {}
+func (*Timer) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{39} }
 
 type MyExtendable struct {
-	Field1           *int64                    `protobuf:"varint,1,opt,name=Field1" json:"Field1,omitempty"`
-	XXX_extensions   map[int32]proto.Extension `json:"-"`
-	XXX_unrecognized []byte                    `json:"-"`
+	Field1                       *int64 `protobuf:"varint,1,opt,name=Field1" json:"Field1,omitempty"`
+	proto.XXX_InternalExtensions `json:"-"`
+	XXX_unrecognized             []byte `json:"-"`
 }
 
-func (m *MyExtendable) Reset()      { *m = MyExtendable{} }
-func (*MyExtendable) ProtoMessage() {}
+func (m *MyExtendable) Reset()                    { *m = MyExtendable{} }
+func (*MyExtendable) ProtoMessage()               {}
+func (*MyExtendable) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{40} }
 
 var extRange_MyExtendable = []proto.ExtensionRange{
-	{100, 199},
+	{Start: 100, End: 199},
 }
 
 func (*MyExtendable) ExtensionRangeArray() []proto.ExtensionRange {
 	return extRange_MyExtendable
 }
-func (m *MyExtendable) ExtensionMap() map[int32]proto.Extension {
-	if m.XXX_extensions == nil {
-		m.XXX_extensions = make(map[int32]proto.Extension)
-	}
-	return m.XXX_extensions
-}
 
 type OtherExtenable struct {
-	Field2           *int64                    `protobuf:"varint,2,opt,name=Field2" json:"Field2,omitempty"`
-	Field13          *int64                    `protobuf:"varint,13,opt,name=Field13" json:"Field13,omitempty"`
-	M                *MyExtendable             `protobuf:"bytes,1,opt,name=M" json:"M,omitempty"`
-	XXX_extensions   map[int32]proto.Extension `json:"-"`
-	XXX_unrecognized []byte                    `json:"-"`
+	Field2                       *int64        `protobuf:"varint,2,opt,name=Field2" json:"Field2,omitempty"`
+	Field13                      *int64        `protobuf:"varint,13,opt,name=Field13" json:"Field13,omitempty"`
+	M                            *MyExtendable `protobuf:"bytes,1,opt,name=M" json:"M,omitempty"`
+	proto.XXX_InternalExtensions `json:"-"`
+	XXX_unrecognized             []byte `json:"-"`
 }
 
-func (m *OtherExtenable) Reset()      { *m = OtherExtenable{} }
-func (*OtherExtenable) ProtoMessage() {}
+func (m *OtherExtenable) Reset()                    { *m = OtherExtenable{} }
+func (*OtherExtenable) ProtoMessage()               {}
+func (*OtherExtenable) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{41} }
 
 var extRange_OtherExtenable = []proto.ExtensionRange{
-	{14, 16},
-	{10, 12},
+	{Start: 14, End: 16},
+	{Start: 10, End: 12},
 }
 
 func (*OtherExtenable) ExtensionRangeArray() []proto.ExtensionRange {
 	return extRange_OtherExtenable
-}
-func (m *OtherExtenable) ExtensionMap() map[int32]proto.Extension {
-	if m.XXX_extensions == nil {
-		m.XXX_extensions = make(map[int32]proto.Extension)
-	}
-	return m.XXX_extensions
 }
 
 type NestedDefinition struct {
@@ -746,8 +911,9 @@ type NestedDefinition struct {
 	XXX_unrecognized []byte                                          `json:"-"`
 }
 
-func (m *NestedDefinition) Reset()      { *m = NestedDefinition{} }
-func (*NestedDefinition) ProtoMessage() {}
+func (m *NestedDefinition) Reset()                    { *m = NestedDefinition{} }
+func (*NestedDefinition) ProtoMessage()               {}
+func (*NestedDefinition) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{42} }
 
 type NestedDefinition_NestedMessage struct {
 	NestedField1     *uint64                                         `protobuf:"fixed64,1,opt,name=NestedField1" json:"NestedField1,omitempty"`
@@ -757,6 +923,9 @@ type NestedDefinition_NestedMessage struct {
 
 func (m *NestedDefinition_NestedMessage) Reset()      { *m = NestedDefinition_NestedMessage{} }
 func (*NestedDefinition_NestedMessage) ProtoMessage() {}
+func (*NestedDefinition_NestedMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptorThetest, []int{42, 0}
+}
 
 type NestedDefinition_NestedMessage_NestedNestedMsg struct {
 	NestedNestedField1 *string `protobuf:"bytes,10,opt,name=NestedNestedField1" json:"NestedNestedField1,omitempty"`
@@ -767,6 +936,9 @@ func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Reset() {
 	*m = NestedDefinition_NestedMessage_NestedNestedMsg{}
 }
 func (*NestedDefinition_NestedMessage_NestedNestedMsg) ProtoMessage() {}
+func (*NestedDefinition_NestedMessage_NestedNestedMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptorThetest, []int{42, 0, 0}
+}
 
 type NestedScope struct {
 	A                *NestedDefinition_NestedMessage_NestedNestedMsg `protobuf:"bytes,1,opt,name=A" json:"A,omitempty"`
@@ -775,8 +947,9 @@ type NestedScope struct {
 	XXX_unrecognized []byte                                          `json:"-"`
 }
 
-func (m *NestedScope) Reset()      { *m = NestedScope{} }
-func (*NestedScope) ProtoMessage() {}
+func (m *NestedScope) Reset()                    { *m = NestedScope{} }
+func (*NestedScope) ProtoMessage()               {}
+func (*NestedScope) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{43} }
 
 type NinOptNativeDefault struct {
 	Field1           *float64 `protobuf:"fixed64,1,opt,name=Field1,def=1234.1234" json:"Field1,omitempty"`
@@ -797,8 +970,9 @@ type NinOptNativeDefault struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *NinOptNativeDefault) Reset()      { *m = NinOptNativeDefault{} }
-func (*NinOptNativeDefault) ProtoMessage() {}
+func (m *NinOptNativeDefault) Reset()                    { *m = NinOptNativeDefault{} }
+func (*NinOptNativeDefault) ProtoMessage()               {}
+func (*NinOptNativeDefault) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{44} }
 
 const Default_NinOptNativeDefault_Field1 float64 = 1234.1234
 const Default_NinOptNativeDefault_Field2 float32 = 1234.1234
@@ -925,8 +1099,9 @@ type CustomContainer struct {
 	XXX_unrecognized []byte       `json:"-"`
 }
 
-func (m *CustomContainer) Reset()      { *m = CustomContainer{} }
-func (*CustomContainer) ProtoMessage() {}
+func (m *CustomContainer) Reset()                    { *m = CustomContainer{} }
+func (*CustomContainer) ProtoMessage()               {}
+func (*CustomContainer) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{45} }
 
 type CustomNameNidOptNative struct {
 	FieldA           float64 `protobuf:"fixed64,1,opt,name=Field1" json:"Field1"`
@@ -947,8 +1122,9 @@ type CustomNameNidOptNative struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *CustomNameNidOptNative) Reset()      { *m = CustomNameNidOptNative{} }
-func (*CustomNameNidOptNative) ProtoMessage() {}
+func (m *CustomNameNidOptNative) Reset()                    { *m = CustomNameNidOptNative{} }
+func (*CustomNameNidOptNative) ProtoMessage()               {}
+func (*CustomNameNidOptNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{46} }
 
 type CustomNameNinOptNative struct {
 	FieldA           *float64 `protobuf:"fixed64,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -969,8 +1145,9 @@ type CustomNameNinOptNative struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *CustomNameNinOptNative) Reset()      { *m = CustomNameNinOptNative{} }
-func (*CustomNameNinOptNative) ProtoMessage() {}
+func (m *CustomNameNinOptNative) Reset()                    { *m = CustomNameNinOptNative{} }
+func (*CustomNameNinOptNative) ProtoMessage()               {}
+func (*CustomNameNinOptNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{47} }
 
 type CustomNameNinRepNative struct {
 	FieldA           []float64 `protobuf:"fixed64,1,rep,name=Field1" json:"Field1,omitempty"`
@@ -991,8 +1168,9 @@ type CustomNameNinRepNative struct {
 	XXX_unrecognized []byte    `json:"-"`
 }
 
-func (m *CustomNameNinRepNative) Reset()      { *m = CustomNameNinRepNative{} }
-func (*CustomNameNinRepNative) ProtoMessage() {}
+func (m *CustomNameNinRepNative) Reset()                    { *m = CustomNameNinRepNative{} }
+func (*CustomNameNinRepNative) ProtoMessage()               {}
+func (*CustomNameNinRepNative) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{48} }
 
 type CustomNameNinStruct struct {
 	FieldA           *float64        `protobuf:"fixed64,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -1008,8 +1186,9 @@ type CustomNameNinStruct struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *CustomNameNinStruct) Reset()      { *m = CustomNameNinStruct{} }
-func (*CustomNameNinStruct) ProtoMessage() {}
+func (m *CustomNameNinStruct) Reset()                    { *m = CustomNameNinStruct{} }
+func (*CustomNameNinStruct) ProtoMessage()               {}
+func (*CustomNameNinStruct) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{49} }
 
 type CustomNameCustomType struct {
 	FieldA           *Uuid                                          `protobuf:"bytes,1,opt,name=Id,customtype=Uuid" json:"Id,omitempty"`
@@ -1019,8 +1198,9 @@ type CustomNameCustomType struct {
 	XXX_unrecognized []byte                                         `json:"-"`
 }
 
-func (m *CustomNameCustomType) Reset()      { *m = CustomNameCustomType{} }
-func (*CustomNameCustomType) ProtoMessage() {}
+func (m *CustomNameCustomType) Reset()                    { *m = CustomNameCustomType{} }
+func (*CustomNameCustomType) ProtoMessage()               {}
+func (*CustomNameCustomType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{50} }
 
 type CustomNameNinEmbeddedStructUnion struct {
 	*NidOptNative    `protobuf:"bytes,1,opt,name=Field1,embedded=Field1" json:"Field1,omitempty"`
@@ -1031,6 +1211,9 @@ type CustomNameNinEmbeddedStructUnion struct {
 
 func (m *CustomNameNinEmbeddedStructUnion) Reset()      { *m = CustomNameNinEmbeddedStructUnion{} }
 func (*CustomNameNinEmbeddedStructUnion) ProtoMessage() {}
+func (*CustomNameNinEmbeddedStructUnion) Descriptor() ([]byte, []int) {
+	return fileDescriptorThetest, []int{51}
+}
 
 type CustomNameEnum struct {
 	FieldA           *TheTestEnum  `protobuf:"varint,1,opt,name=Field1,enum=test.TheTestEnum" json:"Field1,omitempty"`
@@ -1038,8 +1221,9 @@ type CustomNameEnum struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *CustomNameEnum) Reset()      { *m = CustomNameEnum{} }
-func (*CustomNameEnum) ProtoMessage() {}
+func (m *CustomNameEnum) Reset()                    { *m = CustomNameEnum{} }
+func (*CustomNameEnum) ProtoMessage()               {}
+func (*CustomNameEnum) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{52} }
 
 type NoExtensionsMap struct {
 	Field1           *int64 `protobuf:"varint,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -1047,11 +1231,12 @@ type NoExtensionsMap struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *NoExtensionsMap) Reset()      { *m = NoExtensionsMap{} }
-func (*NoExtensionsMap) ProtoMessage() {}
+func (m *NoExtensionsMap) Reset()                    { *m = NoExtensionsMap{} }
+func (*NoExtensionsMap) ProtoMessage()               {}
+func (*NoExtensionsMap) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{53} }
 
 var extRange_NoExtensionsMap = []proto.ExtensionRange{
-	{100, 199},
+	{Start: 100, End: 199},
 }
 
 func (*NoExtensionsMap) ExtensionRangeArray() []proto.ExtensionRange {
@@ -1068,8 +1253,9 @@ type Unrecognized struct {
 	Field1 *string `protobuf:"bytes,1,opt,name=Field1" json:"Field1,omitempty"`
 }
 
-func (m *Unrecognized) Reset()      { *m = Unrecognized{} }
-func (*Unrecognized) ProtoMessage() {}
+func (m *Unrecognized) Reset()                    { *m = Unrecognized{} }
+func (*Unrecognized) ProtoMessage()               {}
+func (*Unrecognized) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{54} }
 
 type UnrecognizedWithInner struct {
 	Embedded         []*UnrecognizedWithInner_Inner `protobuf:"bytes,1,rep,name=embedded" json:"embedded,omitempty"`
@@ -1077,8 +1263,9 @@ type UnrecognizedWithInner struct {
 	XXX_unrecognized []byte                         `json:"-"`
 }
 
-func (m *UnrecognizedWithInner) Reset()      { *m = UnrecognizedWithInner{} }
-func (*UnrecognizedWithInner) ProtoMessage() {}
+func (m *UnrecognizedWithInner) Reset()                    { *m = UnrecognizedWithInner{} }
+func (*UnrecognizedWithInner) ProtoMessage()               {}
+func (*UnrecognizedWithInner) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{55} }
 
 type UnrecognizedWithInner_Inner struct {
 	Field1 *uint32 `protobuf:"varint,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -1086,6 +1273,9 @@ type UnrecognizedWithInner_Inner struct {
 
 func (m *UnrecognizedWithInner_Inner) Reset()      { *m = UnrecognizedWithInner_Inner{} }
 func (*UnrecognizedWithInner_Inner) ProtoMessage() {}
+func (*UnrecognizedWithInner_Inner) Descriptor() ([]byte, []int) {
+	return fileDescriptorThetest, []int{55, 0}
+}
 
 type UnrecognizedWithEmbed struct {
 	UnrecognizedWithEmbed_Embedded `protobuf:"bytes,1,opt,name=embedded,embedded=embedded" json:"embedded"`
@@ -1093,8 +1283,9 @@ type UnrecognizedWithEmbed struct {
 	XXX_unrecognized               []byte  `json:"-"`
 }
 
-func (m *UnrecognizedWithEmbed) Reset()      { *m = UnrecognizedWithEmbed{} }
-func (*UnrecognizedWithEmbed) ProtoMessage() {}
+func (m *UnrecognizedWithEmbed) Reset()                    { *m = UnrecognizedWithEmbed{} }
+func (*UnrecognizedWithEmbed) ProtoMessage()               {}
+func (*UnrecognizedWithEmbed) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{56} }
 
 type UnrecognizedWithEmbed_Embedded struct {
 	Field1 *uint32 `protobuf:"varint,1,opt,name=Field1" json:"Field1,omitempty"`
@@ -1102,6 +1293,9 @@ type UnrecognizedWithEmbed_Embedded struct {
 
 func (m *UnrecognizedWithEmbed_Embedded) Reset()      { *m = UnrecognizedWithEmbed_Embedded{} }
 func (*UnrecognizedWithEmbed_Embedded) ProtoMessage() {}
+func (*UnrecognizedWithEmbed_Embedded) Descriptor() ([]byte, []int) {
+	return fileDescriptorThetest, []int{56, 0}
+}
 
 type Node struct {
 	Label            *string `protobuf:"bytes,1,opt,name=Label" json:"Label,omitempty"`
@@ -1109,8 +1303,63 @@ type Node struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Node) Reset()      { *m = Node{} }
-func (*Node) ProtoMessage() {}
+func (m *Node) Reset()                    { *m = Node{} }
+func (*Node) ProtoMessage()               {}
+func (*Node) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{57} }
+
+type NonByteCustomType struct {
+	Field1           *T     `protobuf:"bytes,1,opt,name=Field1,customtype=T" json:"Field1,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *NonByteCustomType) Reset()                    { *m = NonByteCustomType{} }
+func (*NonByteCustomType) ProtoMessage()               {}
+func (*NonByteCustomType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{58} }
+
+type NidOptNonByteCustomType struct {
+	Field1           T      `protobuf:"bytes,1,opt,name=Field1,customtype=T" json:"Field1"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *NidOptNonByteCustomType) Reset()                    { *m = NidOptNonByteCustomType{} }
+func (*NidOptNonByteCustomType) ProtoMessage()               {}
+func (*NidOptNonByteCustomType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{59} }
+
+type NinOptNonByteCustomType struct {
+	Field1           *T     `protobuf:"bytes,1,opt,name=Field1,customtype=T" json:"Field1,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *NinOptNonByteCustomType) Reset()                    { *m = NinOptNonByteCustomType{} }
+func (*NinOptNonByteCustomType) ProtoMessage()               {}
+func (*NinOptNonByteCustomType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{60} }
+
+type NidRepNonByteCustomType struct {
+	Field1           []T    `protobuf:"bytes,1,rep,name=Field1,customtype=T" json:"Field1"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *NidRepNonByteCustomType) Reset()                    { *m = NidRepNonByteCustomType{} }
+func (*NidRepNonByteCustomType) ProtoMessage()               {}
+func (*NidRepNonByteCustomType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{61} }
+
+type NinRepNonByteCustomType struct {
+	Field1           []T    `protobuf:"bytes,1,rep,name=Field1,customtype=T" json:"Field1,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *NinRepNonByteCustomType) Reset()                    { *m = NinRepNonByteCustomType{} }
+func (*NinRepNonByteCustomType) ProtoMessage()               {}
+func (*NinRepNonByteCustomType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{62} }
+
+type ProtoType struct {
+	Field2           *string `protobuf:"bytes,1,opt,name=Field2" json:"Field2,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *ProtoType) Reset()                    { *m = ProtoType{} }
+func (*ProtoType) ProtoMessage()               {}
+func (*ProtoType) Descriptor() ([]byte, []int) { return fileDescriptorThetest, []int{63} }
 
 var E_FieldA = &proto.ExtensionDesc{
 	ExtendedType:  (*MyExtendable)(nil),
@@ -1118,6 +1367,7 @@ var E_FieldA = &proto.ExtensionDesc{
 	Field:         100,
 	Name:          "test.FieldA",
 	Tag:           "fixed64,100,opt,name=FieldA",
+	Filename:      "combos/unmarshaler/thetest.proto",
 }
 
 var E_FieldB = &proto.ExtensionDesc{
@@ -1126,6 +1376,7 @@ var E_FieldB = &proto.ExtensionDesc{
 	Field:         101,
 	Name:          "test.FieldB",
 	Tag:           "bytes,101,opt,name=FieldB",
+	Filename:      "combos/unmarshaler/thetest.proto",
 }
 
 var E_FieldC = &proto.ExtensionDesc{
@@ -1134,6 +1385,25 @@ var E_FieldC = &proto.ExtensionDesc{
 	Field:         102,
 	Name:          "test.FieldC",
 	Tag:           "bytes,102,opt,name=FieldC",
+	Filename:      "combos/unmarshaler/thetest.proto",
+}
+
+var E_FieldD = &proto.ExtensionDesc{
+	ExtendedType:  (*MyExtendable)(nil),
+	ExtensionType: ([]int64)(nil),
+	Field:         104,
+	Name:          "test.FieldD",
+	Tag:           "varint,104,rep,name=FieldD",
+	Filename:      "combos/unmarshaler/thetest.proto",
+}
+
+var E_FieldE = &proto.ExtensionDesc{
+	ExtendedType:  (*MyExtendable)(nil),
+	ExtensionType: ([]*NinOptNative)(nil),
+	Field:         105,
+	Name:          "test.FieldE",
+	Tag:           "bytes,105,rep,name=FieldE",
+	Filename:      "combos/unmarshaler/thetest.proto",
 }
 
 var E_FieldA1 = &proto.ExtensionDesc{
@@ -1142,6 +1412,7 @@ var E_FieldA1 = &proto.ExtensionDesc{
 	Field:         100,
 	Name:          "test.FieldA1",
 	Tag:           "fixed64,100,opt,name=FieldA1",
+	Filename:      "combos/unmarshaler/thetest.proto",
 }
 
 var E_FieldB1 = &proto.ExtensionDesc{
@@ -1150,6 +1421,7 @@ var E_FieldB1 = &proto.ExtensionDesc{
 	Field:         101,
 	Name:          "test.FieldB1",
 	Tag:           "bytes,101,opt,name=FieldB1",
+	Filename:      "combos/unmarshaler/thetest.proto",
 }
 
 var E_FieldC1 = &proto.ExtensionDesc{
@@ -1158,6 +1430,7 @@ var E_FieldC1 = &proto.ExtensionDesc{
 	Field:         102,
 	Name:          "test.FieldC1",
 	Tag:           "bytes,102,opt,name=FieldC1",
+	Filename:      "combos/unmarshaler/thetest.proto",
 }
 
 func init() {
@@ -1223,3314 +1496,5901 @@ func init() {
 	proto.RegisterType((*UnrecognizedWithEmbed)(nil), "test.UnrecognizedWithEmbed")
 	proto.RegisterType((*UnrecognizedWithEmbed_Embedded)(nil), "test.UnrecognizedWithEmbed.Embedded")
 	proto.RegisterType((*Node)(nil), "test.Node")
+	proto.RegisterType((*NonByteCustomType)(nil), "test.NonByteCustomType")
+	proto.RegisterType((*NidOptNonByteCustomType)(nil), "test.NidOptNonByteCustomType")
+	proto.RegisterType((*NinOptNonByteCustomType)(nil), "test.NinOptNonByteCustomType")
+	proto.RegisterType((*NidRepNonByteCustomType)(nil), "test.NidRepNonByteCustomType")
+	proto.RegisterType((*NinRepNonByteCustomType)(nil), "test.NinRepNonByteCustomType")
+	proto.RegisterType((*ProtoType)(nil), "test.ProtoType")
 	proto.RegisterEnum("test.TheTestEnum", TheTestEnum_name, TheTestEnum_value)
 	proto.RegisterEnum("test.AnotherTestEnum", AnotherTestEnum_name, AnotherTestEnum_value)
+	proto.RegisterEnum("test.YetAnotherTestEnum", YetAnotherTestEnum_name, YetAnotherTestEnum_value)
+	proto.RegisterEnum("test.YetYetAnotherTestEnum", YetYetAnotherTestEnum_name, YetYetAnotherTestEnum_value)
 	proto.RegisterEnum("test.NestedDefinition_NestedEnum", NestedDefinition_NestedEnum_name, NestedDefinition_NestedEnum_value)
 	proto.RegisterExtension(E_FieldA)
 	proto.RegisterExtension(E_FieldB)
 	proto.RegisterExtension(E_FieldC)
+	proto.RegisterExtension(E_FieldD)
+	proto.RegisterExtension(E_FieldE)
 	proto.RegisterExtension(E_FieldA1)
 	proto.RegisterExtension(E_FieldB1)
 	proto.RegisterExtension(E_FieldC1)
 }
-func (this *NidOptNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidRepNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinRepNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidRepPackedNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinRepPackedNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidOptStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidRepStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinRepStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidEmbeddedStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinEmbeddedStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidNestedStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinNestedStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidOptCustom) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomDash) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptCustom) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidRepCustom) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinRepCustom) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptNativeUnion) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptStructUnion) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinEmbeddedStructUnion) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinNestedStructUnion) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *Tree) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *OrBranch) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *AndBranch) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *Leaf) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *DeepTree) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *ADeepBranch) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *AndDeepBranch) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *DeepLeaf) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *Nil) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidOptEnum) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptEnum) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NidRepEnum) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinRepEnum) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptEnumDefault) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *AnotherNinOptEnum) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *AnotherNinOptEnumDefault) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *Timer) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *MyExtendable) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *OtherExtenable) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NestedDefinition) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NestedDefinition_NestedMessage) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NestedDefinition_NestedMessage_NestedNestedMsg) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NestedScope) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NinOptNativeDefault) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomContainer) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameNidOptNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameNinOptNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameNinRepNative) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameNinStruct) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameCustomType) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameNinEmbeddedStructUnion) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *CustomNameEnum) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *NoExtensionsMap) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *Unrecognized) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *UnrecognizedWithInner) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *UnrecognizedWithInner_Inner) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *UnrecognizedWithEmbed) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *UnrecognizedWithEmbed_Embedded) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func (this *Node) Description() (desc *descriptor.FileDescriptorSet) {
-	return ThetestDescription()
-}
-func ThetestDescription() (desc *descriptor.FileDescriptorSet) {
-	return &descriptor.FileDescriptorSet{File: []*descriptor.FileDescriptorProto{{Name: func(v string) *string { return &v }("google/protobuf/descriptor.proto"),
-		Package: func(v string) *string { return &v }("google.protobuf"),
-		MessageType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("FileDescriptorSet"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("file"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FileDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("file"),
-			}},
-		}, {Name: func(v string) *string { return &v }("FileDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("package"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("package"),
-			}, {Name: func(v string) *string { return &v }("dependency"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("dependency"),
-			}, {Name: func(v string) *string { return &v }("public_dependency"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("publicDependency"),
-			}, {Name: func(v string) *string { return &v }("weak_dependency"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("weakDependency"),
-			}, {Name: func(v string) *string { return &v }("message_type"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto"),
-				JsonName: func(v string) *string { return &v }("messageType"),
-			}, {Name: func(v string) *string { return &v }("enum_type"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("enumType"),
-			}, {Name: func(v string) *string { return &v }("service"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.ServiceDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("service"),
-			}, {Name: func(v string) *string { return &v }("extension"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("extension"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("source_code_info"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.SourceCodeInfo"),
-				JsonName: func(v string) *string { return &v }("sourceCodeInfo"),
-			}, {Name: func(v string) *string { return &v }("syntax"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("syntax"),
-			}},
-		}, {Name: func(v string) *string { return &v }("DescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("field"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("field"),
-			}, {Name: func(v string) *string { return &v }("extension"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("extension"),
-			}, {Name: func(v string) *string { return &v }("nested_type"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto"),
-				JsonName: func(v string) *string { return &v }("nestedType"),
-			}, {Name: func(v string) *string { return &v }("enum_type"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("enumType"),
-			}, {Name: func(v string) *string { return &v }("extension_range"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto.ExtensionRange"),
-				JsonName: func(v string) *string { return &v }("extensionRange"),
-			}, {Name: func(v string) *string { return &v }("oneof_decl"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.OneofDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("oneofDecl"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("reserved_range"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.DescriptorProto.ReservedRange"),
-				JsonName: func(v string) *string { return &v }("reservedRange"),
-			}, {Name: func(v string) *string { return &v }("reserved_name"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("reservedName"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("ExtensionRange"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("start"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("start"),
-				}, {Name: func(v string) *string { return &v }("end"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("end"),
-				}},
-			}, {Name: func(v string) *string { return &v }("ReservedRange"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("start"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("start"),
-				}, {Name: func(v string) *string { return &v }("end"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("end"),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("FieldDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("number"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("number"),
-			}, {Name: func(v string) *string { return &v }("label"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto.Label"),
-				JsonName: func(v string) *string { return &v }("label"),
-			}, {Name: func(v string) *string { return &v }("type"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldDescriptorProto.Type"),
-				JsonName: func(v string) *string { return &v }("type"),
-			}, {Name: func(v string) *string { return &v }("type_name"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("typeName"),
-			}, {Name: func(v string) *string { return &v }("extendee"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("extendee"),
-			}, {Name: func(v string) *string { return &v }("default_value"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("defaultValue"),
-			}, {Name: func(v string) *string { return &v }("oneof_index"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("oneofIndex"),
-			}, {Name: func(v string) *string { return &v }("json_name"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("jsonName"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("Type"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("TYPE_DOUBLE"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("TYPE_FLOAT"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("TYPE_INT64"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}, {Name: func(v string) *string { return &v }("TYPE_UINT64"),
-					Number: func(v int32) *int32 { return &v }(4),
-				}, {Name: func(v string) *string { return &v }("TYPE_INT32"),
-					Number: func(v int32) *int32 { return &v }(5),
-				}, {Name: func(v string) *string { return &v }("TYPE_FIXED64"),
-					Number: func(v int32) *int32 { return &v }(6),
-				}, {Name: func(v string) *string { return &v }("TYPE_FIXED32"),
-					Number: func(v int32) *int32 { return &v }(7),
-				}, {Name: func(v string) *string { return &v }("TYPE_BOOL"),
-					Number: func(v int32) *int32 { return &v }(8),
-				}, {Name: func(v string) *string { return &v }("TYPE_STRING"),
-					Number: func(v int32) *int32 { return &v }(9),
-				}, {Name: func(v string) *string { return &v }("TYPE_GROUP"),
-					Number: func(v int32) *int32 { return &v }(10),
-				}, {Name: func(v string) *string { return &v }("TYPE_MESSAGE"),
-					Number: func(v int32) *int32 { return &v }(11),
-				}, {Name: func(v string) *string { return &v }("TYPE_BYTES"),
-					Number: func(v int32) *int32 { return &v }(12),
-				}, {Name: func(v string) *string { return &v }("TYPE_UINT32"),
-					Number: func(v int32) *int32 { return &v }(13),
-				}, {Name: func(v string) *string { return &v }("TYPE_ENUM"),
-					Number: func(v int32) *int32 { return &v }(14),
-				}, {Name: func(v string) *string { return &v }("TYPE_SFIXED32"),
-					Number: func(v int32) *int32 { return &v }(15),
-				}, {Name: func(v string) *string { return &v }("TYPE_SFIXED64"),
-					Number: func(v int32) *int32 { return &v }(16),
-				}, {Name: func(v string) *string { return &v }("TYPE_SINT32"),
-					Number: func(v int32) *int32 { return &v }(17),
-				}, {Name: func(v string) *string { return &v }("TYPE_SINT64"),
-					Number: func(v int32) *int32 { return &v }(18),
-				}},
-			}, {Name: func(v string) *string { return &v }("Label"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("LABEL_OPTIONAL"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("LABEL_REQUIRED"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("LABEL_REPEATED"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("OneofDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumValueDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("value"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumValueDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("number"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("number"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.EnumValueOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("ServiceDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("method"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MethodDescriptorProto"),
-				JsonName: func(v string) *string { return &v }("method"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.ServiceOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}},
-		}, {Name: func(v string) *string { return &v }("MethodDescriptorProto"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("input_type"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("inputType"),
-			}, {Name: func(v string) *string { return &v }("output_type"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("outputType"),
-			}, {Name: func(v string) *string { return &v }("options"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.MethodOptions"),
-				JsonName: func(v string) *string { return &v }("options"),
-			}, {Name: func(v string) *string { return &v }("client_streaming"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("clientStreaming"),
-			}, {Name: func(v string) *string { return &v }("server_streaming"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("serverStreaming"),
-			}},
-		}, {Name: func(v string) *string { return &v }("FileOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("java_package"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("javaPackage"),
-			}, {Name: func(v string) *string { return &v }("java_outer_classname"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("javaOuterClassname"),
-			}, {Name: func(v string) *string { return &v }("java_multiple_files"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaMultipleFiles"),
-			}, {Name: func(v string) *string { return &v }("java_generate_equals_and_hash"),
-				Number:       func(v int32) *int32 { return &v }(20),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaGenerateEqualsAndHash"),
-			}, {Name: func(v string) *string { return &v }("java_string_check_utf8"),
-				Number:       func(v int32) *int32 { return &v }(27),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaStringCheckUtf8"),
-			}, {Name: func(v string) *string { return &v }("optimize_for"),
-				Number:       func(v int32) *int32 { return &v }(9),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FileOptions.OptimizeMode"),
-				DefaultValue: func(v string) *string { return &v }("SPEED"),
-				JsonName:     func(v string) *string { return &v }("optimizeFor"),
-			}, {Name: func(v string) *string { return &v }("go_package"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("goPackage"),
-			}, {Name: func(v string) *string { return &v }("cc_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(16),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("ccGenericServices"),
-			}, {Name: func(v string) *string { return &v }("java_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(17),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("javaGenericServices"),
-			}, {Name: func(v string) *string { return &v }("py_generic_services"),
-				Number:       func(v int32) *int32 { return &v }(18),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("pyGenericServices"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(23),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("cc_enable_arenas"),
-				Number:       func(v int32) *int32 { return &v }(31),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("ccEnableArenas"),
-			}, {Name: func(v string) *string { return &v }("objc_class_prefix"),
-				Number:   func(v int32) *int32 { return &v }(36),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("objcClassPrefix"),
-			}, {Name: func(v string) *string { return &v }("csharp_namespace"),
-				Number:   func(v int32) *int32 { return &v }(37),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("csharpNamespace"),
-			}, {Name: func(v string) *string { return &v }("javanano_use_deprecated_package"),
-				Number:   func(v int32) *int32 { return &v }(38),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("javananoUseDeprecatedPackage"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("OptimizeMode"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("SPEED"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("CODE_SIZE"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}, {Name: func(v string) *string { return &v }("LITE_RUNTIME"),
-					Number: func(v int32) *int32 { return &v }(3),
-				}},
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("MessageOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("message_set_wire_format"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("messageSetWireFormat"),
-			}, {Name: func(v string) *string { return &v }("no_standard_descriptor_accessor"),
-				Number:       func(v int32) *int32 { return &v }(2),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("noStandardDescriptorAccessor"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("map_entry"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("mapEntry"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("FieldOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("ctype"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FieldOptions.CType"),
-				DefaultValue: func(v string) *string { return &v }("STRING"),
-				JsonName:     func(v string) *string { return &v }("ctype"),
-			}, {Name: func(v string) *string { return &v }("packed"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("packed"),
-			}, {Name: func(v string) *string { return &v }("jstype"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".google.protobuf.FieldOptions.JSType"),
-				DefaultValue: func(v string) *string { return &v }("JS_NORMAL"),
-				JsonName:     func(v string) *string { return &v }("jstype"),
-			}, {Name: func(v string) *string { return &v }("lazy"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("lazy"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("weak"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("weak"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("CType"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("STRING"),
-					Number: func(v int32) *int32 { return &v }(0),
-				}, {Name: func(v string) *string { return &v }("CORD"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("STRING_PIECE"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}},
-			}, {Name: func(v string) *string { return &v }("JSType"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("JS_NORMAL"),
-					Number: func(v int32) *int32 { return &v }(0),
-				}, {Name: func(v string) *string { return &v }("JS_STRING"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}, {Name: func(v string) *string { return &v }("JS_NUMBER"),
-					Number: func(v int32) *int32 { return &v }(2),
-				}},
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("allow_alias"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("allowAlias"),
-			}, {Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("EnumValueOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("ServiceOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(33),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("MethodOptions"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("deprecated"),
-				Number:       func(v int32) *int32 { return &v }(33),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("false"),
-				JsonName:     func(v string) *string { return &v }("deprecated"),
-			}, {Name: func(v string) *string { return &v }("uninterpreted_option"),
-				Number:   func(v int32) *int32 { return &v }(999),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption"),
-				JsonName: func(v string) *string { return &v }("uninterpretedOption"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(1000),
-				End: func(v int32) *int32 { return &v }(536870912),
-			}},
-		}, {Name: func(v string) *string { return &v }("UninterpretedOption"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.UninterpretedOption.NamePart"),
-				JsonName: func(v string) *string { return &v }("name"),
-			}, {Name: func(v string) *string { return &v }("identifier_value"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("identifierValue"),
-			}, {Name: func(v string) *string { return &v }("positive_int_value"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("positiveIntValue"),
-			}, {Name: func(v string) *string { return &v }("negative_int_value"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("negativeIntValue"),
-			}, {Name: func(v string) *string { return &v }("double_value"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("doubleValue"),
-			}, {Name: func(v string) *string { return &v }("string_value"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("stringValue"),
-			}, {Name: func(v string) *string { return &v }("aggregate_value"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("aggregateValue"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("NamePart"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("name_part"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(2),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("namePart"),
-				}, {Name: func(v string) *string { return &v }("is_extension"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(2),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-					JsonName: func(v string) *string { return &v }("isExtension"),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("SourceCodeInfo"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("location"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".google.protobuf.SourceCodeInfo.Location"),
-				JsonName: func(v string) *string { return &v }("location"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("Location"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("path"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("path"),
-					Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-						XXX_extensions: map[int32]proto.Extension{},
-					},
-				}, {Name: func(v string) *string { return &v }("span"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-					JsonName: func(v string) *string { return &v }("span"),
-					Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-						XXX_extensions: map[int32]proto.Extension{},
-					},
-				}, {Name: func(v string) *string { return &v }("leading_comments"),
-					Number:   func(v int32) *int32 { return &v }(3),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("leadingComments"),
-				}, {Name: func(v string) *string { return &v }("trailing_comments"),
-					Number:   func(v int32) *int32 { return &v }(4),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("trailingComments"),
-				}, {Name: func(v string) *string { return &v }("leading_detached_comments"),
-					Number:   func(v int32) *int32 { return &v }(6),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-					JsonName: func(v string) *string { return &v }("leadingDetachedComments"),
-				}},
-			}},
-		}},
-		Options: &descriptor.FileOptions{JavaPackage: func(v string) *string { return &v }("com.google.protobuf"),
-			JavaOuterClassname: func(v string) *string { return &v }("DescriptorProtos"),
-			OptimizeFor:        func(v descriptor.FileOptions_OptimizeMode) *descriptor.FileOptions_OptimizeMode { return &v }(1),
-			GoPackage:          func(v string) *string { return &v }("descriptor"),
-			ObjcClassPrefix:    func(v string) *string { return &v }("GPB"),
-			CsharpNamespace:    func(v string) *string { return &v }("Google.Protobuf.Reflection"),
-			XXX_extensions:     map[int32]proto.Extension{},
-		},
-	}, {Name: func(v string) *string { return &v }("github.com/gogo/protobuf/gogoproto/gogo.proto"),
-		Package:    func(v string) *string { return &v }("gogoproto"),
-		Dependency: []string{"google/protobuf/descriptor.proto"},
-		Extension: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("goproto_enum_prefix"),
-			Number:   func(v int32) *int32 { return &v }(62001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumPrefix"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_stringer"),
-			Number:   func(v int32) *int32 { return &v }(62021),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumStringer"),
-		}, {Name: func(v string) *string { return &v }("enum_stringer"),
-			Number:   func(v int32) *int32 { return &v }(62022),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.EnumOptions"),
-			JsonName: func(v string) *string { return &v }("enumStringer"),
-		}, {Name: func(v string) *string { return &v }("goproto_getters_all"),
-			Number:   func(v int32) *int32 { return &v }(63001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoGettersAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_prefix_all"),
-			Number:   func(v int32) *int32 { return &v }(63002),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumPrefixAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoStringerAll"),
-		}, {Name: func(v string) *string { return &v }("verbose_equal_all"),
-			Number:   func(v int32) *int32 { return &v }(63004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("verboseEqualAll"),
-		}, {Name: func(v string) *string { return &v }("face_all"),
-			Number:   func(v int32) *int32 { return &v }(63005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("faceAll"),
-		}, {Name: func(v string) *string { return &v }("gostring_all"),
-			Number:   func(v int32) *int32 { return &v }(63006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("gostringAll"),
-		}, {Name: func(v string) *string { return &v }("populate_all"),
-			Number:   func(v int32) *int32 { return &v }(63007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("populateAll"),
-		}, {Name: func(v string) *string { return &v }("stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("stringerAll"),
-		}, {Name: func(v string) *string { return &v }("onlyone_all"),
-			Number:   func(v int32) *int32 { return &v }(63009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("onlyoneAll"),
-		}, {Name: func(v string) *string { return &v }("equal_all"),
-			Number:   func(v int32) *int32 { return &v }(63013),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("equalAll"),
-		}, {Name: func(v string) *string { return &v }("description_all"),
-			Number:   func(v int32) *int32 { return &v }(63014),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("descriptionAll"),
-		}, {Name: func(v string) *string { return &v }("testgen_all"),
-			Number:   func(v int32) *int32 { return &v }(63015),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("testgenAll"),
-		}, {Name: func(v string) *string { return &v }("benchgen_all"),
-			Number:   func(v int32) *int32 { return &v }(63016),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("benchgenAll"),
-		}, {Name: func(v string) *string { return &v }("marshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63017),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("marshalerAll"),
-		}, {Name: func(v string) *string { return &v }("unmarshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63018),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unmarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("sizer_all"),
-			Number:   func(v int32) *int32 { return &v }(63020),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("sizerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_enum_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63021),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoEnumStringerAll"),
-		}, {Name: func(v string) *string { return &v }("enum_stringer_all"),
-			Number:   func(v int32) *int32 { return &v }(63022),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("enumStringerAll"),
-		}, {Name: func(v string) *string { return &v }("unsafe_marshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63023),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeMarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("unsafe_unmarshaler_all"),
-			Number:   func(v int32) *int32 { return &v }(63024),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeUnmarshalerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_extensions_map_all"),
-			Number:   func(v int32) *int32 { return &v }(63025),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoExtensionsMapAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_unrecognized_all"),
-			Number:   func(v int32) *int32 { return &v }(63026),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoUnrecognizedAll"),
-		}, {Name: func(v string) *string { return &v }("gogoproto_import"),
-			Number:   func(v int32) *int32 { return &v }(63027),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("gogoprotoImport"),
-		}, {Name: func(v string) *string { return &v }("protosizer_all"),
-			Number:   func(v int32) *int32 { return &v }(63028),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FileOptions"),
-			JsonName: func(v string) *string { return &v }("protosizerAll"),
-		}, {Name: func(v string) *string { return &v }("goproto_getters"),
-			Number:   func(v int32) *int32 { return &v }(64001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoGetters"),
-		}, {Name: func(v string) *string { return &v }("goproto_stringer"),
-			Number:   func(v int32) *int32 { return &v }(64003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoStringer"),
-		}, {Name: func(v string) *string { return &v }("verbose_equal"),
-			Number:   func(v int32) *int32 { return &v }(64004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("verboseEqual"),
-		}, {Name: func(v string) *string { return &v }("face"),
-			Number:   func(v int32) *int32 { return &v }(64005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("face"),
-		}, {Name: func(v string) *string { return &v }("gostring"),
-			Number:   func(v int32) *int32 { return &v }(64006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("gostring"),
-		}, {Name: func(v string) *string { return &v }("populate"),
-			Number:   func(v int32) *int32 { return &v }(64007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("populate"),
-		}, {Name: func(v string) *string { return &v }("stringer"),
-			Number:   func(v int32) *int32 { return &v }(67008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("stringer"),
-		}, {Name: func(v string) *string { return &v }("onlyone"),
-			Number:   func(v int32) *int32 { return &v }(64009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("onlyone"),
-		}, {Name: func(v string) *string { return &v }("equal"),
-			Number:   func(v int32) *int32 { return &v }(64013),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("equal"),
-		}, {Name: func(v string) *string { return &v }("description"),
-			Number:   func(v int32) *int32 { return &v }(64014),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("description"),
-		}, {Name: func(v string) *string { return &v }("testgen"),
-			Number:   func(v int32) *int32 { return &v }(64015),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("testgen"),
-		}, {Name: func(v string) *string { return &v }("benchgen"),
-			Number:   func(v int32) *int32 { return &v }(64016),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("benchgen"),
-		}, {Name: func(v string) *string { return &v }("marshaler"),
-			Number:   func(v int32) *int32 { return &v }(64017),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("marshaler"),
-		}, {Name: func(v string) *string { return &v }("unmarshaler"),
-			Number:   func(v int32) *int32 { return &v }(64018),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unmarshaler"),
-		}, {Name: func(v string) *string { return &v }("sizer"),
-			Number:   func(v int32) *int32 { return &v }(64020),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("sizer"),
-		}, {Name: func(v string) *string { return &v }("unsafe_marshaler"),
-			Number:   func(v int32) *int32 { return &v }(64023),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeMarshaler"),
-		}, {Name: func(v string) *string { return &v }("unsafe_unmarshaler"),
-			Number:   func(v int32) *int32 { return &v }(64024),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("unsafeUnmarshaler"),
-		}, {Name: func(v string) *string { return &v }("goproto_extensions_map"),
-			Number:   func(v int32) *int32 { return &v }(64025),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoExtensionsMap"),
-		}, {Name: func(v string) *string { return &v }("goproto_unrecognized"),
-			Number:   func(v int32) *int32 { return &v }(64026),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("goprotoUnrecognized"),
-		}, {Name: func(v string) *string { return &v }("protosizer"),
-			Number:   func(v int32) *int32 { return &v }(64028),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.MessageOptions"),
-			JsonName: func(v string) *string { return &v }("protosizer"),
-		}, {Name: func(v string) *string { return &v }("nullable"),
-			Number:   func(v int32) *int32 { return &v }(65001),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("nullable"),
-		}, {Name: func(v string) *string { return &v }("embed"),
-			Number:   func(v int32) *int32 { return &v }(65002),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("embed"),
-		}, {Name: func(v string) *string { return &v }("customtype"),
-			Number:   func(v int32) *int32 { return &v }(65003),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("customtype"),
-		}, {Name: func(v string) *string { return &v }("customname"),
-			Number:   func(v int32) *int32 { return &v }(65004),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("customname"),
-		}, {Name: func(v string) *string { return &v }("jsontag"),
-			Number:   func(v int32) *int32 { return &v }(65005),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("jsontag"),
-		}, {Name: func(v string) *string { return &v }("moretags"),
-			Number:   func(v int32) *int32 { return &v }(65006),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("moretags"),
-		}, {Name: func(v string) *string { return &v }("casttype"),
-			Number:   func(v int32) *int32 { return &v }(65007),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("casttype"),
-		}, {Name: func(v string) *string { return &v }("castkey"),
-			Number:   func(v int32) *int32 { return &v }(65008),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("castkey"),
-		}, {Name: func(v string) *string { return &v }("castvalue"),
-			Number:   func(v int32) *int32 { return &v }(65009),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-			Extendee: func(v string) *string { return &v }(".google.protobuf.FieldOptions"),
-			JsonName: func(v string) *string { return &v }("castvalue"),
-		}},
-		Options: &descriptor.FileOptions{JavaPackage: func(v string) *string { return &v }("com.google.protobuf"),
-			JavaOuterClassname: func(v string) *string { return &v }("GoGoProtos"),
-			XXX_extensions:     map[int32]proto.Extension{},
-		},
-	}, {Name: func(v string) *string { return &v }("combos/unmarshaler/thetest.proto"),
-		Package:    func(v string) *string { return &v }("test"),
-		Dependency: []string{"github.com/gogo/protobuf/gogoproto/gogo.proto"},
-		MessageType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("NidOptNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidRepNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinRepNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidRepPackedNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})},
-				},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinRepPackedNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options: &descriptor.FieldOptions{Packed: func(v bool) *bool { return &v }(true),
-					XXX_extensions: map[int32]proto.Extension{},
-				},
-			}},
-		}, {Name: func(v string) *string { return &v }("NidOptStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field8"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidRepStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinRepStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field8"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidEmbeddedStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65002: proto.NewExtension([]byte{0xd0, 0xde, 0x1f, 0x1})}},
-			}, {Name: func(v string) *string { return &v }("Field200"),
-				Number:   func(v int32) *int32 { return &v }(200),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field200"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field210"),
-				Number:   func(v int32) *int32 { return &v }(210),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field210"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinEmbeddedStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65002: proto.NewExtension([]byte{0xd0, 0xde, 0x1f, 0x1})}},
-			}, {Name: func(v string) *string { return &v }("Field200"),
-				Number:   func(v int32) *int32 { return &v }(200),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field200"),
-			}, {Name: func(v string) *string { return &v }("Field210"),
-				Number:   func(v int32) *int32 { return &v }(210),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field210"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidNestedStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptStruct"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidRepStruct"),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinNestedStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptStruct"),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinRepStruct"),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidOptCustom"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Id"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("id"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x4, 0x55, 0x75, 0x69, 0x64})}},
-			}, {Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2e, 0x55, 0x69, 0x6e, 0x74, 0x31, 0x32, 0x38})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomDash"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x34, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x64, 0x61, 0x73, 0x68, 0x2d, 0x74, 0x79, 0x70, 0x65, 0x2e, 0x42, 0x79, 0x74, 0x65, 0x73})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptCustom"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Id"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("id"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x4, 0x55, 0x75, 0x69, 0x64})}},
-			}, {Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2e, 0x55, 0x69, 0x6e, 0x74, 0x31, 0x32, 0x38})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NidRepCustom"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Id"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("id"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x4, 0x55, 0x75, 0x69, 0x64})}},
-			}, {Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2e, 0x55, 0x69, 0x6e, 0x74, 0x31, 0x32, 0x38})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinRepCustom"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Id"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("id"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x4, 0x55, 0x75, 0x69, 0x64})}},
-			}, {Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2e, 0x55, 0x69, 0x6e, 0x74, 0x31, 0x32, 0x38})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptNativeUnion"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("NinOptStructUnion"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("NinEmbeddedStructUnion"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65002: proto.NewExtension([]byte{0xd0, 0xde, 0x1f, 0x1})}},
-			}, {Name: func(v string) *string { return &v }("Field200"),
-				Number:   func(v int32) *int32 { return &v }(200),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field200"),
-			}, {Name: func(v string) *string { return &v }("Field210"),
-				Number:   func(v int32) *int32 { return &v }(210),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field210"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("NinNestedStructUnion"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNativeUnion"),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptStructUnion"),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinEmbeddedStructUnion"),
-				JsonName: func(v string) *string { return &v }("field3"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("Tree"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Or"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.OrBranch"),
-				JsonName: func(v string) *string { return &v }("or"),
-			}, {Name: func(v string) *string { return &v }("And"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.AndBranch"),
-				JsonName: func(v string) *string { return &v }("and"),
-			}, {Name: func(v string) *string { return &v }("Leaf"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Leaf"),
-				JsonName: func(v string) *string { return &v }("leaf"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("OrBranch"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Left"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Tree"),
-				JsonName: func(v string) *string { return &v }("left"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Right"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Tree"),
-				JsonName: func(v string) *string { return &v }("right"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("AndBranch"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Left"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Tree"),
-				JsonName: func(v string) *string { return &v }("left"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Right"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Tree"),
-				JsonName: func(v string) *string { return &v }("right"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("Leaf"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("StrValue"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("strValue"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("DeepTree"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Down"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.ADeepBranch"),
-				JsonName: func(v string) *string { return &v }("down"),
-			}, {Name: func(v string) *string { return &v }("And"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.AndDeepBranch"),
-				JsonName: func(v string) *string { return &v }("and"),
-			}, {Name: func(v string) *string { return &v }("Leaf"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.DeepLeaf"),
-				JsonName: func(v string) *string { return &v }("leaf"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("ADeepBranch"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Down"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.DeepTree"),
-				JsonName: func(v string) *string { return &v }("down"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("AndDeepBranch"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Left"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.DeepTree"),
-				JsonName: func(v string) *string { return &v }("left"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Right"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.DeepTree"),
-				JsonName: func(v string) *string { return &v }("right"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("DeepLeaf"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Tree"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Tree"),
-				JsonName: func(v string) *string { return &v }("tree"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("Nil")}, {Name: func(v string) *string { return &v }("NidOptEnum"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.TheTestEnum"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptEnum"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.TheTestEnum"),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NidRepEnum"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.TheTestEnum"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NinRepEnum"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.TheTestEnum"),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptEnumDefault"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".test.TheTestEnum"),
-				DefaultValue: func(v string) *string { return &v }("C"),
-				JsonName:     func(v string) *string { return &v }("field1"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64001: proto.NewExtension([]byte{0x88, 0xa0, 0x1f, 0x1}), 64005: proto.NewExtension([]byte{0xa8, 0xa0, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("AnotherNinOptEnum"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.AnotherTestEnum"),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}},
-		}, {Name: func(v string) *string { return &v }("AnotherNinOptEnumDefault"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName:     func(v string) *string { return &v }(".test.AnotherTestEnum"),
-				DefaultValue: func(v string) *string { return &v }("E"),
-				JsonName:     func(v string) *string { return &v }("field1"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64001: proto.NewExtension([]byte{0x88, 0xa0, 0x1f, 0x1}), 64005: proto.NewExtension([]byte{0xa8, 0xa0, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("Timer"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Time1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("time1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Time2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("time2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}, {Name: func(v string) *string { return &v }("Data"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("data"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("MyExtendable"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(100),
-				End: func(v int32) *int32 { return &v }(200),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64005: proto.NewExtension([]byte{0xa8, 0xa0, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("OtherExtenable"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("M"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.MyExtendable"),
-				JsonName: func(v string) *string { return &v }("m"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(14),
-				End: func(v int32) *int32 { return &v }(17),
-			}, {Start: func(v int32) *int32 { return &v }(10),
-				End: func(v int32) *int32 { return &v }(13),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64005: proto.NewExtension([]byte{0xa8, 0xa0, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("NestedDefinition"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("EnumField"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedEnum"),
-				JsonName: func(v string) *string { return &v }("enumField"),
-			}, {Name: func(v string) *string { return &v }("NNM"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedMessage.NestedNestedMsg"),
-				JsonName: func(v string) *string { return &v }("nNM"),
-			}, {Name: func(v string) *string { return &v }("NM"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedMessage"),
-				JsonName: func(v string) *string { return &v }("nM"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("NestedMessage"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("NestedField1"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-					JsonName: func(v string) *string { return &v }("nestedField1"),
-				}, {Name: func(v string) *string { return &v }("NNM"),
-					Number:   func(v int32) *int32 { return &v }(2),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-					TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedMessage.NestedNestedMsg"),
-					JsonName: func(v string) *string { return &v }("nNM"),
-				}},
-				NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("NestedNestedMsg"),
-					Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("NestedNestedField1"),
-						Number:   func(v int32) *int32 { return &v }(10),
-						Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-						Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-						JsonName: func(v string) *string { return &v }("nestedNestedField1"),
-					}},
-				}},
-			}},
-			EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("NestedEnum"),
-				Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("TYPE_NESTED"),
-					Number: func(v int32) *int32 { return &v }(1),
-				}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NestedScope"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("A"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedMessage.NestedNestedMsg"),
-				JsonName: func(v string) *string { return &v }("a"),
-			}, {Name: func(v string) *string { return &v }("B"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedEnum"),
-				JsonName: func(v string) *string { return &v }("b"),
-			}, {Name: func(v string) *string { return &v }("C"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NestedDefinition.NestedMessage"),
-				JsonName: func(v string) *string { return &v }("c"),
-			}},
-		}, {Name: func(v string) *string { return &v }("NinOptNativeDefault"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:       func(v int32) *int32 { return &v }(1),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				DefaultValue: func(v string) *string { return &v }("1234.1234"),
-				JsonName:     func(v string) *string { return &v }("field1"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:       func(v int32) *int32 { return &v }(2),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				DefaultValue: func(v string) *string { return &v }("1234.1234"),
-				JsonName:     func(v string) *string { return &v }("field2"),
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:       func(v int32) *int32 { return &v }(3),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field3"),
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:       func(v int32) *int32 { return &v }(4),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field4"),
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:       func(v int32) *int32 { return &v }(5),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field5"),
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:       func(v int32) *int32 { return &v }(6),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field6"),
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:       func(v int32) *int32 { return &v }(7),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field7"),
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:       func(v int32) *int32 { return &v }(8),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field8"),
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:       func(v int32) *int32 { return &v }(9),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field9"),
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:       func(v int32) *int32 { return &v }(10),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field10"),
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:       func(v int32) *int32 { return &v }(11),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field11"),
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:       func(v int32) *int32 { return &v }(12),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field12"),
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:       func(v int32) *int32 { return &v }(13),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				DefaultValue: func(v string) *string { return &v }("true"),
-				JsonName:     func(v string) *string { return &v }("field13"),
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:       func(v int32) *int32 { return &v }(14),
-				Label:        func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:         func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				DefaultValue: func(v string) *string { return &v }("1234"),
-				JsonName:     func(v string) *string { return &v }("field14"),
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64001: proto.NewExtension([]byte{0x88, 0xa0, 0x1f, 0x1}), 64005: proto.NewExtension([]byte{0xa8, 0xa0, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("CustomContainer"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("CustomStruct"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptCustom"),
-				JsonName: func(v string) *string { return &v }("customStruct"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomNameNidOptNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x43})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x44})}},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x45})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x46})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x47})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x48})}},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x49})}},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4a})}},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4b})}},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4c})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4d})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4e})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4f})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomNameNinOptNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x43})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x44})}},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x45})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x46})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x47})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x48})}},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x49})}},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4a})}},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4b})}},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x5, 0x46, 0x69, 0x65, 0x6c, 0x4c})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4d})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4e})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4f})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomNameNinRepNative"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(5),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x43})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x44})}},
-			}, {Name: func(v string) *string { return &v }("Field5"),
-				Number:   func(v int32) *int32 { return &v }(5),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-				JsonName: func(v string) *string { return &v }("field5"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x45})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x46})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x47})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(18),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x48})}},
-			}, {Name: func(v string) *string { return &v }("Field9"),
-				Number:   func(v int32) *int32 { return &v }(9),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(7),
-				JsonName: func(v string) *string { return &v }("field9"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x49})}},
-			}, {Name: func(v string) *string { return &v }("Field10"),
-				Number:   func(v int32) *int32 { return &v }(10),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(15),
-				JsonName: func(v string) *string { return &v }("field10"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4a})}},
-			}, {Name: func(v string) *string { return &v }("Field11"),
-				Number:   func(v int32) *int32 { return &v }(11),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(6),
-				JsonName: func(v string) *string { return &v }("field11"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4b})}},
-			}, {Name: func(v string) *string { return &v }("Field12"),
-				Number:   func(v int32) *int32 { return &v }(12),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(16),
-				JsonName: func(v string) *string { return &v }("field12"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4c})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4d})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4e})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4f})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomNameNinStruct"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(2),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}, {Name: func(v string) *string { return &v }("Field3"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field3"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x43})}},
-			}, {Name: func(v string) *string { return &v }("Field4"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field4"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x44})}},
-			}, {Name: func(v string) *string { return &v }("Field6"),
-				Number:   func(v int32) *int32 { return &v }(6),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(4),
-				JsonName: func(v string) *string { return &v }("field6"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x45})}},
-			}, {Name: func(v string) *string { return &v }("Field7"),
-				Number:   func(v int32) *int32 { return &v }(7),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(17),
-				JsonName: func(v string) *string { return &v }("field7"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x46})}},
-			}, {Name: func(v string) *string { return &v }("Field8"),
-				Number:   func(v int32) *int32 { return &v }(8),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field8"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x47})}},
-			}, {Name: func(v string) *string { return &v }("Field13"),
-				Number:   func(v int32) *int32 { return &v }(13),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field13"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x48})}},
-			}, {Name: func(v string) *string { return &v }("Field14"),
-				Number:   func(v int32) *int32 { return &v }(14),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field14"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x49})}},
-			}, {Name: func(v string) *string { return &v }("Field15"),
-				Number:   func(v int32) *int32 { return &v }(15),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("field15"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4a})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomNameCustomType"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Id"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("id"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x4, 0x55, 0x75, 0x69, 0x64}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Value"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("value"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2e, 0x55, 0x69, 0x6e, 0x74, 0x31, 0x32, 0x38}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}, {Name: func(v string) *string { return &v }("Ids"),
-				Number:   func(v int32) *int32 { return &v }(3),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("ids"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x4, 0x55, 0x75, 0x69, 0x64}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x43})}},
-			}, {Name: func(v string) *string { return &v }("Values"),
-				Number:   func(v int32) *int32 { return &v }(4),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(12),
-				JsonName: func(v string) *string { return &v }("values"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65003: proto.NewExtension([]byte{0xda, 0xde, 0x1f, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2e, 0x55, 0x69, 0x6e, 0x74, 0x31, 0x32, 0x38}), 65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x44})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("CustomNameNinEmbeddedStructUnion"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NidOptNative"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65002: proto.NewExtension([]byte{0xd0, 0xde, 0x1f, 0x1})}},
-			}, {Name: func(v string) *string { return &v }("Field200"),
-				Number:   func(v int32) *int32 { return &v }(200),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-				JsonName: func(v string) *string { return &v }("field200"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Field210"),
-				Number:   func(v int32) *int32 { return &v }(210),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(8),
-				JsonName: func(v string) *string { return &v }("field210"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64009: proto.NewExtension([]byte{0xc8, 0xa0, 0x1f, 0x1})}},
-		}, {Name: func(v string) *string { return &v }("CustomNameEnum"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.TheTestEnum"),
-				JsonName: func(v string) *string { return &v }("field1"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x41})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(14),
-				TypeName: func(v string) *string { return &v }(".test.TheTestEnum"),
-				JsonName: func(v string) *string { return &v }("field2"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65004: proto.NewExtension([]byte{0xe2, 0xde, 0x1f, 0x6, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x42})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("NoExtensionsMap"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(3),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}},
-			ExtensionRange: []*descriptor.DescriptorProto_ExtensionRange{{Start: func(v int32) *int32 { return &v }(100),
-				End: func(v int32) *int32 { return &v }(200),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64005: proto.NewExtension([]byte{0xa8, 0xa0, 0x1f, 0x0}), 64025: proto.NewExtension([]byte{0xc8, 0xa1, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("Unrecognized"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field1"),
-			}},
-			Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64026: proto.NewExtension([]byte{0xd0, 0xa1, 0x1f, 0x0})}},
-		}, {Name: func(v string) *string { return &v }("UnrecognizedWithInner"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("embedded"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.UnrecognizedWithInner.Inner"),
-				JsonName: func(v string) *string { return &v }("embedded"),
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("Inner"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-					JsonName: func(v string) *string { return &v }("field1"),
-				}},
-				Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64026: proto.NewExtension([]byte{0xd0, 0xa1, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("UnrecognizedWithEmbed"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("embedded"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.UnrecognizedWithEmbed.Embedded"),
-				JsonName: func(v string) *string { return &v }("embedded"),
-				Options:  &descriptor.FieldOptions{XXX_extensions: map[int32]proto.Extension{65001: proto.NewExtension([]byte{0xc8, 0xde, 0x1f, 0x0}), 65002: proto.NewExtension([]byte{0xd0, 0xde, 0x1f, 0x1})}},
-			}, {Name: func(v string) *string { return &v }("Field2"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("field2"),
-			}},
-			NestedType: []*descriptor.DescriptorProto{{Name: func(v string) *string { return &v }("Embedded"),
-				Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Field1"),
-					Number:   func(v int32) *int32 { return &v }(1),
-					Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-					Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(13),
-					JsonName: func(v string) *string { return &v }("field1"),
-				}},
-				Options: &descriptor.MessageOptions{XXX_extensions: map[int32]proto.Extension{64026: proto.NewExtension([]byte{0xd0, 0xa1, 0x1f, 0x0})}},
-			}},
-		}, {Name: func(v string) *string { return &v }("Node"),
-			Field: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("Label"),
-				Number:   func(v int32) *int32 { return &v }(1),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(9),
-				JsonName: func(v string) *string { return &v }("label"),
-			}, {Name: func(v string) *string { return &v }("Children"),
-				Number:   func(v int32) *int32 { return &v }(2),
-				Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(3),
-				Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-				TypeName: func(v string) *string { return &v }(".test.Node"),
-				JsonName: func(v string) *string { return &v }("children"),
-			}},
-		}},
-		EnumType: []*descriptor.EnumDescriptorProto{{Name: func(v string) *string { return &v }("TheTestEnum"),
-			Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("A"),
-				Number: func(v int32) *int32 { return &v }(0),
-			}, {Name: func(v string) *string { return &v }("B"),
-				Number: func(v int32) *int32 { return &v }(1),
-			}, {Name: func(v string) *string { return &v }("C"),
-				Number: func(v int32) *int32 { return &v }(2),
-			}},
-		}, {Name: func(v string) *string { return &v }("AnotherTestEnum"),
-			Value: []*descriptor.EnumValueDescriptorProto{{Name: func(v string) *string { return &v }("D"),
-				Number: func(v int32) *int32 { return &v }(10),
-			}, {Name: func(v string) *string { return &v }("E"),
-				Number: func(v int32) *int32 { return &v }(11),
-			}},
-			Options: &descriptor.EnumOptions{XXX_extensions: map[int32]proto.Extension{62001: proto.NewExtension([]byte{0x88, 0xa3, 0x1e, 0x0})}},
-		}},
-		Extension: []*descriptor.FieldDescriptorProto{{Name: func(v string) *string { return &v }("FieldA"),
-			Number:   func(v int32) *int32 { return &v }(100),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-			Extendee: func(v string) *string { return &v }(".test.MyExtendable"),
-			JsonName: func(v string) *string { return &v }("fieldA"),
-		}, {Name: func(v string) *string { return &v }("FieldB"),
-			Number:   func(v int32) *int32 { return &v }(101),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-			TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-			Extendee: func(v string) *string { return &v }(".test.MyExtendable"),
-			JsonName: func(v string) *string { return &v }("fieldB"),
-		}, {Name: func(v string) *string { return &v }("FieldC"),
-			Number:   func(v int32) *int32 { return &v }(102),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-			TypeName: func(v string) *string { return &v }(".test.NinEmbeddedStruct"),
-			Extendee: func(v string) *string { return &v }(".test.MyExtendable"),
-			JsonName: func(v string) *string { return &v }("fieldC"),
-		}, {Name: func(v string) *string { return &v }("FieldA1"),
-			Number:   func(v int32) *int32 { return &v }(100),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(1),
-			Extendee: func(v string) *string { return &v }(".test.NoExtensionsMap"),
-			JsonName: func(v string) *string { return &v }("fieldA1"),
-		}, {Name: func(v string) *string { return &v }("FieldB1"),
-			Number:   func(v int32) *int32 { return &v }(101),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-			TypeName: func(v string) *string { return &v }(".test.NinOptNative"),
-			Extendee: func(v string) *string { return &v }(".test.NoExtensionsMap"),
-			JsonName: func(v string) *string { return &v }("fieldB1"),
-		}, {Name: func(v string) *string { return &v }("FieldC1"),
-			Number:   func(v int32) *int32 { return &v }(102),
-			Label:    func(v descriptor.FieldDescriptorProto_Label) *descriptor.FieldDescriptorProto_Label { return &v }(1),
-			Type:     func(v descriptor.FieldDescriptorProto_Type) *descriptor.FieldDescriptorProto_Type { return &v }(11),
-			TypeName: func(v string) *string { return &v }(".test.NinEmbeddedStruct"),
-			Extendee: func(v string) *string { return &v }(".test.NoExtensionsMap"),
-			JsonName: func(v string) *string { return &v }("fieldC1"),
-		}},
-		Options: &descriptor.FileOptions{XXX_extensions: map[int32]proto.Extension{63001: proto.NewExtension([]byte{0xc8, 0xe1, 0x1e, 0x0}), 63002: proto.NewExtension([]byte{0xd0, 0xe1, 0x1e, 0x0}), 63003: proto.NewExtension([]byte{0xd8, 0xe1, 0x1e, 0x0}), 63004: proto.NewExtension([]byte{0xe0, 0xe1, 0x1e, 0x1}), 63005: proto.NewExtension([]byte{0xe8, 0xe1, 0x1e, 0x1}), 63006: proto.NewExtension([]byte{0xf0, 0xe1, 0x1e, 0x1}), 63007: proto.NewExtension([]byte{0xf8, 0xe1, 0x1e, 0x1}), 63008: proto.NewExtension([]byte{0x80, 0xe2, 0x1e, 0x1}), 63013: proto.NewExtension([]byte{0xa8, 0xe2, 0x1e, 0x1}), 63014: proto.NewExtension([]byte{0xb0, 0xe2, 0x1e, 0x1}), 63015: proto.NewExtension([]byte{0xb8, 0xe2, 0x1e, 0x1}), 63016: proto.NewExtension([]byte{0xc0, 0xe2, 0x1e, 0x1}), 63017: proto.NewExtension([]byte{0xc8, 0xe2, 0x1e, 0x0}), 63018: proto.NewExtension([]byte{0xd0, 0xe2, 0x1e, 0x1}), 63020: proto.NewExtension([]byte{0xe0, 0xe2, 0x1e, 0x1}), 63021: proto.NewExtension([]byte{0xe8, 0xe2, 0x1e, 0x0}), 63022: proto.NewExtension([]byte{0xf0, 0xe2, 0x1e, 0x1}), 63023: proto.NewExtension([]byte{0xf8, 0xe2, 0x1e, 0x0}), 63024: proto.NewExtension([]byte{0x80, 0xe3, 0x1e, 0x0}), 63028: proto.NewExtension([]byte{0xa0, 0xe3, 0x1e, 0x0})}},
-	}},
+func (this *NidOptNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
 	}
+
+	that1, ok := that.(*NidOptNative)
+	if !ok {
+		that2, ok := that.(NidOptNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != that1.Field1 {
+		if this.Field1 < that1.Field1 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field2 != that1.Field2 {
+		if this.Field2 < that1.Field2 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field3 != that1.Field3 {
+		if this.Field3 < that1.Field3 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field4 != that1.Field4 {
+		if this.Field4 < that1.Field4 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field5 != that1.Field5 {
+		if this.Field5 < that1.Field5 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field6 != that1.Field6 {
+		if this.Field6 < that1.Field6 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field7 != that1.Field7 {
+		if this.Field7 < that1.Field7 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field8 != that1.Field8 {
+		if this.Field8 < that1.Field8 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field9 != that1.Field9 {
+		if this.Field9 < that1.Field9 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field10 != that1.Field10 {
+		if this.Field10 < that1.Field10 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field11 != that1.Field11 {
+		if this.Field11 < that1.Field11 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field12 != that1.Field12 {
+		if this.Field12 < that1.Field12 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field13 != that1.Field13 {
+		if !this.Field13 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field14 != that1.Field14 {
+		if this.Field14 < that1.Field14 {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptNative)
+	if !ok {
+		that2, ok := that.(NinOptNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if this.Field4 != nil && that1.Field4 != nil {
+		if *this.Field4 != *that1.Field4 {
+			if *this.Field4 < *that1.Field4 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field4 != nil {
+		return 1
+	} else if that1.Field4 != nil {
+		return -1
+	}
+	if this.Field5 != nil && that1.Field5 != nil {
+		if *this.Field5 != *that1.Field5 {
+			if *this.Field5 < *that1.Field5 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field5 != nil {
+		return 1
+	} else if that1.Field5 != nil {
+		return -1
+	}
+	if this.Field6 != nil && that1.Field6 != nil {
+		if *this.Field6 != *that1.Field6 {
+			if *this.Field6 < *that1.Field6 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field6 != nil {
+		return 1
+	} else if that1.Field6 != nil {
+		return -1
+	}
+	if this.Field7 != nil && that1.Field7 != nil {
+		if *this.Field7 != *that1.Field7 {
+			if *this.Field7 < *that1.Field7 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field7 != nil {
+		return 1
+	} else if that1.Field7 != nil {
+		return -1
+	}
+	if this.Field8 != nil && that1.Field8 != nil {
+		if *this.Field8 != *that1.Field8 {
+			if *this.Field8 < *that1.Field8 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field8 != nil {
+		return 1
+	} else if that1.Field8 != nil {
+		return -1
+	}
+	if this.Field9 != nil && that1.Field9 != nil {
+		if *this.Field9 != *that1.Field9 {
+			if *this.Field9 < *that1.Field9 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field9 != nil {
+		return 1
+	} else if that1.Field9 != nil {
+		return -1
+	}
+	if this.Field10 != nil && that1.Field10 != nil {
+		if *this.Field10 != *that1.Field10 {
+			if *this.Field10 < *that1.Field10 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field10 != nil {
+		return 1
+	} else if that1.Field10 != nil {
+		return -1
+	}
+	if this.Field11 != nil && that1.Field11 != nil {
+		if *this.Field11 != *that1.Field11 {
+			if *this.Field11 < *that1.Field11 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field11 != nil {
+		return 1
+	} else if that1.Field11 != nil {
+		return -1
+	}
+	if this.Field12 != nil && that1.Field12 != nil {
+		if *this.Field12 != *that1.Field12 {
+			if *this.Field12 < *that1.Field12 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field12 != nil {
+		return 1
+	} else if that1.Field12 != nil {
+		return -1
+	}
+	if this.Field13 != nil && that1.Field13 != nil {
+		if *this.Field13 != *that1.Field13 {
+			if !*this.Field13 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field13 != nil {
+		return 1
+	} else if that1.Field13 != nil {
+		return -1
+	}
+	if this.Field14 != nil && that1.Field14 != nil {
+		if *this.Field14 != *that1.Field14 {
+			if *this.Field14 < *that1.Field14 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field14 != nil {
+		return 1
+	} else if that1.Field14 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidRepNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidRepNative)
+	if !ok {
+		that2, ok := that.(NidRepNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			if this.Field3[i] < that1.Field3[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field4) != len(that1.Field4) {
+		if len(this.Field4) < len(that1.Field4) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field4 {
+		if this.Field4[i] != that1.Field4[i] {
+			if this.Field4[i] < that1.Field4[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field5) != len(that1.Field5) {
+		if len(this.Field5) < len(that1.Field5) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field5 {
+		if this.Field5[i] != that1.Field5[i] {
+			if this.Field5[i] < that1.Field5[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field6) != len(that1.Field6) {
+		if len(this.Field6) < len(that1.Field6) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field6 {
+		if this.Field6[i] != that1.Field6[i] {
+			if this.Field6[i] < that1.Field6[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field7) != len(that1.Field7) {
+		if len(this.Field7) < len(that1.Field7) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field7 {
+		if this.Field7[i] != that1.Field7[i] {
+			if this.Field7[i] < that1.Field7[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field8) != len(that1.Field8) {
+		if len(this.Field8) < len(that1.Field8) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field8 {
+		if this.Field8[i] != that1.Field8[i] {
+			if this.Field8[i] < that1.Field8[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field9) != len(that1.Field9) {
+		if len(this.Field9) < len(that1.Field9) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field9 {
+		if this.Field9[i] != that1.Field9[i] {
+			if this.Field9[i] < that1.Field9[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field10) != len(that1.Field10) {
+		if len(this.Field10) < len(that1.Field10) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field10 {
+		if this.Field10[i] != that1.Field10[i] {
+			if this.Field10[i] < that1.Field10[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field11) != len(that1.Field11) {
+		if len(this.Field11) < len(that1.Field11) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field11 {
+		if this.Field11[i] != that1.Field11[i] {
+			if this.Field11[i] < that1.Field11[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field12) != len(that1.Field12) {
+		if len(this.Field12) < len(that1.Field12) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field12 {
+		if this.Field12[i] != that1.Field12[i] {
+			if this.Field12[i] < that1.Field12[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field13) != len(that1.Field13) {
+		if len(this.Field13) < len(that1.Field13) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field13 {
+		if this.Field13[i] != that1.Field13[i] {
+			if !this.Field13[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field14) != len(that1.Field14) {
+		if len(this.Field14) < len(that1.Field14) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field14 {
+		if this.Field14[i] != that1.Field14[i] {
+			if this.Field14[i] < that1.Field14[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field15) != len(that1.Field15) {
+		if len(this.Field15) < len(that1.Field15) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field15 {
+		if c := bytes.Compare(this.Field15[i], that1.Field15[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinRepNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinRepNative)
+	if !ok {
+		that2, ok := that.(NinRepNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			if this.Field3[i] < that1.Field3[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field4) != len(that1.Field4) {
+		if len(this.Field4) < len(that1.Field4) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field4 {
+		if this.Field4[i] != that1.Field4[i] {
+			if this.Field4[i] < that1.Field4[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field5) != len(that1.Field5) {
+		if len(this.Field5) < len(that1.Field5) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field5 {
+		if this.Field5[i] != that1.Field5[i] {
+			if this.Field5[i] < that1.Field5[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field6) != len(that1.Field6) {
+		if len(this.Field6) < len(that1.Field6) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field6 {
+		if this.Field6[i] != that1.Field6[i] {
+			if this.Field6[i] < that1.Field6[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field7) != len(that1.Field7) {
+		if len(this.Field7) < len(that1.Field7) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field7 {
+		if this.Field7[i] != that1.Field7[i] {
+			if this.Field7[i] < that1.Field7[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field8) != len(that1.Field8) {
+		if len(this.Field8) < len(that1.Field8) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field8 {
+		if this.Field8[i] != that1.Field8[i] {
+			if this.Field8[i] < that1.Field8[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field9) != len(that1.Field9) {
+		if len(this.Field9) < len(that1.Field9) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field9 {
+		if this.Field9[i] != that1.Field9[i] {
+			if this.Field9[i] < that1.Field9[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field10) != len(that1.Field10) {
+		if len(this.Field10) < len(that1.Field10) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field10 {
+		if this.Field10[i] != that1.Field10[i] {
+			if this.Field10[i] < that1.Field10[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field11) != len(that1.Field11) {
+		if len(this.Field11) < len(that1.Field11) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field11 {
+		if this.Field11[i] != that1.Field11[i] {
+			if this.Field11[i] < that1.Field11[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field12) != len(that1.Field12) {
+		if len(this.Field12) < len(that1.Field12) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field12 {
+		if this.Field12[i] != that1.Field12[i] {
+			if this.Field12[i] < that1.Field12[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field13) != len(that1.Field13) {
+		if len(this.Field13) < len(that1.Field13) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field13 {
+		if this.Field13[i] != that1.Field13[i] {
+			if !this.Field13[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field14) != len(that1.Field14) {
+		if len(this.Field14) < len(that1.Field14) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field14 {
+		if this.Field14[i] != that1.Field14[i] {
+			if this.Field14[i] < that1.Field14[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field15) != len(that1.Field15) {
+		if len(this.Field15) < len(that1.Field15) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field15 {
+		if c := bytes.Compare(this.Field15[i], that1.Field15[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidRepPackedNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidRepPackedNative)
+	if !ok {
+		that2, ok := that.(NidRepPackedNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			if this.Field3[i] < that1.Field3[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field4) != len(that1.Field4) {
+		if len(this.Field4) < len(that1.Field4) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field4 {
+		if this.Field4[i] != that1.Field4[i] {
+			if this.Field4[i] < that1.Field4[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field5) != len(that1.Field5) {
+		if len(this.Field5) < len(that1.Field5) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field5 {
+		if this.Field5[i] != that1.Field5[i] {
+			if this.Field5[i] < that1.Field5[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field6) != len(that1.Field6) {
+		if len(this.Field6) < len(that1.Field6) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field6 {
+		if this.Field6[i] != that1.Field6[i] {
+			if this.Field6[i] < that1.Field6[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field7) != len(that1.Field7) {
+		if len(this.Field7) < len(that1.Field7) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field7 {
+		if this.Field7[i] != that1.Field7[i] {
+			if this.Field7[i] < that1.Field7[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field8) != len(that1.Field8) {
+		if len(this.Field8) < len(that1.Field8) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field8 {
+		if this.Field8[i] != that1.Field8[i] {
+			if this.Field8[i] < that1.Field8[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field9) != len(that1.Field9) {
+		if len(this.Field9) < len(that1.Field9) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field9 {
+		if this.Field9[i] != that1.Field9[i] {
+			if this.Field9[i] < that1.Field9[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field10) != len(that1.Field10) {
+		if len(this.Field10) < len(that1.Field10) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field10 {
+		if this.Field10[i] != that1.Field10[i] {
+			if this.Field10[i] < that1.Field10[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field11) != len(that1.Field11) {
+		if len(this.Field11) < len(that1.Field11) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field11 {
+		if this.Field11[i] != that1.Field11[i] {
+			if this.Field11[i] < that1.Field11[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field12) != len(that1.Field12) {
+		if len(this.Field12) < len(that1.Field12) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field12 {
+		if this.Field12[i] != that1.Field12[i] {
+			if this.Field12[i] < that1.Field12[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field13) != len(that1.Field13) {
+		if len(this.Field13) < len(that1.Field13) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field13 {
+		if this.Field13[i] != that1.Field13[i] {
+			if !this.Field13[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinRepPackedNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinRepPackedNative)
+	if !ok {
+		that2, ok := that.(NinRepPackedNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			if this.Field3[i] < that1.Field3[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field4) != len(that1.Field4) {
+		if len(this.Field4) < len(that1.Field4) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field4 {
+		if this.Field4[i] != that1.Field4[i] {
+			if this.Field4[i] < that1.Field4[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field5) != len(that1.Field5) {
+		if len(this.Field5) < len(that1.Field5) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field5 {
+		if this.Field5[i] != that1.Field5[i] {
+			if this.Field5[i] < that1.Field5[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field6) != len(that1.Field6) {
+		if len(this.Field6) < len(that1.Field6) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field6 {
+		if this.Field6[i] != that1.Field6[i] {
+			if this.Field6[i] < that1.Field6[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field7) != len(that1.Field7) {
+		if len(this.Field7) < len(that1.Field7) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field7 {
+		if this.Field7[i] != that1.Field7[i] {
+			if this.Field7[i] < that1.Field7[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field8) != len(that1.Field8) {
+		if len(this.Field8) < len(that1.Field8) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field8 {
+		if this.Field8[i] != that1.Field8[i] {
+			if this.Field8[i] < that1.Field8[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field9) != len(that1.Field9) {
+		if len(this.Field9) < len(that1.Field9) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field9 {
+		if this.Field9[i] != that1.Field9[i] {
+			if this.Field9[i] < that1.Field9[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field10) != len(that1.Field10) {
+		if len(this.Field10) < len(that1.Field10) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field10 {
+		if this.Field10[i] != that1.Field10[i] {
+			if this.Field10[i] < that1.Field10[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field11) != len(that1.Field11) {
+		if len(this.Field11) < len(that1.Field11) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field11 {
+		if this.Field11[i] != that1.Field11[i] {
+			if this.Field11[i] < that1.Field11[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field12) != len(that1.Field12) {
+		if len(this.Field12) < len(that1.Field12) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field12 {
+		if this.Field12[i] != that1.Field12[i] {
+			if this.Field12[i] < that1.Field12[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field13) != len(that1.Field13) {
+		if len(this.Field13) < len(that1.Field13) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field13 {
+		if this.Field13[i] != that1.Field13[i] {
+			if !this.Field13[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidOptStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidOptStruct)
+	if !ok {
+		that2, ok := that.(NidOptStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != that1.Field1 {
+		if this.Field1 < that1.Field1 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field2 != that1.Field2 {
+		if this.Field2 < that1.Field2 {
+			return -1
+		}
+		return 1
+	}
+	if c := this.Field3.Compare(&that1.Field3); c != 0 {
+		return c
+	}
+	if c := this.Field4.Compare(&that1.Field4); c != 0 {
+		return c
+	}
+	if this.Field6 != that1.Field6 {
+		if this.Field6 < that1.Field6 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field7 != that1.Field7 {
+		if this.Field7 < that1.Field7 {
+			return -1
+		}
+		return 1
+	}
+	if c := this.Field8.Compare(&that1.Field8); c != 0 {
+		return c
+	}
+	if this.Field13 != that1.Field13 {
+		if !this.Field13 {
+			return -1
+		}
+		return 1
+	}
+	if this.Field14 != that1.Field14 {
+		if this.Field14 < that1.Field14 {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptStruct)
+	if !ok {
+		that2, ok := that.(NinOptStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if c := this.Field3.Compare(that1.Field3); c != 0 {
+		return c
+	}
+	if c := this.Field4.Compare(that1.Field4); c != 0 {
+		return c
+	}
+	if this.Field6 != nil && that1.Field6 != nil {
+		if *this.Field6 != *that1.Field6 {
+			if *this.Field6 < *that1.Field6 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field6 != nil {
+		return 1
+	} else if that1.Field6 != nil {
+		return -1
+	}
+	if this.Field7 != nil && that1.Field7 != nil {
+		if *this.Field7 != *that1.Field7 {
+			if *this.Field7 < *that1.Field7 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field7 != nil {
+		return 1
+	} else if that1.Field7 != nil {
+		return -1
+	}
+	if c := this.Field8.Compare(that1.Field8); c != 0 {
+		return c
+	}
+	if this.Field13 != nil && that1.Field13 != nil {
+		if *this.Field13 != *that1.Field13 {
+			if !*this.Field13 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field13 != nil {
+		return 1
+	} else if that1.Field13 != nil {
+		return -1
+	}
+	if this.Field14 != nil && that1.Field14 != nil {
+		if *this.Field14 != *that1.Field14 {
+			if *this.Field14 < *that1.Field14 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field14 != nil {
+		return 1
+	} else if that1.Field14 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidRepStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidRepStruct)
+	if !ok {
+		that2, ok := that.(NidRepStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if c := this.Field3[i].Compare(&that1.Field3[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Field4) != len(that1.Field4) {
+		if len(this.Field4) < len(that1.Field4) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field4 {
+		if c := this.Field4[i].Compare(&that1.Field4[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Field6) != len(that1.Field6) {
+		if len(this.Field6) < len(that1.Field6) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field6 {
+		if this.Field6[i] != that1.Field6[i] {
+			if this.Field6[i] < that1.Field6[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field7) != len(that1.Field7) {
+		if len(this.Field7) < len(that1.Field7) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field7 {
+		if this.Field7[i] != that1.Field7[i] {
+			if this.Field7[i] < that1.Field7[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field8) != len(that1.Field8) {
+		if len(this.Field8) < len(that1.Field8) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field8 {
+		if c := this.Field8[i].Compare(&that1.Field8[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Field13) != len(that1.Field13) {
+		if len(this.Field13) < len(that1.Field13) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field13 {
+		if this.Field13[i] != that1.Field13[i] {
+			if !this.Field13[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field14) != len(that1.Field14) {
+		if len(this.Field14) < len(that1.Field14) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field14 {
+		if this.Field14[i] != that1.Field14[i] {
+			if this.Field14[i] < that1.Field14[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field15) != len(that1.Field15) {
+		if len(this.Field15) < len(that1.Field15) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field15 {
+		if c := bytes.Compare(this.Field15[i], that1.Field15[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinRepStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinRepStruct)
+	if !ok {
+		that2, ok := that.(NinRepStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if c := this.Field3[i].Compare(that1.Field3[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Field4) != len(that1.Field4) {
+		if len(this.Field4) < len(that1.Field4) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field4 {
+		if c := this.Field4[i].Compare(that1.Field4[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Field6) != len(that1.Field6) {
+		if len(this.Field6) < len(that1.Field6) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field6 {
+		if this.Field6[i] != that1.Field6[i] {
+			if this.Field6[i] < that1.Field6[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field7) != len(that1.Field7) {
+		if len(this.Field7) < len(that1.Field7) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field7 {
+		if this.Field7[i] != that1.Field7[i] {
+			if this.Field7[i] < that1.Field7[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field8) != len(that1.Field8) {
+		if len(this.Field8) < len(that1.Field8) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field8 {
+		if c := this.Field8[i].Compare(that1.Field8[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Field13) != len(that1.Field13) {
+		if len(this.Field13) < len(that1.Field13) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field13 {
+		if this.Field13[i] != that1.Field13[i] {
+			if !this.Field13[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field14) != len(that1.Field14) {
+		if len(this.Field14) < len(that1.Field14) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field14 {
+		if this.Field14[i] != that1.Field14[i] {
+			if this.Field14[i] < that1.Field14[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field15) != len(that1.Field15) {
+		if len(this.Field15) < len(that1.Field15) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field15 {
+		if c := bytes.Compare(this.Field15[i], that1.Field15[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidEmbeddedStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidEmbeddedStruct)
+	if !ok {
+		that2, ok := that.(NidEmbeddedStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.NidOptNative.Compare(that1.NidOptNative); c != 0 {
+		return c
+	}
+	if c := this.Field200.Compare(&that1.Field200); c != 0 {
+		return c
+	}
+	if this.Field210 != that1.Field210 {
+		if !this.Field210 {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinEmbeddedStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinEmbeddedStruct)
+	if !ok {
+		that2, ok := that.(NinEmbeddedStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.NidOptNative.Compare(that1.NidOptNative); c != 0 {
+		return c
+	}
+	if c := this.Field200.Compare(that1.Field200); c != 0 {
+		return c
+	}
+	if this.Field210 != nil && that1.Field210 != nil {
+		if *this.Field210 != *that1.Field210 {
+			if !*this.Field210 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field210 != nil {
+		return 1
+	} else if that1.Field210 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidNestedStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidNestedStruct)
+	if !ok {
+		that2, ok := that.(NidNestedStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Field1.Compare(&that1.Field1); c != 0 {
+		return c
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if c := this.Field2[i].Compare(&that1.Field2[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinNestedStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinNestedStruct)
+	if !ok {
+		that2, ok := that.(NinNestedStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Field1.Compare(that1.Field1); c != 0 {
+		return c
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if c := this.Field2[i].Compare(that1.Field2[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidOptCustom) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidOptCustom)
+	if !ok {
+		that2, ok := that.(NidOptCustom)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Id.Compare(that1.Id); c != 0 {
+		return c
+	}
+	if c := this.Value.Compare(that1.Value); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomDash) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomDash)
+	if !ok {
+		that2, ok := that.(CustomDash)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if that1.Value == nil {
+		if this.Value != nil {
+			return 1
+		}
+	} else if this.Value == nil {
+		return -1
+	} else if c := this.Value.Compare(*that1.Value); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptCustom) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptCustom)
+	if !ok {
+		that2, ok := that.(NinOptCustom)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if that1.Id == nil {
+		if this.Id != nil {
+			return 1
+		}
+	} else if this.Id == nil {
+		return -1
+	} else if c := this.Id.Compare(*that1.Id); c != 0 {
+		return c
+	}
+	if that1.Value == nil {
+		if this.Value != nil {
+			return 1
+		}
+	} else if this.Value == nil {
+		return -1
+	} else if c := this.Value.Compare(*that1.Value); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidRepCustom) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidRepCustom)
+	if !ok {
+		that2, ok := that.(NidRepCustom)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Id) != len(that1.Id) {
+		if len(this.Id) < len(that1.Id) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Id {
+		if c := this.Id[i].Compare(that1.Id[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Value) != len(that1.Value) {
+		if len(this.Value) < len(that1.Value) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Value {
+		if c := this.Value[i].Compare(that1.Value[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinRepCustom) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinRepCustom)
+	if !ok {
+		that2, ok := that.(NinRepCustom)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Id) != len(that1.Id) {
+		if len(this.Id) < len(that1.Id) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Id {
+		if c := this.Id[i].Compare(that1.Id[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.Value) != len(that1.Value) {
+		if len(this.Value) < len(that1.Value) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Value {
+		if c := this.Value[i].Compare(that1.Value[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptNativeUnion) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptNativeUnion)
+	if !ok {
+		that2, ok := that.(NinOptNativeUnion)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if this.Field4 != nil && that1.Field4 != nil {
+		if *this.Field4 != *that1.Field4 {
+			if *this.Field4 < *that1.Field4 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field4 != nil {
+		return 1
+	} else if that1.Field4 != nil {
+		return -1
+	}
+	if this.Field5 != nil && that1.Field5 != nil {
+		if *this.Field5 != *that1.Field5 {
+			if *this.Field5 < *that1.Field5 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field5 != nil {
+		return 1
+	} else if that1.Field5 != nil {
+		return -1
+	}
+	if this.Field6 != nil && that1.Field6 != nil {
+		if *this.Field6 != *that1.Field6 {
+			if *this.Field6 < *that1.Field6 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field6 != nil {
+		return 1
+	} else if that1.Field6 != nil {
+		return -1
+	}
+	if this.Field13 != nil && that1.Field13 != nil {
+		if *this.Field13 != *that1.Field13 {
+			if !*this.Field13 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field13 != nil {
+		return 1
+	} else if that1.Field13 != nil {
+		return -1
+	}
+	if this.Field14 != nil && that1.Field14 != nil {
+		if *this.Field14 != *that1.Field14 {
+			if *this.Field14 < *that1.Field14 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field14 != nil {
+		return 1
+	} else if that1.Field14 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptStructUnion) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptStructUnion)
+	if !ok {
+		that2, ok := that.(NinOptStructUnion)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if c := this.Field3.Compare(that1.Field3); c != 0 {
+		return c
+	}
+	if c := this.Field4.Compare(that1.Field4); c != 0 {
+		return c
+	}
+	if this.Field6 != nil && that1.Field6 != nil {
+		if *this.Field6 != *that1.Field6 {
+			if *this.Field6 < *that1.Field6 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field6 != nil {
+		return 1
+	} else if that1.Field6 != nil {
+		return -1
+	}
+	if this.Field7 != nil && that1.Field7 != nil {
+		if *this.Field7 != *that1.Field7 {
+			if *this.Field7 < *that1.Field7 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field7 != nil {
+		return 1
+	} else if that1.Field7 != nil {
+		return -1
+	}
+	if this.Field13 != nil && that1.Field13 != nil {
+		if *this.Field13 != *that1.Field13 {
+			if !*this.Field13 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field13 != nil {
+		return 1
+	} else if that1.Field13 != nil {
+		return -1
+	}
+	if this.Field14 != nil && that1.Field14 != nil {
+		if *this.Field14 != *that1.Field14 {
+			if *this.Field14 < *that1.Field14 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field14 != nil {
+		return 1
+	} else if that1.Field14 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinEmbeddedStructUnion) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinEmbeddedStructUnion)
+	if !ok {
+		that2, ok := that.(NinEmbeddedStructUnion)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.NidOptNative.Compare(that1.NidOptNative); c != 0 {
+		return c
+	}
+	if c := this.Field200.Compare(that1.Field200); c != 0 {
+		return c
+	}
+	if this.Field210 != nil && that1.Field210 != nil {
+		if *this.Field210 != *that1.Field210 {
+			if !*this.Field210 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field210 != nil {
+		return 1
+	} else if that1.Field210 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinNestedStructUnion) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinNestedStructUnion)
+	if !ok {
+		that2, ok := that.(NinNestedStructUnion)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Field1.Compare(that1.Field1); c != 0 {
+		return c
+	}
+	if c := this.Field2.Compare(that1.Field2); c != 0 {
+		return c
+	}
+	if c := this.Field3.Compare(that1.Field3); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *Tree) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*Tree)
+	if !ok {
+		that2, ok := that.(Tree)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Or.Compare(that1.Or); c != 0 {
+		return c
+	}
+	if c := this.And.Compare(that1.And); c != 0 {
+		return c
+	}
+	if c := this.Leaf.Compare(that1.Leaf); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *OrBranch) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*OrBranch)
+	if !ok {
+		that2, ok := that.(OrBranch)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Left.Compare(&that1.Left); c != 0 {
+		return c
+	}
+	if c := this.Right.Compare(&that1.Right); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *AndBranch) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*AndBranch)
+	if !ok {
+		that2, ok := that.(AndBranch)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Left.Compare(&that1.Left); c != 0 {
+		return c
+	}
+	if c := this.Right.Compare(&that1.Right); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *Leaf) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*Leaf)
+	if !ok {
+		that2, ok := that.(Leaf)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Value != that1.Value {
+		if this.Value < that1.Value {
+			return -1
+		}
+		return 1
+	}
+	if this.StrValue != that1.StrValue {
+		if this.StrValue < that1.StrValue {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *DeepTree) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*DeepTree)
+	if !ok {
+		that2, ok := that.(DeepTree)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Down.Compare(that1.Down); c != 0 {
+		return c
+	}
+	if c := this.And.Compare(that1.And); c != 0 {
+		return c
+	}
+	if c := this.Leaf.Compare(that1.Leaf); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *ADeepBranch) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*ADeepBranch)
+	if !ok {
+		that2, ok := that.(ADeepBranch)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Down.Compare(&that1.Down); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *AndDeepBranch) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*AndDeepBranch)
+	if !ok {
+		that2, ok := that.(AndDeepBranch)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Left.Compare(&that1.Left); c != 0 {
+		return c
+	}
+	if c := this.Right.Compare(&that1.Right); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *DeepLeaf) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*DeepLeaf)
+	if !ok {
+		that2, ok := that.(DeepLeaf)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Tree.Compare(&that1.Tree); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *Nil) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*Nil)
+	if !ok {
+		that2, ok := that.(Nil)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidOptEnum) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidOptEnum)
+	if !ok {
+		that2, ok := that.(NidOptEnum)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != that1.Field1 {
+		if this.Field1 < that1.Field1 {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptEnum) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptEnum)
+	if !ok {
+		that2, ok := that.(NinOptEnum)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidRepEnum) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidRepEnum)
+	if !ok {
+		that2, ok := that.(NidRepEnum)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			if this.Field3[i] < that1.Field3[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinRepEnum) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinRepEnum)
+	if !ok {
+		that2, ok := that.(NinRepEnum)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if this.Field1[i] != that1.Field1[i] {
+			if this.Field1[i] < that1.Field1[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		if len(this.Field2) < len(that1.Field2) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			if this.Field2[i] < that1.Field2[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		if len(this.Field3) < len(that1.Field3) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			if this.Field3[i] < that1.Field3[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptEnumDefault) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptEnumDefault)
+	if !ok {
+		that2, ok := that.(NinOptEnumDefault)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *AnotherNinOptEnum) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*AnotherNinOptEnum)
+	if !ok {
+		that2, ok := that.(AnotherNinOptEnum)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *AnotherNinOptEnumDefault) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*AnotherNinOptEnumDefault)
+	if !ok {
+		that2, ok := that.(AnotherNinOptEnumDefault)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *Timer) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*Timer)
+	if !ok {
+		that2, ok := that.(Timer)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Time1 != that1.Time1 {
+		if this.Time1 < that1.Time1 {
+			return -1
+		}
+		return 1
+	}
+	if this.Time2 != that1.Time2 {
+		if this.Time2 < that1.Time2 {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.Data, that1.Data); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *MyExtendable) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*MyExtendable)
+	if !ok {
+		that2, ok := that.(MyExtendable)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	thismap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(this)
+	thatmap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(that1)
+	extkeys := make([]int32, 0, len(thismap)+len(thatmap))
+	for k := range thismap {
+		extkeys = append(extkeys, k)
+	}
+	for k := range thatmap {
+		if _, ok := thismap[k]; !ok {
+			extkeys = append(extkeys, k)
+		}
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(extkeys)
+	for _, k := range extkeys {
+		if v, ok := thismap[k]; ok {
+			if v2, ok := thatmap[k]; ok {
+				if c := v.Compare(&v2); c != 0 {
+					return c
+				}
+			} else {
+				return 1
+			}
+		} else {
+			return -1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *OtherExtenable) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*OtherExtenable)
+	if !ok {
+		that2, ok := that.(OtherExtenable)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field13 != nil && that1.Field13 != nil {
+		if *this.Field13 != *that1.Field13 {
+			if *this.Field13 < *that1.Field13 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field13 != nil {
+		return 1
+	} else if that1.Field13 != nil {
+		return -1
+	}
+	if c := this.M.Compare(that1.M); c != 0 {
+		return c
+	}
+	thismap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(this)
+	thatmap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(that1)
+	extkeys := make([]int32, 0, len(thismap)+len(thatmap))
+	for k := range thismap {
+		extkeys = append(extkeys, k)
+	}
+	for k := range thatmap {
+		if _, ok := thismap[k]; !ok {
+			extkeys = append(extkeys, k)
+		}
+	}
+	github_com_gogo_protobuf_sortkeys.Int32s(extkeys)
+	for _, k := range extkeys {
+		if v, ok := thismap[k]; ok {
+			if v2, ok := thatmap[k]; ok {
+				if c := v.Compare(&v2); c != 0 {
+					return c
+				}
+			} else {
+				return 1
+			}
+		} else {
+			return -1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NestedDefinition) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NestedDefinition)
+	if !ok {
+		that2, ok := that.(NestedDefinition)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.EnumField != nil && that1.EnumField != nil {
+		if *this.EnumField != *that1.EnumField {
+			if *this.EnumField < *that1.EnumField {
+				return -1
+			}
+			return 1
+		}
+	} else if this.EnumField != nil {
+		return 1
+	} else if that1.EnumField != nil {
+		return -1
+	}
+	if c := this.NNM.Compare(that1.NNM); c != 0 {
+		return c
+	}
+	if c := this.NM.Compare(that1.NM); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NestedDefinition_NestedMessage) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NestedDefinition_NestedMessage)
+	if !ok {
+		that2, ok := that.(NestedDefinition_NestedMessage)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.NestedField1 != nil && that1.NestedField1 != nil {
+		if *this.NestedField1 != *that1.NestedField1 {
+			if *this.NestedField1 < *that1.NestedField1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.NestedField1 != nil {
+		return 1
+	} else if that1.NestedField1 != nil {
+		return -1
+	}
+	if c := this.NNM.Compare(that1.NNM); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NestedDefinition_NestedMessage_NestedNestedMsg) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NestedDefinition_NestedMessage_NestedNestedMsg)
+	if !ok {
+		that2, ok := that.(NestedDefinition_NestedMessage_NestedNestedMsg)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.NestedNestedField1 != nil && that1.NestedNestedField1 != nil {
+		if *this.NestedNestedField1 != *that1.NestedNestedField1 {
+			if *this.NestedNestedField1 < *that1.NestedNestedField1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.NestedNestedField1 != nil {
+		return 1
+	} else if that1.NestedNestedField1 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NestedScope) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NestedScope)
+	if !ok {
+		that2, ok := that.(NestedScope)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.A.Compare(that1.A); c != 0 {
+		return c
+	}
+	if this.B != nil && that1.B != nil {
+		if *this.B != *that1.B {
+			if *this.B < *that1.B {
+				return -1
+			}
+			return 1
+		}
+	} else if this.B != nil {
+		return 1
+	} else if that1.B != nil {
+		return -1
+	}
+	if c := this.C.Compare(that1.C); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptNativeDefault) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptNativeDefault)
+	if !ok {
+		that2, ok := that.(NinOptNativeDefault)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			if *this.Field3 < *that1.Field3 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field3 != nil {
+		return 1
+	} else if that1.Field3 != nil {
+		return -1
+	}
+	if this.Field4 != nil && that1.Field4 != nil {
+		if *this.Field4 != *that1.Field4 {
+			if *this.Field4 < *that1.Field4 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field4 != nil {
+		return 1
+	} else if that1.Field4 != nil {
+		return -1
+	}
+	if this.Field5 != nil && that1.Field5 != nil {
+		if *this.Field5 != *that1.Field5 {
+			if *this.Field5 < *that1.Field5 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field5 != nil {
+		return 1
+	} else if that1.Field5 != nil {
+		return -1
+	}
+	if this.Field6 != nil && that1.Field6 != nil {
+		if *this.Field6 != *that1.Field6 {
+			if *this.Field6 < *that1.Field6 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field6 != nil {
+		return 1
+	} else if that1.Field6 != nil {
+		return -1
+	}
+	if this.Field7 != nil && that1.Field7 != nil {
+		if *this.Field7 != *that1.Field7 {
+			if *this.Field7 < *that1.Field7 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field7 != nil {
+		return 1
+	} else if that1.Field7 != nil {
+		return -1
+	}
+	if this.Field8 != nil && that1.Field8 != nil {
+		if *this.Field8 != *that1.Field8 {
+			if *this.Field8 < *that1.Field8 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field8 != nil {
+		return 1
+	} else if that1.Field8 != nil {
+		return -1
+	}
+	if this.Field9 != nil && that1.Field9 != nil {
+		if *this.Field9 != *that1.Field9 {
+			if *this.Field9 < *that1.Field9 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field9 != nil {
+		return 1
+	} else if that1.Field9 != nil {
+		return -1
+	}
+	if this.Field10 != nil && that1.Field10 != nil {
+		if *this.Field10 != *that1.Field10 {
+			if *this.Field10 < *that1.Field10 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field10 != nil {
+		return 1
+	} else if that1.Field10 != nil {
+		return -1
+	}
+	if this.Field11 != nil && that1.Field11 != nil {
+		if *this.Field11 != *that1.Field11 {
+			if *this.Field11 < *that1.Field11 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field11 != nil {
+		return 1
+	} else if that1.Field11 != nil {
+		return -1
+	}
+	if this.Field12 != nil && that1.Field12 != nil {
+		if *this.Field12 != *that1.Field12 {
+			if *this.Field12 < *that1.Field12 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field12 != nil {
+		return 1
+	} else if that1.Field12 != nil {
+		return -1
+	}
+	if this.Field13 != nil && that1.Field13 != nil {
+		if *this.Field13 != *that1.Field13 {
+			if !*this.Field13 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field13 != nil {
+		return 1
+	} else if that1.Field13 != nil {
+		return -1
+	}
+	if this.Field14 != nil && that1.Field14 != nil {
+		if *this.Field14 != *that1.Field14 {
+			if *this.Field14 < *that1.Field14 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field14 != nil {
+		return 1
+	} else if that1.Field14 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.Field15, that1.Field15); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomContainer) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomContainer)
+	if !ok {
+		that2, ok := that.(CustomContainer)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.CustomStruct.Compare(&that1.CustomStruct); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameNidOptNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameNidOptNative)
+	if !ok {
+		that2, ok := that.(CustomNameNidOptNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.FieldA != that1.FieldA {
+		if this.FieldA < that1.FieldA {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldB != that1.FieldB {
+		if this.FieldB < that1.FieldB {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldC != that1.FieldC {
+		if this.FieldC < that1.FieldC {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldD != that1.FieldD {
+		if this.FieldD < that1.FieldD {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldE != that1.FieldE {
+		if this.FieldE < that1.FieldE {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldF != that1.FieldF {
+		if this.FieldF < that1.FieldF {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldG != that1.FieldG {
+		if this.FieldG < that1.FieldG {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldH != that1.FieldH {
+		if this.FieldH < that1.FieldH {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldI != that1.FieldI {
+		if this.FieldI < that1.FieldI {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldJ != that1.FieldJ {
+		if this.FieldJ < that1.FieldJ {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldK != that1.FieldK {
+		if this.FieldK < that1.FieldK {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldL != that1.FieldL {
+		if this.FieldL < that1.FieldL {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldM != that1.FieldM {
+		if !this.FieldM {
+			return -1
+		}
+		return 1
+	}
+	if this.FieldN != that1.FieldN {
+		if this.FieldN < that1.FieldN {
+			return -1
+		}
+		return 1
+	}
+	if c := bytes.Compare(this.FieldO, that1.FieldO); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameNinOptNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameNinOptNative)
+	if !ok {
+		that2, ok := that.(CustomNameNinOptNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.FieldA != nil && that1.FieldA != nil {
+		if *this.FieldA != *that1.FieldA {
+			if *this.FieldA < *that1.FieldA {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldA != nil {
+		return 1
+	} else if that1.FieldA != nil {
+		return -1
+	}
+	if this.FieldB != nil && that1.FieldB != nil {
+		if *this.FieldB != *that1.FieldB {
+			if *this.FieldB < *that1.FieldB {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldB != nil {
+		return 1
+	} else if that1.FieldB != nil {
+		return -1
+	}
+	if this.FieldC != nil && that1.FieldC != nil {
+		if *this.FieldC != *that1.FieldC {
+			if *this.FieldC < *that1.FieldC {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldC != nil {
+		return 1
+	} else if that1.FieldC != nil {
+		return -1
+	}
+	if this.FieldD != nil && that1.FieldD != nil {
+		if *this.FieldD != *that1.FieldD {
+			if *this.FieldD < *that1.FieldD {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldD != nil {
+		return 1
+	} else if that1.FieldD != nil {
+		return -1
+	}
+	if this.FieldE != nil && that1.FieldE != nil {
+		if *this.FieldE != *that1.FieldE {
+			if *this.FieldE < *that1.FieldE {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldE != nil {
+		return 1
+	} else if that1.FieldE != nil {
+		return -1
+	}
+	if this.FieldF != nil && that1.FieldF != nil {
+		if *this.FieldF != *that1.FieldF {
+			if *this.FieldF < *that1.FieldF {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldF != nil {
+		return 1
+	} else if that1.FieldF != nil {
+		return -1
+	}
+	if this.FieldG != nil && that1.FieldG != nil {
+		if *this.FieldG != *that1.FieldG {
+			if *this.FieldG < *that1.FieldG {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldG != nil {
+		return 1
+	} else if that1.FieldG != nil {
+		return -1
+	}
+	if this.FieldH != nil && that1.FieldH != nil {
+		if *this.FieldH != *that1.FieldH {
+			if *this.FieldH < *that1.FieldH {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldH != nil {
+		return 1
+	} else if that1.FieldH != nil {
+		return -1
+	}
+	if this.FieldI != nil && that1.FieldI != nil {
+		if *this.FieldI != *that1.FieldI {
+			if *this.FieldI < *that1.FieldI {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldI != nil {
+		return 1
+	} else if that1.FieldI != nil {
+		return -1
+	}
+	if this.FieldJ != nil && that1.FieldJ != nil {
+		if *this.FieldJ != *that1.FieldJ {
+			if *this.FieldJ < *that1.FieldJ {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldJ != nil {
+		return 1
+	} else if that1.FieldJ != nil {
+		return -1
+	}
+	if this.FieldK != nil && that1.FieldK != nil {
+		if *this.FieldK != *that1.FieldK {
+			if *this.FieldK < *that1.FieldK {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldK != nil {
+		return 1
+	} else if that1.FieldK != nil {
+		return -1
+	}
+	if this.FielL != nil && that1.FielL != nil {
+		if *this.FielL != *that1.FielL {
+			if *this.FielL < *that1.FielL {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FielL != nil {
+		return 1
+	} else if that1.FielL != nil {
+		return -1
+	}
+	if this.FieldM != nil && that1.FieldM != nil {
+		if *this.FieldM != *that1.FieldM {
+			if !*this.FieldM {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldM != nil {
+		return 1
+	} else if that1.FieldM != nil {
+		return -1
+	}
+	if this.FieldN != nil && that1.FieldN != nil {
+		if *this.FieldN != *that1.FieldN {
+			if *this.FieldN < *that1.FieldN {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldN != nil {
+		return 1
+	} else if that1.FieldN != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.FieldO, that1.FieldO); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameNinRepNative) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameNinRepNative)
+	if !ok {
+		that2, ok := that.(CustomNameNinRepNative)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.FieldA) != len(that1.FieldA) {
+		if len(this.FieldA) < len(that1.FieldA) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldA {
+		if this.FieldA[i] != that1.FieldA[i] {
+			if this.FieldA[i] < that1.FieldA[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldB) != len(that1.FieldB) {
+		if len(this.FieldB) < len(that1.FieldB) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldB {
+		if this.FieldB[i] != that1.FieldB[i] {
+			if this.FieldB[i] < that1.FieldB[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldC) != len(that1.FieldC) {
+		if len(this.FieldC) < len(that1.FieldC) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldC {
+		if this.FieldC[i] != that1.FieldC[i] {
+			if this.FieldC[i] < that1.FieldC[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldD) != len(that1.FieldD) {
+		if len(this.FieldD) < len(that1.FieldD) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldD {
+		if this.FieldD[i] != that1.FieldD[i] {
+			if this.FieldD[i] < that1.FieldD[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldE) != len(that1.FieldE) {
+		if len(this.FieldE) < len(that1.FieldE) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldE {
+		if this.FieldE[i] != that1.FieldE[i] {
+			if this.FieldE[i] < that1.FieldE[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldF) != len(that1.FieldF) {
+		if len(this.FieldF) < len(that1.FieldF) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldF {
+		if this.FieldF[i] != that1.FieldF[i] {
+			if this.FieldF[i] < that1.FieldF[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldG) != len(that1.FieldG) {
+		if len(this.FieldG) < len(that1.FieldG) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldG {
+		if this.FieldG[i] != that1.FieldG[i] {
+			if this.FieldG[i] < that1.FieldG[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldH) != len(that1.FieldH) {
+		if len(this.FieldH) < len(that1.FieldH) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldH {
+		if this.FieldH[i] != that1.FieldH[i] {
+			if this.FieldH[i] < that1.FieldH[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldI) != len(that1.FieldI) {
+		if len(this.FieldI) < len(that1.FieldI) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldI {
+		if this.FieldI[i] != that1.FieldI[i] {
+			if this.FieldI[i] < that1.FieldI[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldJ) != len(that1.FieldJ) {
+		if len(this.FieldJ) < len(that1.FieldJ) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldJ {
+		if this.FieldJ[i] != that1.FieldJ[i] {
+			if this.FieldJ[i] < that1.FieldJ[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldK) != len(that1.FieldK) {
+		if len(this.FieldK) < len(that1.FieldK) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldK {
+		if this.FieldK[i] != that1.FieldK[i] {
+			if this.FieldK[i] < that1.FieldK[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldL) != len(that1.FieldL) {
+		if len(this.FieldL) < len(that1.FieldL) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldL {
+		if this.FieldL[i] != that1.FieldL[i] {
+			if this.FieldL[i] < that1.FieldL[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldM) != len(that1.FieldM) {
+		if len(this.FieldM) < len(that1.FieldM) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldM {
+		if this.FieldM[i] != that1.FieldM[i] {
+			if !this.FieldM[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldN) != len(that1.FieldN) {
+		if len(this.FieldN) < len(that1.FieldN) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldN {
+		if this.FieldN[i] != that1.FieldN[i] {
+			if this.FieldN[i] < that1.FieldN[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if len(this.FieldO) != len(that1.FieldO) {
+		if len(this.FieldO) < len(that1.FieldO) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldO {
+		if c := bytes.Compare(this.FieldO[i], that1.FieldO[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameNinStruct) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameNinStruct)
+	if !ok {
+		that2, ok := that.(CustomNameNinStruct)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.FieldA != nil && that1.FieldA != nil {
+		if *this.FieldA != *that1.FieldA {
+			if *this.FieldA < *that1.FieldA {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldA != nil {
+		return 1
+	} else if that1.FieldA != nil {
+		return -1
+	}
+	if this.FieldB != nil && that1.FieldB != nil {
+		if *this.FieldB != *that1.FieldB {
+			if *this.FieldB < *that1.FieldB {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldB != nil {
+		return 1
+	} else if that1.FieldB != nil {
+		return -1
+	}
+	if c := this.FieldC.Compare(that1.FieldC); c != 0 {
+		return c
+	}
+	if len(this.FieldD) != len(that1.FieldD) {
+		if len(this.FieldD) < len(that1.FieldD) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldD {
+		if c := this.FieldD[i].Compare(that1.FieldD[i]); c != 0 {
+			return c
+		}
+	}
+	if this.FieldE != nil && that1.FieldE != nil {
+		if *this.FieldE != *that1.FieldE {
+			if *this.FieldE < *that1.FieldE {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldE != nil {
+		return 1
+	} else if that1.FieldE != nil {
+		return -1
+	}
+	if this.FieldF != nil && that1.FieldF != nil {
+		if *this.FieldF != *that1.FieldF {
+			if *this.FieldF < *that1.FieldF {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldF != nil {
+		return 1
+	} else if that1.FieldF != nil {
+		return -1
+	}
+	if c := this.FieldG.Compare(that1.FieldG); c != 0 {
+		return c
+	}
+	if this.FieldH != nil && that1.FieldH != nil {
+		if *this.FieldH != *that1.FieldH {
+			if !*this.FieldH {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldH != nil {
+		return 1
+	} else if that1.FieldH != nil {
+		return -1
+	}
+	if this.FieldI != nil && that1.FieldI != nil {
+		if *this.FieldI != *that1.FieldI {
+			if *this.FieldI < *that1.FieldI {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldI != nil {
+		return 1
+	} else if that1.FieldI != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.FieldJ, that1.FieldJ); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameCustomType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameCustomType)
+	if !ok {
+		that2, ok := that.(CustomNameCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if that1.FieldA == nil {
+		if this.FieldA != nil {
+			return 1
+		}
+	} else if this.FieldA == nil {
+		return -1
+	} else if c := this.FieldA.Compare(*that1.FieldA); c != 0 {
+		return c
+	}
+	if that1.FieldB == nil {
+		if this.FieldB != nil {
+			return 1
+		}
+	} else if this.FieldB == nil {
+		return -1
+	} else if c := this.FieldB.Compare(*that1.FieldB); c != 0 {
+		return c
+	}
+	if len(this.FieldC) != len(that1.FieldC) {
+		if len(this.FieldC) < len(that1.FieldC) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldC {
+		if c := this.FieldC[i].Compare(that1.FieldC[i]); c != 0 {
+			return c
+		}
+	}
+	if len(this.FieldD) != len(that1.FieldD) {
+		if len(this.FieldD) < len(that1.FieldD) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldD {
+		if c := this.FieldD[i].Compare(that1.FieldD[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameNinEmbeddedStructUnion) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameNinEmbeddedStructUnion)
+	if !ok {
+		that2, ok := that.(CustomNameNinEmbeddedStructUnion)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.NidOptNative.Compare(that1.NidOptNative); c != 0 {
+		return c
+	}
+	if c := this.FieldA.Compare(that1.FieldA); c != 0 {
+		return c
+	}
+	if this.FieldB != nil && that1.FieldB != nil {
+		if *this.FieldB != *that1.FieldB {
+			if !*this.FieldB {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldB != nil {
+		return 1
+	} else if that1.FieldB != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *CustomNameEnum) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*CustomNameEnum)
+	if !ok {
+		that2, ok := that.(CustomNameEnum)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.FieldA != nil && that1.FieldA != nil {
+		if *this.FieldA != *that1.FieldA {
+			if *this.FieldA < *that1.FieldA {
+				return -1
+			}
+			return 1
+		}
+	} else if this.FieldA != nil {
+		return 1
+	} else if that1.FieldA != nil {
+		return -1
+	}
+	if len(this.FieldB) != len(that1.FieldB) {
+		if len(this.FieldB) < len(that1.FieldB) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.FieldB {
+		if this.FieldB[i] != that1.FieldB[i] {
+			if this.FieldB[i] < that1.FieldB[i] {
+				return -1
+			}
+			return 1
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NoExtensionsMap) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NoExtensionsMap)
+	if !ok {
+		that2, ok := that.(NoExtensionsMap)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_extensions, that1.XXX_extensions); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *Unrecognized) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*Unrecognized)
+	if !ok {
+		that2, ok := that.(Unrecognized)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	return 0
+}
+func (this *UnrecognizedWithInner) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*UnrecognizedWithInner)
+	if !ok {
+		that2, ok := that.(UnrecognizedWithInner)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Embedded) != len(that1.Embedded) {
+		if len(this.Embedded) < len(that1.Embedded) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Embedded {
+		if c := this.Embedded[i].Compare(that1.Embedded[i]); c != 0 {
+			return c
+		}
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *UnrecognizedWithInner_Inner) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*UnrecognizedWithInner_Inner)
+	if !ok {
+		that2, ok := that.(UnrecognizedWithInner_Inner)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	return 0
+}
+func (this *UnrecognizedWithEmbed) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*UnrecognizedWithEmbed)
+	if !ok {
+		that2, ok := that.(UnrecognizedWithEmbed)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.UnrecognizedWithEmbed_Embedded.Compare(&that1.UnrecognizedWithEmbed_Embedded); c != 0 {
+		return c
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *UnrecognizedWithEmbed_Embedded) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*UnrecognizedWithEmbed_Embedded)
+	if !ok {
+		that2, ok := that.(UnrecognizedWithEmbed_Embedded)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field1 != nil && that1.Field1 != nil {
+		if *this.Field1 != *that1.Field1 {
+			if *this.Field1 < *that1.Field1 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field1 != nil {
+		return 1
+	} else if that1.Field1 != nil {
+		return -1
+	}
+	return 0
+}
+func (this *Node) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*Node)
+	if !ok {
+		that2, ok := that.(Node)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Label != nil && that1.Label != nil {
+		if *this.Label != *that1.Label {
+			if *this.Label < *that1.Label {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Label != nil {
+		return 1
+	} else if that1.Label != nil {
+		return -1
+	}
+	if len(this.Children) != len(that1.Children) {
+		if len(this.Children) < len(that1.Children) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Children {
+		if c := this.Children[i].Compare(that1.Children[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NonByteCustomType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NonByteCustomType)
+	if !ok {
+		that2, ok := that.(NonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if that1.Field1 == nil {
+		if this.Field1 != nil {
+			return 1
+		}
+	} else if this.Field1 == nil {
+		return -1
+	} else if c := this.Field1.Compare(*that1.Field1); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidOptNonByteCustomType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidOptNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NidOptNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if c := this.Field1.Compare(that1.Field1); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinOptNonByteCustomType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinOptNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NinOptNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if that1.Field1 == nil {
+		if this.Field1 != nil {
+			return 1
+		}
+	} else if this.Field1 == nil {
+		return -1
+	} else if c := this.Field1.Compare(*that1.Field1); c != 0 {
+		return c
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidRepNonByteCustomType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NidRepNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NidRepNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if c := this.Field1[i].Compare(that1.Field1[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NinRepNonByteCustomType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*NinRepNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NinRepNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		if len(this.Field1) < len(that1.Field1) {
+			return -1
+		}
+		return 1
+	}
+	for i := range this.Field1 {
+		if c := this.Field1[i].Compare(that1.Field1[i]); c != 0 {
+			return c
+		}
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *ProtoType) Compare(that interface{}) int {
+	if that == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	}
+
+	that1, ok := that.(*ProtoType)
+	if !ok {
+		that2, ok := that.(ProtoType)
+		if ok {
+			that1 = &that2
+		} else {
+			return 1
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return 0
+		}
+		return 1
+	} else if this == nil {
+		return -1
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			if *this.Field2 < *that1.Field2 {
+				return -1
+			}
+			return 1
+		}
+	} else if this.Field2 != nil {
+		return 1
+	} else if that1.Field2 != nil {
+		return -1
+	}
+	if c := bytes.Compare(this.XXX_unrecognized, that1.XXX_unrecognized); c != 0 {
+		return c
+	}
+	return 0
+}
+func (this *NidOptNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidRepNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinRepNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidRepPackedNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinRepPackedNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidOptStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidRepStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinRepStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidEmbeddedStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinEmbeddedStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidNestedStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinNestedStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidOptCustom) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomDash) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptCustom) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidRepCustom) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinRepCustom) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptNativeUnion) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptStructUnion) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinEmbeddedStructUnion) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinNestedStructUnion) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *Tree) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *OrBranch) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *AndBranch) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *Leaf) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *DeepTree) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *ADeepBranch) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *AndDeepBranch) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *DeepLeaf) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *Nil) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidOptEnum) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptEnum) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidRepEnum) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinRepEnum) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptEnumDefault) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *AnotherNinOptEnum) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *AnotherNinOptEnumDefault) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *Timer) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *MyExtendable) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *OtherExtenable) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NestedDefinition) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NestedDefinition_NestedMessage) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NestedDefinition_NestedMessage_NestedNestedMsg) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NestedScope) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptNativeDefault) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomContainer) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameNidOptNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameNinOptNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameNinRepNative) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameNinStruct) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameCustomType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameNinEmbeddedStructUnion) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *CustomNameEnum) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NoExtensionsMap) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *Unrecognized) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *UnrecognizedWithInner) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *UnrecognizedWithInner_Inner) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *UnrecognizedWithEmbed) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *UnrecognizedWithEmbed_Embedded) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *Node) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NonByteCustomType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidOptNonByteCustomType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinOptNonByteCustomType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NidRepNonByteCustomType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *NinRepNonByteCustomType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func (this *ProtoType) Description() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	return ThetestDescription()
+}
+func ThetestDescription() (desc *github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet) {
+	d := &github_com_gogo_protobuf_protoc_gen_gogo_descriptor.FileDescriptorSet{}
+	var gzipped = []byte{
+		// 6505 bytes of a gzipped FileDescriptorSet
+		0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x5c, 0x6b, 0x70, 0x24, 0x57,
+		0x75, 0x56, 0x4f, 0x8f, 0xb4, 0xa3, 0xa3, 0x57, 0xab, 0xb5, 0xd6, 0x8e, 0xe5, 0xb5, 0xa4, 0x1d,
+		0xaf, 0xd7, 0xb2, 0xb0, 0xb5, 0x5a, 0xad, 0xb4, 0x8f, 0x59, 0x6c, 0xd7, 0xbc, 0x76, 0xad, 0x45,
+		0x1a, 0x89, 0x96, 0x84, 0xbd, 0x24, 0x55, 0x53, 0xbd, 0x33, 0x57, 0xd2, 0xd8, 0x33, 0xdd, 0xc3,
+		0x74, 0xcb, 0xb6, 0xfc, 0x23, 0xe5, 0x40, 0x42, 0x20, 0xa9, 0x3c, 0x49, 0x2a, 0x40, 0xc0, 0x18,
+		0x52, 0x04, 0x03, 0x79, 0x40, 0x42, 0x08, 0x45, 0xa5, 0x82, 0xff, 0x90, 0x6c, 0x7e, 0x24, 0x65,
+		0xf2, 0x2b, 0x45, 0xa5, 0x5c, 0xec, 0x9a, 0xaa, 0x90, 0xc4, 0x49, 0x20, 0xb8, 0x0a, 0xaa, 0xcc,
+		0x8f, 0xd4, 0x7d, 0x75, 0xf7, 0xbd, 0xd3, 0xa3, 0x6e, 0x79, 0x6d, 0xe0, 0xcf, 0xee, 0xcc, 0x3d,
+		0xe7, 0x3b, 0x7d, 0xee, 0x79, 0xdd, 0xd3, 0xf7, 0x5e, 0x0d, 0xbc, 0xba, 0x04, 0xd3, 0x3b, 0xb6,
+		0xbd, 0xd3, 0x40, 0xa7, 0x5b, 0x6d, 0xdb, 0xb5, 0xaf, 0xef, 0x6d, 0x9f, 0xae, 0x21, 0xa7, 0xda,
+		0xae, 0xb7, 0x5c, 0xbb, 0x3d, 0x47, 0xc6, 0xf4, 0x11, 0xca, 0x31, 0xc7, 0x39, 0x32, 0xab, 0x30,
+		0x7a, 0xb9, 0xde, 0x40, 0x45, 0x8f, 0x71, 0x03, 0xb9, 0xfa, 0x05, 0x48, 0x6e, 0xd7, 0x1b, 0x28,
+		0xad, 0x4c, 0xab, 0x33, 0x03, 0x0b, 0x27, 0xe7, 0x24, 0xd0, 0x9c, 0x88, 0x58, 0xc7, 0xc3, 0x06,
+		0x41, 0x64, 0xbe, 0x9b, 0x84, 0xb1, 0x10, 0xaa, 0xae, 0x43, 0xd2, 0x32, 0x9b, 0x58, 0xa2, 0x32,
+		0xd3, 0x6f, 0x90, 0xcf, 0x7a, 0x1a, 0x8e, 0xb4, 0xcc, 0xea, 0x93, 0xe6, 0x0e, 0x4a, 0x27, 0xc8,
+		0x30, 0xff, 0xaa, 0x4f, 0x02, 0xd4, 0x50, 0x0b, 0x59, 0x35, 0x64, 0x55, 0xf7, 0xd3, 0xea, 0xb4,
+		0x3a, 0xd3, 0x6f, 0x04, 0x46, 0xf4, 0x77, 0xc0, 0x68, 0x6b, 0xef, 0x7a, 0xa3, 0x5e, 0xad, 0x04,
+		0xd8, 0x60, 0x5a, 0x9d, 0xe9, 0x35, 0x34, 0x4a, 0x28, 0xfa, 0xcc, 0xf7, 0xc1, 0xc8, 0xd3, 0xc8,
+		0x7c, 0x32, 0xc8, 0x3a, 0x40, 0x58, 0x87, 0xf1, 0x70, 0x80, 0xb1, 0x00, 0x83, 0x4d, 0xe4, 0x38,
+		0xe6, 0x0e, 0xaa, 0xb8, 0xfb, 0x2d, 0x94, 0x4e, 0x92, 0xd9, 0x4f, 0x77, 0xcc, 0x5e, 0x9e, 0xf9,
+		0x00, 0x43, 0x6d, 0xee, 0xb7, 0x90, 0x9e, 0x83, 0x7e, 0x64, 0xed, 0x35, 0xa9, 0x84, 0xde, 0x2e,
+		0xf6, 0x2b, 0x59, 0x7b, 0x4d, 0x59, 0x4a, 0x0a, 0xc3, 0x98, 0x88, 0x23, 0x0e, 0x6a, 0x3f, 0x55,
+		0xaf, 0xa2, 0x74, 0x1f, 0x11, 0x70, 0x5f, 0x87, 0x80, 0x0d, 0x4a, 0x97, 0x65, 0x70, 0x9c, 0x5e,
+		0x80, 0x7e, 0xf4, 0x8c, 0x8b, 0x2c, 0xa7, 0x6e, 0x5b, 0xe9, 0x23, 0x44, 0xc8, 0xbd, 0x21, 0x5e,
+		0x44, 0x8d, 0x9a, 0x2c, 0xc2, 0xc7, 0xe9, 0xe7, 0xe0, 0x88, 0xdd, 0x72, 0xeb, 0xb6, 0xe5, 0xa4,
+		0x53, 0xd3, 0xca, 0xcc, 0xc0, 0xc2, 0xf1, 0xd0, 0x40, 0x58, 0xa3, 0x3c, 0x06, 0x67, 0xd6, 0x97,
+		0x41, 0x73, 0xec, 0xbd, 0x76, 0x15, 0x55, 0xaa, 0x76, 0x0d, 0x55, 0xea, 0xd6, 0xb6, 0x9d, 0xee,
+		0x27, 0x02, 0xa6, 0x3a, 0x27, 0x42, 0x18, 0x0b, 0x76, 0x0d, 0x2d, 0x5b, 0xdb, 0xb6, 0x31, 0xec,
+		0x08, 0xdf, 0xf5, 0x71, 0xe8, 0x73, 0xf6, 0x2d, 0xd7, 0x7c, 0x26, 0x3d, 0x48, 0x22, 0x84, 0x7d,
+		0xcb, 0xfc, 0xa8, 0x17, 0x46, 0xe2, 0x84, 0xd8, 0x25, 0xe8, 0xdd, 0xc6, 0xb3, 0x4c, 0x27, 0x0e,
+		0x63, 0x03, 0x8a, 0x11, 0x8d, 0xd8, 0xf7, 0x26, 0x8d, 0x98, 0x83, 0x01, 0x0b, 0x39, 0x2e, 0xaa,
+		0xd1, 0x88, 0x50, 0x63, 0xc6, 0x14, 0x50, 0x50, 0x67, 0x48, 0x25, 0xdf, 0x54, 0x48, 0x3d, 0x0e,
+		0x23, 0x9e, 0x4a, 0x95, 0xb6, 0x69, 0xed, 0xf0, 0xd8, 0x3c, 0x1d, 0xa5, 0xc9, 0x5c, 0x89, 0xe3,
+		0x0c, 0x0c, 0x33, 0x86, 0x91, 0xf0, 0x5d, 0x2f, 0x02, 0xd8, 0x16, 0xb2, 0xb7, 0x2b, 0x35, 0x54,
+		0x6d, 0xa4, 0x53, 0x5d, 0xac, 0xb4, 0x86, 0x59, 0x3a, 0xac, 0x64, 0xd3, 0xd1, 0x6a, 0x43, 0xbf,
+		0xe8, 0x87, 0xda, 0x91, 0x2e, 0x91, 0xb2, 0x4a, 0x93, 0xac, 0x23, 0xda, 0xb6, 0x60, 0xb8, 0x8d,
+		0x70, 0xdc, 0xa3, 0x1a, 0x9b, 0x59, 0x3f, 0x51, 0x62, 0x2e, 0x72, 0x66, 0x06, 0x83, 0xd1, 0x89,
+		0x0d, 0xb5, 0x83, 0x5f, 0xf5, 0x7b, 0xc0, 0x1b, 0xa8, 0x90, 0xb0, 0x02, 0x52, 0x85, 0x06, 0xf9,
+		0x60, 0xd9, 0x6c, 0xa2, 0x89, 0x0b, 0x30, 0x2c, 0x9a, 0x47, 0x3f, 0x0a, 0xbd, 0x8e, 0x6b, 0xb6,
+		0x5d, 0x12, 0x85, 0xbd, 0x06, 0xfd, 0xa2, 0x6b, 0xa0, 0x22, 0xab, 0x46, 0xaa, 0x5c, 0xaf, 0x81,
+		0x3f, 0x4e, 0x9c, 0x87, 0x21, 0xe1, 0xf1, 0x71, 0x81, 0x99, 0x8f, 0xf6, 0xc1, 0xd1, 0xb0, 0x98,
+		0x0b, 0x0d, 0xff, 0x71, 0xe8, 0xb3, 0xf6, 0x9a, 0xd7, 0x51, 0x3b, 0xad, 0x12, 0x09, 0xec, 0x9b,
+		0x9e, 0x83, 0xde, 0x86, 0x79, 0x1d, 0x35, 0xd2, 0xc9, 0x69, 0x65, 0x66, 0x78, 0xe1, 0x1d, 0xb1,
+		0xa2, 0x7a, 0x6e, 0x05, 0x43, 0x0c, 0x8a, 0xd4, 0x1f, 0x86, 0x24, 0x2b, 0x71, 0x58, 0xc2, 0x6c,
+		0x3c, 0x09, 0x38, 0x16, 0x0d, 0x82, 0xd3, 0xef, 0x82, 0x7e, 0xfc, 0x3f, 0xb5, 0x6d, 0x1f, 0xd1,
+		0x39, 0x85, 0x07, 0xb0, 0x5d, 0xf5, 0x09, 0x48, 0x91, 0x30, 0xab, 0x21, 0xbe, 0x34, 0x78, 0xdf,
+		0xb1, 0x63, 0x6a, 0x68, 0xdb, 0xdc, 0x6b, 0xb8, 0x95, 0xa7, 0xcc, 0xc6, 0x1e, 0x22, 0x01, 0xd3,
+		0x6f, 0x0c, 0xb2, 0xc1, 0xf7, 0xe0, 0x31, 0x7d, 0x0a, 0x06, 0x68, 0x54, 0xd6, 0xad, 0x1a, 0x7a,
+		0x86, 0x54, 0x9f, 0x5e, 0x83, 0x06, 0xea, 0x32, 0x1e, 0xc1, 0x8f, 0x7f, 0xc2, 0xb1, 0x2d, 0xee,
+		0x5a, 0xf2, 0x08, 0x3c, 0x40, 0x1e, 0x7f, 0x5e, 0x2e, 0x7c, 0x77, 0x87, 0x4f, 0x4f, 0x8e, 0xc5,
+		0xcc, 0x57, 0x13, 0x90, 0x24, 0xf9, 0x36, 0x02, 0x03, 0x9b, 0xd7, 0xd6, 0x4b, 0x95, 0xe2, 0xda,
+		0x56, 0x7e, 0xa5, 0xa4, 0x29, 0xfa, 0x30, 0x00, 0x19, 0xb8, 0xbc, 0xb2, 0x96, 0xdb, 0xd4, 0x12,
+		0xde, 0xf7, 0xe5, 0xf2, 0xe6, 0xb9, 0x45, 0x4d, 0xf5, 0x00, 0x5b, 0x74, 0x20, 0x19, 0x64, 0x38,
+		0xbb, 0xa0, 0xf5, 0xea, 0x1a, 0x0c, 0x52, 0x01, 0xcb, 0x8f, 0x97, 0x8a, 0xe7, 0x16, 0xb5, 0x3e,
+		0x71, 0xe4, 0xec, 0x82, 0x76, 0x44, 0x1f, 0x82, 0x7e, 0x32, 0x92, 0x5f, 0x5b, 0x5b, 0xd1, 0x52,
+		0x9e, 0xcc, 0x8d, 0x4d, 0x63, 0xb9, 0x7c, 0x45, 0xeb, 0xf7, 0x64, 0x5e, 0x31, 0xd6, 0xb6, 0xd6,
+		0x35, 0xf0, 0x24, 0xac, 0x96, 0x36, 0x36, 0x72, 0x57, 0x4a, 0xda, 0x80, 0xc7, 0x91, 0xbf, 0xb6,
+		0x59, 0xda, 0xd0, 0x06, 0x05, 0xb5, 0xce, 0x2e, 0x68, 0x43, 0xde, 0x23, 0x4a, 0xe5, 0xad, 0x55,
+		0x6d, 0x58, 0x1f, 0x85, 0x21, 0xfa, 0x08, 0xae, 0xc4, 0x88, 0x34, 0x74, 0x6e, 0x51, 0xd3, 0x7c,
+		0x45, 0xa8, 0x94, 0x51, 0x61, 0xe0, 0xdc, 0xa2, 0xa6, 0x67, 0x0a, 0xd0, 0x4b, 0xa2, 0x4b, 0xd7,
+		0x61, 0x78, 0x25, 0x97, 0x2f, 0xad, 0x54, 0xd6, 0xd6, 0x37, 0x97, 0xd7, 0xca, 0xb9, 0x15, 0x4d,
+		0xf1, 0xc7, 0x8c, 0xd2, 0xbb, 0xb7, 0x96, 0x8d, 0x52, 0x51, 0x4b, 0x04, 0xc7, 0xd6, 0x4b, 0xb9,
+		0xcd, 0x52, 0x51, 0x53, 0x33, 0x55, 0x38, 0x1a, 0x56, 0x67, 0x42, 0x33, 0x23, 0xe0, 0xe2, 0x44,
+		0x17, 0x17, 0x13, 0x59, 0x1d, 0x2e, 0xfe, 0x8c, 0x02, 0x63, 0x21, 0xb5, 0x36, 0xf4, 0x21, 0x8f,
+		0x40, 0x2f, 0x0d, 0x51, 0xba, 0xfa, 0xdc, 0x1f, 0x5a, 0xb4, 0x49, 0xc0, 0x76, 0xac, 0x40, 0x04,
+		0x17, 0x5c, 0x81, 0xd5, 0x2e, 0x2b, 0x30, 0x16, 0xd1, 0xa1, 0xe4, 0x07, 0x14, 0x48, 0x77, 0x93,
+		0x1d, 0x51, 0x28, 0x12, 0x42, 0xa1, 0xb8, 0x24, 0x2b, 0x70, 0xa2, 0xfb, 0x1c, 0x3a, 0xb4, 0xf8,
+		0x9c, 0x02, 0xe3, 0xe1, 0x8d, 0x4a, 0xa8, 0x0e, 0x0f, 0x43, 0x5f, 0x13, 0xb9, 0xbb, 0x36, 0x5f,
+		0xac, 0x4f, 0x85, 0x2c, 0x01, 0x98, 0x2c, 0xdb, 0x8a, 0xa1, 0x82, 0x6b, 0x88, 0xda, 0xad, 0xdb,
+		0xa0, 0xda, 0x74, 0x68, 0xfa, 0xe1, 0x04, 0xdc, 0x11, 0x2a, 0x3c, 0x54, 0xd1, 0xbb, 0x01, 0xea,
+		0x56, 0x6b, 0xcf, 0xa5, 0x0b, 0x32, 0xad, 0x4f, 0xfd, 0x64, 0x84, 0xe4, 0x3e, 0xae, 0x3d, 0x7b,
+		0xae, 0x47, 0x57, 0x09, 0x1d, 0xe8, 0x10, 0x61, 0xb8, 0xe0, 0x2b, 0x9a, 0x24, 0x8a, 0x4e, 0x76,
+		0x99, 0x69, 0xc7, 0x5a, 0x37, 0x0f, 0x5a, 0xb5, 0x51, 0x47, 0x96, 0x5b, 0x71, 0xdc, 0x36, 0x32,
+		0x9b, 0x75, 0x6b, 0x87, 0x14, 0xe0, 0x54, 0xb6, 0x77, 0xdb, 0x6c, 0x38, 0xc8, 0x18, 0xa1, 0xe4,
+		0x0d, 0x4e, 0xc5, 0x08, 0xb2, 0xca, 0xb4, 0x03, 0x88, 0x3e, 0x01, 0x41, 0xc9, 0x1e, 0x22, 0xf3,
+		0xc5, 0x23, 0x30, 0x10, 0x68, 0xeb, 0xf4, 0x13, 0x30, 0xf8, 0x84, 0xf9, 0x94, 0x59, 0xe1, 0xad,
+		0x3a, 0xb5, 0xc4, 0x00, 0x1e, 0x5b, 0x67, 0xed, 0xfa, 0x3c, 0x1c, 0x25, 0x2c, 0xf6, 0x9e, 0x8b,
+		0xda, 0x95, 0x6a, 0xc3, 0x74, 0x1c, 0x62, 0xb4, 0x14, 0x61, 0xd5, 0x31, 0x6d, 0x0d, 0x93, 0x0a,
+		0x9c, 0xa2, 0x2f, 0xc1, 0x18, 0x41, 0x34, 0xf7, 0x1a, 0x6e, 0xbd, 0xd5, 0x40, 0x15, 0xfc, 0xf2,
+		0xe0, 0x90, 0x42, 0xec, 0x69, 0x36, 0x8a, 0x39, 0x56, 0x19, 0x03, 0xd6, 0xc8, 0xd1, 0x8b, 0x70,
+		0x37, 0x81, 0xed, 0x20, 0x0b, 0xb5, 0x4d, 0x17, 0x55, 0xd0, 0xfb, 0xf6, 0xcc, 0x86, 0x53, 0x31,
+		0xad, 0x5a, 0x65, 0xd7, 0x74, 0x76, 0xd3, 0x47, 0xb1, 0x80, 0x7c, 0x22, 0xad, 0x18, 0x77, 0x62,
+		0xc6, 0x2b, 0x8c, 0xaf, 0x44, 0xd8, 0x72, 0x56, 0xed, 0x51, 0xd3, 0xd9, 0xd5, 0xb3, 0x30, 0x4e,
+		0xa4, 0x38, 0x6e, 0xbb, 0x6e, 0xed, 0x54, 0xaa, 0xbb, 0xa8, 0xfa, 0x64, 0x65, 0xcf, 0xdd, 0xbe,
+		0x90, 0xbe, 0x2b, 0xf8, 0x7c, 0xa2, 0xe1, 0x06, 0xe1, 0x29, 0x60, 0x96, 0x2d, 0x77, 0xfb, 0x82,
+		0xbe, 0x01, 0x83, 0xd8, 0x19, 0xcd, 0xfa, 0xb3, 0xa8, 0xb2, 0x6d, 0xb7, 0xc9, 0xca, 0x32, 0x1c,
+		0x92, 0xd9, 0x01, 0x0b, 0xce, 0xad, 0x31, 0xc0, 0xaa, 0x5d, 0x43, 0xd9, 0xde, 0x8d, 0xf5, 0x52,
+		0xa9, 0x68, 0x0c, 0x70, 0x29, 0x97, 0xed, 0x36, 0x0e, 0xa8, 0x1d, 0xdb, 0x33, 0xf0, 0x00, 0x0d,
+		0xa8, 0x1d, 0x9b, 0x9b, 0x77, 0x09, 0xc6, 0xaa, 0x55, 0x3a, 0xe7, 0x7a, 0xb5, 0xc2, 0x5a, 0x7c,
+		0x27, 0xad, 0x09, 0xc6, 0xaa, 0x56, 0xaf, 0x50, 0x06, 0x16, 0xe3, 0x8e, 0x7e, 0x11, 0xee, 0xf0,
+		0x8d, 0x15, 0x04, 0x8e, 0x76, 0xcc, 0x52, 0x86, 0x2e, 0xc1, 0x58, 0x6b, 0xbf, 0x13, 0xa8, 0x0b,
+		0x4f, 0x6c, 0xed, 0xcb, 0xb0, 0x7b, 0xc9, 0x6b, 0x5b, 0x1b, 0x55, 0x4d, 0x17, 0xd5, 0xd2, 0xc7,
+		0x82, 0xdc, 0x01, 0x82, 0x7e, 0x1a, 0xb4, 0x6a, 0xb5, 0x82, 0x2c, 0xf3, 0x7a, 0x03, 0x55, 0xcc,
+		0x36, 0xb2, 0x4c, 0x27, 0x3d, 0x15, 0x64, 0x1e, 0xae, 0x56, 0x4b, 0x84, 0x9a, 0x23, 0x44, 0x7d,
+		0x16, 0x46, 0xed, 0xeb, 0x4f, 0x54, 0x69, 0x64, 0x55, 0x5a, 0x6d, 0xb4, 0x5d, 0x7f, 0x26, 0x7d,
+		0x92, 0x98, 0x69, 0x04, 0x13, 0x48, 0x5c, 0xad, 0x93, 0x61, 0xfd, 0x7e, 0xd0, 0xaa, 0xce, 0xae,
+		0xd9, 0x6e, 0x91, 0xa5, 0xdd, 0x69, 0x99, 0x55, 0x94, 0xbe, 0x97, 0xb2, 0xd2, 0xf1, 0x32, 0x1f,
+		0xc6, 0x91, 0xed, 0x3c, 0x5d, 0xdf, 0x76, 0xb9, 0xc4, 0xfb, 0x68, 0x64, 0x93, 0x31, 0x26, 0xed,
+		0x71, 0x38, 0xba, 0x67, 0xd5, 0x2d, 0x17, 0xb5, 0x5b, 0x6d, 0x84, 0x9b, 0x78, 0x9a, 0x89, 0xe9,
+		0x7f, 0x3f, 0xd2, 0xa5, 0x0d, 0xdf, 0x0a, 0x72, 0xd3, 0x00, 0x30, 0xc6, 0xf6, 0x3a, 0x07, 0x33,
+		0x59, 0x18, 0x0c, 0xc6, 0x85, 0xde, 0x0f, 0x34, 0x32, 0x34, 0x05, 0xaf, 0xb1, 0x85, 0xb5, 0x22,
+		0x5e, 0x1d, 0xdf, 0x5b, 0xd2, 0x12, 0x78, 0x95, 0x5e, 0x59, 0xde, 0x2c, 0x55, 0x8c, 0xad, 0xf2,
+		0xe6, 0xf2, 0x6a, 0x49, 0x53, 0x67, 0xfb, 0x53, 0xdf, 0x3b, 0xa2, 0x3d, 0xf7, 0xdc, 0x73, 0xcf,
+		0x25, 0x32, 0xdf, 0x4c, 0xc0, 0xb0, 0xd8, 0x19, 0xeb, 0xef, 0x84, 0x63, 0xfc, 0x35, 0xd6, 0x41,
+		0x6e, 0xe5, 0xe9, 0x7a, 0x9b, 0x84, 0x6a, 0xd3, 0xa4, 0xbd, 0xa5, 0x67, 0xe5, 0xa3, 0x8c, 0x6b,
+		0x03, 0xb9, 0x8f, 0xd5, 0xdb, 0x38, 0x10, 0x9b, 0xa6, 0xab, 0xaf, 0xc0, 0x94, 0x65, 0x57, 0x1c,
+		0xd7, 0xb4, 0x6a, 0x66, 0xbb, 0x56, 0xf1, 0x37, 0x10, 0x2a, 0x66, 0xb5, 0x8a, 0x1c, 0xc7, 0xa6,
+		0x4b, 0x84, 0x27, 0xe5, 0xb8, 0x65, 0x6f, 0x30, 0x66, 0xbf, 0x76, 0xe6, 0x18, 0xab, 0x14, 0x11,
+		0x6a, 0xb7, 0x88, 0xb8, 0x0b, 0xfa, 0x9b, 0x66, 0xab, 0x82, 0x2c, 0xb7, 0xbd, 0x4f, 0xfa, 0xb9,
+		0x94, 0x91, 0x6a, 0x9a, 0xad, 0x12, 0xfe, 0xfe, 0xf6, 0xf9, 0x20, 0x68, 0xc7, 0x7f, 0x53, 0x61,
+		0x30, 0xd8, 0xd3, 0xe1, 0x16, 0xb9, 0x4a, 0xea, 0xb7, 0x42, 0x32, 0xfc, 0x9e, 0x03, 0x3b, 0xc0,
+		0xb9, 0x02, 0x2e, 0xec, 0xd9, 0x3e, 0xda, 0x69, 0x19, 0x14, 0x89, 0x17, 0x55, 0x9c, 0xd3, 0x88,
+		0xf6, 0xef, 0x29, 0x83, 0x7d, 0xd3, 0xaf, 0x40, 0xdf, 0x13, 0x0e, 0x91, 0xdd, 0x47, 0x64, 0x9f,
+		0x3c, 0x58, 0xf6, 0xd5, 0x0d, 0x22, 0xbc, 0xff, 0xea, 0x46, 0xa5, 0xbc, 0x66, 0xac, 0xe6, 0x56,
+		0x0c, 0x06, 0xd7, 0xef, 0x84, 0x64, 0xc3, 0x7c, 0x76, 0x5f, 0x5c, 0x02, 0xc8, 0x50, 0x5c, 0xc3,
+		0xdf, 0x09, 0xc9, 0xa7, 0x91, 0xf9, 0xa4, 0x58, 0x78, 0xc9, 0xd0, 0xdb, 0x18, 0xfa, 0xa7, 0xa1,
+		0x97, 0xd8, 0x4b, 0x07, 0x60, 0x16, 0xd3, 0x7a, 0xf4, 0x14, 0x24, 0x0b, 0x6b, 0x06, 0x0e, 0x7f,
+		0x0d, 0x06, 0xe9, 0x68, 0x65, 0x7d, 0xb9, 0x54, 0x28, 0x69, 0x89, 0xcc, 0x12, 0xf4, 0x51, 0x23,
+		0xe0, 0xd4, 0xf0, 0xcc, 0xa0, 0xf5, 0xb0, 0xaf, 0x4c, 0x86, 0xc2, 0xa9, 0x5b, 0xab, 0xf9, 0x92,
+		0xa1, 0x25, 0x82, 0xee, 0x75, 0x60, 0x30, 0xd8, 0xce, 0xfd, 0x74, 0x62, 0xea, 0xeb, 0x0a, 0x0c,
+		0x04, 0xda, 0x33, 0xdc, 0x18, 0x98, 0x8d, 0x86, 0xfd, 0x74, 0xc5, 0x6c, 0xd4, 0x4d, 0x87, 0x05,
+		0x05, 0x90, 0xa1, 0x1c, 0x1e, 0x89, 0xeb, 0xb4, 0x9f, 0x8a, 0xf2, 0xcf, 0x2b, 0xa0, 0xc9, 0xad,
+		0x9d, 0xa4, 0xa0, 0xf2, 0x33, 0x55, 0xf0, 0x13, 0x0a, 0x0c, 0x8b, 0xfd, 0x9c, 0xa4, 0xde, 0x89,
+		0x9f, 0xa9, 0x7a, 0xdf, 0x49, 0xc0, 0x90, 0xd0, 0xc5, 0xc5, 0xd5, 0xee, 0x7d, 0x30, 0x5a, 0xaf,
+		0xa1, 0x66, 0xcb, 0x76, 0x91, 0x55, 0xdd, 0xaf, 0x34, 0xd0, 0x53, 0xa8, 0x91, 0xce, 0x90, 0x42,
+		0x71, 0xfa, 0xe0, 0x3e, 0x71, 0x6e, 0xd9, 0xc7, 0xad, 0x60, 0x58, 0x76, 0x6c, 0xb9, 0x58, 0x5a,
+		0x5d, 0x5f, 0xdb, 0x2c, 0x95, 0x0b, 0xd7, 0x2a, 0x5b, 0xe5, 0x77, 0x95, 0xd7, 0x1e, 0x2b, 0x1b,
+		0x5a, 0x5d, 0x62, 0x7b, 0x1b, 0x53, 0x7d, 0x1d, 0x34, 0x59, 0x29, 0xfd, 0x18, 0x84, 0xa9, 0xa5,
+		0xf5, 0xe8, 0x63, 0x30, 0x52, 0x5e, 0xab, 0x6c, 0x2c, 0x17, 0x4b, 0x95, 0xd2, 0xe5, 0xcb, 0xa5,
+		0xc2, 0xe6, 0x06, 0x7d, 0x71, 0xf6, 0xb8, 0x37, 0xc5, 0xa4, 0xfe, 0xb8, 0x0a, 0x63, 0x21, 0x9a,
+		0xe8, 0x39, 0xd6, 0xb3, 0xd3, 0xd7, 0x88, 0x07, 0xe3, 0x68, 0x3f, 0x87, 0xbb, 0x82, 0x75, 0xb3,
+		0xed, 0xb2, 0x16, 0xff, 0x7e, 0xc0, 0x56, 0xb2, 0xdc, 0xfa, 0x76, 0x1d, 0xb5, 0xd9, 0x3e, 0x03,
+		0x6d, 0xe4, 0x47, 0xfc, 0x71, 0xba, 0xd5, 0xf0, 0x00, 0xe8, 0x2d, 0xdb, 0xa9, 0xbb, 0xf5, 0xa7,
+		0x50, 0xa5, 0x6e, 0xf1, 0x4d, 0x09, 0xdc, 0xd8, 0x27, 0x0d, 0x8d, 0x53, 0x96, 0x2d, 0xd7, 0xe3,
+		0xb6, 0xd0, 0x8e, 0x29, 0x71, 0xe3, 0x02, 0xae, 0x1a, 0x1a, 0xa7, 0x78, 0xdc, 0x27, 0x60, 0xb0,
+		0x66, 0xef, 0xe1, 0x36, 0x89, 0xf2, 0xe1, 0xf5, 0x42, 0x31, 0x06, 0xe8, 0x98, 0xc7, 0xc2, 0xfa,
+		0x58, 0x7f, 0x37, 0x64, 0xd0, 0x18, 0xa0, 0x63, 0x94, 0xe5, 0x3e, 0x18, 0x31, 0x77, 0x76, 0xda,
+		0x58, 0x38, 0x17, 0x44, 0x3b, 0xf3, 0x61, 0x6f, 0x98, 0x30, 0x4e, 0x5c, 0x85, 0x14, 0xb7, 0x03,
+		0x5e, 0x92, 0xb1, 0x25, 0x2a, 0x2d, 0xba, 0x27, 0x95, 0x98, 0xe9, 0x37, 0x52, 0x16, 0x27, 0x9e,
+		0x80, 0xc1, 0xba, 0x53, 0xf1, 0x37, 0x47, 0x13, 0xd3, 0x89, 0x99, 0x94, 0x31, 0x50, 0x77, 0xbc,
+		0xdd, 0xb0, 0xcc, 0xe7, 0x12, 0x30, 0x2c, 0x6e, 0xee, 0xea, 0x45, 0x48, 0x35, 0xec, 0xaa, 0x49,
+		0x42, 0x8b, 0x9e, 0x2c, 0xcc, 0x44, 0xec, 0x07, 0xcf, 0xad, 0x30, 0x7e, 0xc3, 0x43, 0x4e, 0xfc,
+		0xb3, 0x02, 0x29, 0x3e, 0xac, 0x8f, 0x43, 0xb2, 0x65, 0xba, 0xbb, 0x44, 0x5c, 0x6f, 0x3e, 0xa1,
+		0x29, 0x06, 0xf9, 0x8e, 0xc7, 0x9d, 0x96, 0x69, 0x91, 0x10, 0x60, 0xe3, 0xf8, 0x3b, 0xf6, 0x6b,
+		0x03, 0x99, 0x35, 0xd2, 0xf6, 0xdb, 0xcd, 0x26, 0xb2, 0x5c, 0x87, 0xfb, 0x95, 0x8d, 0x17, 0xd8,
+		0xb0, 0xfe, 0x0e, 0x18, 0x75, 0xdb, 0x66, 0xbd, 0x21, 0xf0, 0x26, 0x09, 0xaf, 0xc6, 0x09, 0x1e,
+		0x73, 0x16, 0xee, 0xe4, 0x72, 0x6b, 0xc8, 0x35, 0xab, 0xbb, 0xa8, 0xe6, 0x83, 0xfa, 0xc8, 0xce,
+		0xe1, 0x31, 0xc6, 0x50, 0x64, 0x74, 0x8e, 0xcd, 0x7c, 0x4b, 0x81, 0x51, 0xfe, 0xa2, 0x52, 0xf3,
+		0x8c, 0xb5, 0x0a, 0x60, 0x5a, 0x96, 0xed, 0x06, 0xcd, 0xd5, 0x19, 0xca, 0x1d, 0xb8, 0xb9, 0x9c,
+		0x07, 0x32, 0x02, 0x02, 0x26, 0x9a, 0x00, 0x3e, 0xa5, 0xab, 0xd9, 0xa6, 0x60, 0x80, 0xed, 0xdc,
+		0x93, 0xe3, 0x1f, 0xfa, 0x6a, 0x0b, 0x74, 0x08, 0xbf, 0xd1, 0xe8, 0x47, 0xa1, 0xf7, 0x3a, 0xda,
+		0xa9, 0x5b, 0x6c, 0x3f, 0x91, 0x7e, 0xe1, 0xbb, 0x94, 0x49, 0x6f, 0x97, 0x32, 0xff, 0x38, 0x8c,
+		0x55, 0xed, 0xa6, 0xac, 0x6e, 0x5e, 0x93, 0x5e, 0xaf, 0x9d, 0x47, 0x95, 0xf7, 0x82, 0xdf, 0x62,
+		0x7e, 0x26, 0xa1, 0x5e, 0x59, 0xcf, 0x7f, 0x21, 0x31, 0x71, 0x85, 0xe2, 0xd6, 0xf9, 0x34, 0x0d,
+		0xb4, 0xdd, 0x40, 0x55, 0xac, 0x3a, 0xfc, 0xf0, 0x14, 0x3c, 0xb8, 0x53, 0x77, 0x77, 0xf7, 0xae,
+		0xcf, 0x55, 0xed, 0xe6, 0xe9, 0x1d, 0x7b, 0xc7, 0xf6, 0x8f, 0xbb, 0xf0, 0x37, 0xf2, 0x85, 0x7c,
+		0x62, 0x47, 0x5e, 0xfd, 0xde, 0xe8, 0x44, 0xe4, 0xf9, 0x58, 0xb6, 0x0c, 0x63, 0x8c, 0xb9, 0x42,
+		0xf6, 0xdc, 0xe9, 0xab, 0x81, 0x7e, 0xe0, 0xbe, 0x4b, 0xfa, 0xcb, 0xdf, 0x25, 0x6b, 0xb5, 0x31,
+		0xca, 0xa0, 0x98, 0x46, 0x5f, 0x20, 0xb2, 0x06, 0xdc, 0x21, 0xc8, 0xa3, 0x79, 0x89, 0xda, 0x11,
+		0x12, 0xbf, 0xc9, 0x24, 0x8e, 0x05, 0x24, 0x6e, 0x30, 0x68, 0xb6, 0x00, 0x43, 0x87, 0x91, 0xf5,
+		0xf7, 0x4c, 0xd6, 0x20, 0x0a, 0x0a, 0xb9, 0x02, 0x23, 0x44, 0x48, 0x75, 0xcf, 0x71, 0xed, 0x26,
+		0x29, 0x7a, 0x07, 0x8b, 0xf9, 0x87, 0xef, 0xd2, 0x44, 0x19, 0xc6, 0xb0, 0x82, 0x87, 0xca, 0x66,
+		0x81, 0x1c, 0x33, 0xd4, 0x50, 0xb5, 0x11, 0x21, 0xe1, 0x06, 0x53, 0xc4, 0xe3, 0xcf, 0xbe, 0x07,
+		0x8e, 0xe2, 0xcf, 0xa4, 0x26, 0x05, 0x35, 0x89, 0xde, 0x65, 0x4a, 0x7f, 0xeb, 0x03, 0x34, 0x17,
+		0xc7, 0x3c, 0x01, 0x01, 0x9d, 0x02, 0x5e, 0xdc, 0x41, 0xae, 0x8b, 0xda, 0x4e, 0xc5, 0x6c, 0x84,
+		0xa9, 0x17, 0x78, 0x4d, 0x4f, 0x7f, 0xec, 0x35, 0xd1, 0x8b, 0x57, 0x28, 0x32, 0xd7, 0x68, 0x64,
+		0xb7, 0xe0, 0x58, 0x48, 0x54, 0xc4, 0x90, 0xf9, 0x71, 0x26, 0xf3, 0x68, 0x47, 0x64, 0x60, 0xb1,
+		0xeb, 0xc0, 0xc7, 0x3d, 0x5f, 0xc6, 0x90, 0xf9, 0x47, 0x4c, 0xa6, 0xce, 0xb0, 0xdc, 0xa5, 0x58,
+		0xe2, 0x55, 0x18, 0x7d, 0x0a, 0xb5, 0xaf, 0xdb, 0x0e, 0xdb, 0x1a, 0x89, 0x21, 0xee, 0x13, 0x4c,
+		0xdc, 0x08, 0x03, 0x92, 0xbd, 0x12, 0x2c, 0xeb, 0x22, 0xa4, 0xb6, 0xcd, 0x2a, 0x8a, 0x21, 0xe2,
+		0x93, 0x4c, 0xc4, 0x11, 0xcc, 0x8f, 0xa1, 0x39, 0x18, 0xdc, 0xb1, 0xd9, 0xb2, 0x14, 0x0d, 0x7f,
+		0x9e, 0xc1, 0x07, 0x38, 0x86, 0x89, 0x68, 0xd9, 0xad, 0xbd, 0x06, 0x5e, 0xb3, 0xa2, 0x45, 0x7c,
+		0x8a, 0x8b, 0xe0, 0x18, 0x26, 0xe2, 0x10, 0x66, 0x7d, 0x81, 0x8b, 0x70, 0x02, 0xf6, 0x7c, 0x04,
+		0x06, 0x6c, 0xab, 0xb1, 0x6f, 0x5b, 0x71, 0x94, 0xf8, 0x34, 0x93, 0x00, 0x0c, 0x82, 0x05, 0x5c,
+		0x82, 0xfe, 0xb8, 0x8e, 0xf8, 0xec, 0x6b, 0x3c, 0x3d, 0xb8, 0x07, 0xae, 0xc0, 0x08, 0x2f, 0x50,
+		0x75, 0xdb, 0x8a, 0x21, 0xe2, 0x4f, 0x98, 0x88, 0xe1, 0x00, 0x8c, 0x4d, 0xc3, 0x45, 0x8e, 0xbb,
+		0x83, 0xe2, 0x08, 0xf9, 0x1c, 0x9f, 0x06, 0x83, 0x30, 0x53, 0x5e, 0x47, 0x56, 0x75, 0x37, 0x9e,
+		0x84, 0x17, 0xb9, 0x29, 0x39, 0x06, 0x8b, 0x28, 0xc0, 0x50, 0xd3, 0x6c, 0x3b, 0xbb, 0x66, 0x23,
+		0x96, 0x3b, 0x3e, 0xcf, 0x64, 0x0c, 0x7a, 0x20, 0x66, 0x91, 0x3d, 0xeb, 0x30, 0x62, 0xbe, 0xc0,
+		0x2d, 0x12, 0x80, 0xb1, 0xd4, 0x73, 0x5c, 0xb2, 0x01, 0x75, 0x18, 0x69, 0x5f, 0xe4, 0xa9, 0x47,
+		0xb1, 0xab, 0x41, 0x89, 0x97, 0xa0, 0xdf, 0xa9, 0x3f, 0x1b, 0x4b, 0xcc, 0x9f, 0x72, 0x4f, 0x13,
+		0x00, 0x06, 0x5f, 0x83, 0x3b, 0x43, 0x97, 0x89, 0x18, 0xc2, 0xfe, 0x8c, 0x09, 0x1b, 0x0f, 0x59,
+		0x2a, 0x58, 0x49, 0x38, 0xac, 0xc8, 0x3f, 0xe7, 0x25, 0x01, 0x49, 0xb2, 0xd6, 0xf1, 0x8b, 0x82,
+		0x63, 0x6e, 0x1f, 0xce, 0x6a, 0x7f, 0xc1, 0xad, 0x46, 0xb1, 0x82, 0xd5, 0x36, 0x61, 0x9c, 0x49,
+		0x3c, 0x9c, 0x5f, 0xbf, 0xc4, 0x0b, 0x2b, 0x45, 0x6f, 0x89, 0xde, 0xfd, 0x05, 0x98, 0xf0, 0xcc,
+		0xc9, 0x3b, 0x52, 0xa7, 0xd2, 0x34, 0x5b, 0x31, 0x24, 0x7f, 0x99, 0x49, 0xe6, 0x15, 0xdf, 0x6b,
+		0x69, 0x9d, 0x55, 0xb3, 0x85, 0x85, 0x3f, 0x0e, 0x69, 0x2e, 0x7c, 0xcf, 0x6a, 0xa3, 0xaa, 0xbd,
+		0x63, 0xd5, 0x9f, 0x45, 0xb5, 0x18, 0xa2, 0xff, 0x52, 0x72, 0xd5, 0x56, 0x00, 0x8e, 0x25, 0x2f,
+		0x83, 0xe6, 0xf5, 0x2a, 0x95, 0x7a, 0xb3, 0x65, 0xb7, 0xdd, 0x08, 0x89, 0x7f, 0xc5, 0x3d, 0xe5,
+		0xe1, 0x96, 0x09, 0x2c, 0x5b, 0x82, 0x61, 0xf2, 0x35, 0x6e, 0x48, 0x7e, 0x85, 0x09, 0x1a, 0xf2,
+		0x51, 0xac, 0x70, 0x54, 0xed, 0x66, 0xcb, 0x6c, 0xc7, 0xa9, 0x7f, 0x7f, 0xcd, 0x0b, 0x07, 0x83,
+		0xb0, 0xc2, 0xe1, 0xee, 0xb7, 0x10, 0x5e, 0xed, 0x63, 0x48, 0xf8, 0x2a, 0x2f, 0x1c, 0x1c, 0xc3,
+		0x44, 0xf0, 0x86, 0x21, 0x86, 0x88, 0xbf, 0xe1, 0x22, 0x38, 0x06, 0x8b, 0x78, 0xb7, 0xbf, 0xd0,
+		0xb6, 0xd1, 0x4e, 0xdd, 0x71, 0xdb, 0xb4, 0x0f, 0x3e, 0x58, 0xd4, 0xd7, 0x5e, 0x13, 0x9b, 0x30,
+		0x23, 0x00, 0xcd, 0x5e, 0x85, 0x11, 0xa9, 0xc5, 0xd0, 0xa3, 0xee, 0x2c, 0xa4, 0x7f, 0xf9, 0x75,
+		0x56, 0x8c, 0xc4, 0x0e, 0x23, 0xbb, 0x82, 0xfd, 0x2e, 0xf6, 0x01, 0xd1, 0xc2, 0x3e, 0xf0, 0xba,
+		0xe7, 0x7a, 0xa1, 0x0d, 0xc8, 0x5e, 0x86, 0x21, 0xa1, 0x07, 0x88, 0x16, 0xf5, 0x2b, 0x4c, 0xd4,
+		0x60, 0xb0, 0x05, 0xc8, 0x2e, 0x41, 0x12, 0xaf, 0xe7, 0xd1, 0xf0, 0x5f, 0x65, 0x70, 0xc2, 0x9e,
+		0x7d, 0x08, 0x52, 0x7c, 0x1d, 0x8f, 0x86, 0x7e, 0x90, 0x41, 0x3d, 0x08, 0x86, 0xf3, 0x35, 0x3c,
+		0x1a, 0xfe, 0x6b, 0x1c, 0xce, 0x21, 0x18, 0x1e, 0xdf, 0x84, 0x2f, 0xfd, 0x46, 0x92, 0xd5, 0x61,
+		0x6e, 0xbb, 0x4b, 0x70, 0x84, 0x2d, 0xde, 0xd1, 0xe8, 0x0f, 0xb3, 0x87, 0x73, 0x44, 0xf6, 0x3c,
+		0xf4, 0xc6, 0x34, 0xf8, 0x6f, 0x32, 0x28, 0xe5, 0xcf, 0x16, 0x60, 0x20, 0xb0, 0x60, 0x47, 0xc3,
+		0x7f, 0x8b, 0xc1, 0x83, 0x28, 0xac, 0x3a, 0x5b, 0xb0, 0xa3, 0x05, 0xfc, 0x36, 0x57, 0x9d, 0x21,
+		0xb0, 0xd9, 0xf8, 0x5a, 0x1d, 0x8d, 0xfe, 0x1d, 0x6e, 0x75, 0x0e, 0xc9, 0x3e, 0x02, 0xfd, 0x5e,
+		0xfd, 0x8d, 0xc6, 0xff, 0x2e, 0xc3, 0xfb, 0x18, 0x6c, 0x81, 0x40, 0xfd, 0x8f, 0x16, 0xf1, 0x7b,
+		0xdc, 0x02, 0x01, 0x14, 0x4e, 0x23, 0x79, 0x4d, 0x8f, 0x96, 0xf4, 0x11, 0x9e, 0x46, 0xd2, 0x92,
+		0x8e, 0xbd, 0x49, 0xca, 0x60, 0xb4, 0x88, 0xdf, 0xe7, 0xde, 0x24, 0xfc, 0x58, 0x0d, 0x79, 0x91,
+		0x8c, 0x96, 0xf1, 0x87, 0x5c, 0x0d, 0x69, 0x8d, 0xcc, 0xae, 0x83, 0xde, 0xb9, 0x40, 0x46, 0xcb,
+		0xfb, 0x28, 0x93, 0x37, 0xda, 0xb1, 0x3e, 0x66, 0x1f, 0x83, 0xf1, 0xf0, 0xc5, 0x31, 0x5a, 0xea,
+		0xc7, 0x5e, 0x97, 0x5e, 0x67, 0x82, 0x6b, 0x63, 0x76, 0xd3, 0xaf, 0xb2, 0xc1, 0x85, 0x31, 0x5a,
+		0xec, 0xc7, 0x5f, 0x17, 0x0b, 0x6d, 0x70, 0x5d, 0xcc, 0xe6, 0x00, 0xfc, 0x35, 0x29, 0x5a, 0xd6,
+		0x27, 0x98, 0xac, 0x00, 0x08, 0xa7, 0x06, 0x5b, 0x92, 0xa2, 0xf1, 0x9f, 0xe4, 0xa9, 0xc1, 0x10,
+		0x38, 0x35, 0xf8, 0x6a, 0x14, 0x8d, 0x7e, 0x9e, 0xa7, 0x06, 0x87, 0x64, 0x2f, 0x41, 0xca, 0xda,
+		0x6b, 0x34, 0x70, 0x6c, 0xe9, 0x07, 0x5f, 0x23, 0x4a, 0xff, 0xc7, 0x1b, 0x0c, 0xcc, 0x01, 0xd9,
+		0x25, 0xe8, 0x45, 0xcd, 0xeb, 0xa8, 0x16, 0x85, 0xfc, 0xcf, 0x37, 0x78, 0x3d, 0xc1, 0xdc, 0xd9,
+		0x47, 0x00, 0xe8, 0xcb, 0x34, 0x39, 0x25, 0x8a, 0xc0, 0xfe, 0xd7, 0x1b, 0xec, 0x86, 0x82, 0x0f,
+		0xf1, 0x05, 0xd0, 0xfb, 0x0e, 0x07, 0x0b, 0x78, 0x4d, 0x14, 0x40, 0x5e, 0xc0, 0x2f, 0xc2, 0x91,
+		0x27, 0x1c, 0xdb, 0x72, 0xcd, 0x9d, 0x28, 0xf4, 0x7f, 0x33, 0x34, 0xe7, 0xc7, 0x06, 0x6b, 0xda,
+		0x6d, 0xe4, 0x9a, 0x3b, 0x4e, 0x14, 0xf6, 0x7f, 0x18, 0xd6, 0x03, 0x60, 0x70, 0xd5, 0x74, 0xdc,
+		0x38, 0xf3, 0xfe, 0x5f, 0x0e, 0xe6, 0x00, 0xac, 0x34, 0xfe, 0xfc, 0x24, 0xda, 0x8f, 0xc2, 0x7e,
+		0x9f, 0x2b, 0xcd, 0xf8, 0xb3, 0x0f, 0x41, 0x3f, 0xfe, 0x48, 0x6f, 0xed, 0x44, 0x80, 0x7f, 0xc0,
+		0xc0, 0x3e, 0x02, 0x3f, 0xd9, 0x71, 0x6b, 0x6e, 0x3d, 0xda, 0xd8, 0xff, 0xc7, 0x3c, 0xcd, 0xf9,
+		0xb3, 0x39, 0x18, 0x70, 0xdc, 0x5a, 0x6d, 0x8f, 0x75, 0x34, 0x11, 0xf0, 0x1f, 0xbe, 0xe1, 0xbd,
+		0xe4, 0x7a, 0x98, 0xfc, 0x89, 0xf0, 0xcd, 0x3a, 0xb8, 0x62, 0x5f, 0xb1, 0xe9, 0x36, 0x1d, 0xfc,
+		0x53, 0x03, 0xa6, 0xab, 0x76, 0xf3, 0xba, 0xed, 0x9c, 0x0e, 0x94, 0xa1, 0xd3, 0xee, 0x2e, 0xc2,
+		0x2b, 0x08, 0xdb, 0x68, 0x4b, 0xe2, 0xcf, 0x13, 0x87, 0xdb, 0x9d, 0x23, 0x07, 0xaf, 0xe5, 0x3a,
+		0x56, 0xb0, 0x4c, 0xf6, 0xbe, 0xf5, 0xe3, 0xd0, 0x47, 0x54, 0x3e, 0x43, 0xce, 0x97, 0x94, 0x7c,
+		0xf2, 0xc6, 0x2b, 0x53, 0x3d, 0x06, 0x1b, 0xf3, 0xa8, 0x0b, 0x64, 0x73, 0x32, 0x21, 0x50, 0x17,
+		0x3c, 0xea, 0x59, 0xba, 0x3f, 0x29, 0x50, 0xcf, 0x7a, 0xd4, 0x45, 0xb2, 0x53, 0xa9, 0x0a, 0xd4,
+		0x45, 0x8f, 0xba, 0x44, 0x76, 0xe3, 0x87, 0x04, 0xea, 0x92, 0x47, 0x3d, 0x47, 0xf6, 0xe0, 0x93,
+		0x02, 0xf5, 0x9c, 0x47, 0x3d, 0x4f, 0xb6, 0xdf, 0x47, 0x05, 0xea, 0x79, 0x8f, 0x7a, 0x81, 0x6c,
+		0xbb, 0xeb, 0x02, 0xf5, 0x82, 0x47, 0xbd, 0x48, 0xee, 0x92, 0x1c, 0x11, 0xa8, 0x17, 0xf5, 0x49,
+		0x38, 0x42, 0x67, 0x3e, 0x4f, 0xce, 0x68, 0x47, 0x18, 0x99, 0x0f, 0xfa, 0xf4, 0x33, 0xe4, 0xde,
+		0x48, 0x9f, 0x48, 0x3f, 0xe3, 0xd3, 0x17, 0xc8, 0x0d, 0x6a, 0x4d, 0xa4, 0x2f, 0xf8, 0xf4, 0xb3,
+		0xe9, 0x21, 0x72, 0x77, 0x46, 0xa0, 0x9f, 0xf5, 0xe9, 0x8b, 0xe9, 0x61, 0x1c, 0xb5, 0x22, 0x7d,
+		0xd1, 0xa7, 0x2f, 0xa5, 0x47, 0xa6, 0x95, 0x99, 0x41, 0x91, 0xbe, 0x94, 0x79, 0x3f, 0x71, 0xaf,
+		0xe5, 0xbb, 0x77, 0x5c, 0x74, 0xaf, 0xe7, 0xd8, 0x71, 0xd1, 0xb1, 0x9e, 0x4b, 0xc7, 0x45, 0x97,
+		0x7a, 0xce, 0x1c, 0x17, 0x9d, 0xe9, 0xb9, 0x71, 0x5c, 0x74, 0xa3, 0xe7, 0xc0, 0x71, 0xd1, 0x81,
+		0x9e, 0xeb, 0xc6, 0x45, 0xd7, 0x79, 0x4e, 0x1b, 0x17, 0x9d, 0xe6, 0xb9, 0x6b, 0x5c, 0x74, 0x97,
+		0xe7, 0xa8, 0xb4, 0xe4, 0x28, 0xdf, 0x45, 0x69, 0xc9, 0x45, 0xbe, 0x73, 0xd2, 0x92, 0x73, 0x7c,
+		0xb7, 0xa4, 0x25, 0xb7, 0xf8, 0x0e, 0x49, 0x4b, 0x0e, 0xf1, 0x5d, 0x91, 0x96, 0x5c, 0xe1, 0x3b,
+		0x81, 0xe5, 0x98, 0x81, 0x5a, 0x21, 0x39, 0xa6, 0x1e, 0x98, 0x63, 0xea, 0x81, 0x39, 0xa6, 0x1e,
+		0x98, 0x63, 0xea, 0x81, 0x39, 0xa6, 0x1e, 0x98, 0x63, 0xea, 0x81, 0x39, 0xa6, 0x1e, 0x98, 0x63,
+		0xea, 0x81, 0x39, 0xa6, 0x1e, 0x9c, 0x63, 0x6a, 0x44, 0x8e, 0xa9, 0x11, 0x39, 0xa6, 0x46, 0xe4,
+		0x98, 0x1a, 0x91, 0x63, 0x6a, 0x44, 0x8e, 0xa9, 0x5d, 0x73, 0xcc, 0x77, 0xef, 0xb8, 0xe8, 0xde,
+		0xd0, 0x1c, 0x53, 0xbb, 0xe4, 0x98, 0xda, 0x25, 0xc7, 0xd4, 0x2e, 0x39, 0xa6, 0x76, 0xc9, 0x31,
+		0xb5, 0x4b, 0x8e, 0xa9, 0x5d, 0x72, 0x4c, 0xed, 0x92, 0x63, 0x6a, 0xb7, 0x1c, 0x53, 0xbb, 0xe6,
+		0x98, 0xda, 0x35, 0xc7, 0xd4, 0xae, 0x39, 0xa6, 0x76, 0xcd, 0x31, 0xb5, 0x6b, 0x8e, 0xa9, 0xc1,
+		0x1c, 0xfb, 0x5b, 0x15, 0x74, 0x9a, 0x63, 0xeb, 0xe4, 0x96, 0x0f, 0x73, 0xc5, 0xa4, 0x94, 0x69,
+		0x7d, 0xd8, 0x75, 0x9a, 0xef, 0x92, 0x49, 0x29, 0xd7, 0x44, 0xfa, 0x82, 0x47, 0xe7, 0xd9, 0x26,
+		0xd2, 0xcf, 0x7a, 0x74, 0x9e, 0x6f, 0x22, 0x7d, 0xd1, 0xa3, 0xf3, 0x8c, 0x13, 0xe9, 0x4b, 0x1e,
+		0x9d, 0xe7, 0x9c, 0x48, 0x3f, 0xe7, 0xd1, 0x79, 0xd6, 0x89, 0xf4, 0xf3, 0x1e, 0x9d, 0xe7, 0x9d,
+		0x48, 0xbf, 0xe0, 0xd1, 0x79, 0xe6, 0x89, 0xf4, 0x8b, 0xfa, 0xb4, 0x9c, 0x7b, 0x9c, 0xc1, 0x73,
+		0xed, 0xb4, 0x9c, 0x7d, 0x12, 0xc7, 0x19, 0x9f, 0x83, 0xe7, 0x9f, 0xc4, 0xb1, 0xe0, 0x73, 0xf0,
+		0x0c, 0x94, 0x38, 0xce, 0x66, 0x3e, 0x44, 0xdc, 0x67, 0xc9, 0xee, 0x9b, 0x90, 0xdc, 0x97, 0x08,
+		0xb8, 0x6e, 0x42, 0x72, 0x5d, 0x22, 0xe0, 0xb6, 0x09, 0xc9, 0x6d, 0x89, 0x80, 0xcb, 0x26, 0x24,
+		0x97, 0x25, 0x02, 0xee, 0x9a, 0x90, 0xdc, 0x95, 0x08, 0xb8, 0x6a, 0x42, 0x72, 0x55, 0x22, 0xe0,
+		0xa6, 0x09, 0xc9, 0x4d, 0x89, 0x80, 0x8b, 0x26, 0x24, 0x17, 0x25, 0x02, 0xee, 0x99, 0x90, 0xdc,
+		0x93, 0x08, 0xb8, 0xe6, 0xb8, 0xec, 0x9a, 0x44, 0xd0, 0x2d, 0xc7, 0x65, 0xb7, 0x24, 0x82, 0x2e,
+		0x39, 0x2e, 0xbb, 0x24, 0x11, 0x74, 0xc7, 0x71, 0xd9, 0x1d, 0x89, 0xa0, 0x2b, 0x7e, 0x92, 0xe0,
+		0x1d, 0xe1, 0x86, 0xdb, 0xde, 0xab, 0xba, 0xb7, 0xd5, 0x11, 0xce, 0x0b, 0xed, 0xc3, 0xc0, 0x82,
+		0x3e, 0x47, 0x1a, 0xd6, 0x60, 0xc7, 0x29, 0xad, 0x60, 0xf3, 0x42, 0x63, 0x11, 0x40, 0x58, 0xe1,
+		0x88, 0xc5, 0xdb, 0xea, 0x0d, 0xe7, 0x85, 0x36, 0x23, 0x5a, 0xbf, 0x0b, 0x6f, 0x7b, 0xc7, 0xf6,
+		0x52, 0x82, 0x77, 0x6c, 0xcc, 0xfc, 0x87, 0xed, 0xd8, 0x66, 0xa3, 0x4d, 0xee, 0x19, 0x7b, 0x36,
+		0xda, 0xd8, 0x1d, 0xab, 0x4e, 0xdc, 0x0e, 0x6e, 0x36, 0xda, 0xb4, 0x9e, 0x51, 0xdf, 0xda, 0x7e,
+		0x8b, 0x45, 0xb0, 0x81, 0x5a, 0x21, 0x11, 0x7c, 0xd8, 0x7e, 0x6b, 0x5e, 0x28, 0x25, 0x87, 0x8d,
+		0x60, 0xf5, 0xd0, 0x11, 0x7c, 0xd8, 0xce, 0x6b, 0x5e, 0x28, 0x2f, 0x87, 0x8e, 0xe0, 0xb7, 0xa1,
+		0x1f, 0x62, 0x11, 0xec, 0x9b, 0xff, 0xb0, 0xfd, 0xd0, 0x6c, 0xb4, 0xc9, 0x43, 0x23, 0x58, 0x3d,
+		0x44, 0x04, 0xc7, 0xe9, 0x8f, 0x66, 0xa3, 0x4d, 0x1b, 0x1e, 0xc1, 0xb7, 0xdd, 0xcd, 0x7c, 0x4a,
+		0x81, 0xd1, 0x72, 0xbd, 0x56, 0x6a, 0x5e, 0x47, 0xb5, 0x1a, 0xaa, 0x31, 0x3b, 0xce, 0x0b, 0x95,
+		0xa0, 0x8b, 0xab, 0x5f, 0x7e, 0x65, 0xca, 0xb7, 0xf0, 0x12, 0xa4, 0xa8, 0x4d, 0xe7, 0xe7, 0xd3,
+		0x37, 0x94, 0x88, 0x0a, 0xe7, 0xb1, 0xea, 0x27, 0x38, 0xec, 0xcc, 0x7c, 0xfa, 0x5f, 0x94, 0x40,
+		0x95, 0xf3, 0x86, 0x33, 0x1f, 0x21, 0x1a, 0x5a, 0xb7, 0xad, 0xe1, 0xe9, 0x58, 0x1a, 0x06, 0x74,
+		0xbb, 0xab, 0x43, 0xb7, 0x80, 0x56, 0x7b, 0x30, 0x52, 0xae, 0xd7, 0xca, 0xe4, 0x6f, 0x77, 0xe3,
+		0xa8, 0x44, 0x79, 0xa4, 0x7a, 0x30, 0x2f, 0x84, 0x65, 0x10, 0xe1, 0x85, 0xb4, 0x58, 0x23, 0x32,
+		0x75, 0xfc, 0x58, 0x4b, 0x78, 0xec, 0x6c, 0xb7, 0xc7, 0xfa, 0x95, 0xdd, 0x7b, 0xe0, 0x6c, 0xb7,
+		0x07, 0xfa, 0x39, 0xe4, 0x3d, 0xea, 0x19, 0xbe, 0x38, 0xd3, 0xeb, 0x36, 0xfa, 0x71, 0x48, 0x2c,
+		0xd3, 0xab, 0xc0, 0x83, 0xf9, 0x41, 0xac, 0xd4, 0xb7, 0x5f, 0x99, 0x4a, 0x6e, 0xed, 0xd5, 0x6b,
+		0x46, 0x62, 0xb9, 0xa6, 0x5f, 0x85, 0xde, 0xf7, 0xb0, 0xbf, 0x80, 0xc3, 0x0c, 0x8b, 0x8c, 0xe1,
+		0x81, 0xae, 0x7b, 0x44, 0xf8, 0xc1, 0xa7, 0xe9, 0x46, 0xe2, 0xdc, 0x56, 0xdd, 0x72, 0xcf, 0x2c,
+		0x5c, 0x30, 0xa8, 0x88, 0xcc, 0x2f, 0x02, 0xd0, 0x67, 0x16, 0x4d, 0x67, 0x57, 0x2f, 0x73, 0xc9,
+		0xf4, 0xd1, 0x17, 0xbe, 0xfd, 0xca, 0xd4, 0x62, 0x1c, 0xa9, 0x0f, 0xd6, 0x4c, 0x67, 0xf7, 0x41,
+		0x77, 0xbf, 0x85, 0xe6, 0xf2, 0xfb, 0x2e, 0x72, 0xb8, 0xf4, 0x16, 0x5f, 0xf5, 0xd8, 0xbc, 0xd2,
+		0x81, 0x79, 0xa5, 0x84, 0x39, 0x5d, 0x16, 0xe7, 0x34, 0xff, 0x66, 0xe7, 0xf3, 0x0c, 0x5f, 0x24,
+		0x24, 0x4b, 0xaa, 0x51, 0x96, 0x54, 0x6f, 0xd7, 0x92, 0x2d, 0x5e, 0x1f, 0xa5, 0xb9, 0xaa, 0x07,
+		0xcd, 0x55, 0xbd, 0x9d, 0xb9, 0xfe, 0x88, 0x66, 0xab, 0x97, 0x4f, 0x5b, 0x16, 0xbd, 0x86, 0xf8,
+		0xf3, 0xb5, 0x17, 0xf4, 0x96, 0x76, 0x01, 0xd9, 0xe4, 0x8d, 0x17, 0xa6, 0x94, 0xcc, 0xa7, 0x12,
+		0x7c, 0xe6, 0x34, 0x91, 0xde, 0xdc, 0xcc, 0x7f, 0x5e, 0x7a, 0xaa, 0xb7, 0xc3, 0x42, 0xcf, 0x2b,
+		0x30, 0xde, 0x51, 0xc9, 0xa9, 0x99, 0xde, 0xda, 0x72, 0x6e, 0x1d, 0xb6, 0x9c, 0x33, 0x05, 0xbf,
+		0xa2, 0xc0, 0x51, 0xa9, 0xbc, 0x52, 0xf5, 0x4e, 0x4b, 0xea, 0x1d, 0xeb, 0x7c, 0x12, 0x61, 0x0c,
+		0x68, 0x17, 0x74, 0xaf, 0x04, 0x08, 0x48, 0xf6, 0xfc, 0xbe, 0x28, 0xf9, 0xfd, 0xb8, 0x07, 0x08,
+		0x31, 0x17, 0x8f, 0x00, 0xa6, 0xb6, 0x0d, 0xc9, 0xcd, 0x36, 0x42, 0xfa, 0x24, 0x24, 0xd6, 0xda,
+		0x4c, 0xc3, 0x61, 0x8a, 0x5f, 0x6b, 0xe7, 0xdb, 0xa6, 0x55, 0xdd, 0x35, 0x12, 0x6b, 0x6d, 0xfd,
+		0x04, 0xa8, 0x39, 0xf6, 0x1b, 0x03, 0x03, 0x0b, 0x23, 0x94, 0x21, 0x67, 0xd5, 0x18, 0x07, 0xa6,
+		0xe9, 0x93, 0x90, 0x5c, 0x41, 0xe6, 0x36, 0x53, 0x02, 0x28, 0x0f, 0x1e, 0x31, 0xc8, 0x38, 0x7b,
+		0xe0, 0xe3, 0x90, 0xe2, 0x82, 0xf5, 0x93, 0x18, 0xb1, 0xed, 0xb2, 0xc7, 0x32, 0x04, 0x56, 0x87,
+		0xad, 0x5c, 0x84, 0xaa, 0x9f, 0x82, 0x5e, 0xa3, 0xbe, 0xb3, 0xeb, 0xb2, 0x87, 0x77, 0xb2, 0x51,
+		0x72, 0xe6, 0x1a, 0xf4, 0x7b, 0x1a, 0xbd, 0xc5, 0xa2, 0x8b, 0x74, 0x6a, 0xfa, 0x44, 0x70, 0x3d,
+		0xe1, 0xfb, 0x96, 0x74, 0x48, 0x9f, 0x86, 0xd4, 0x86, 0xdb, 0xf6, 0x8b, 0x3e, 0xef, 0x48, 0xbd,
+		0xd1, 0xcc, 0xfb, 0x15, 0x48, 0x15, 0x11, 0x6a, 0x11, 0x83, 0xdf, 0x0b, 0xc9, 0xa2, 0xfd, 0xb4,
+		0xc5, 0x14, 0x1c, 0x65, 0x16, 0xc5, 0x64, 0x66, 0x53, 0x42, 0xd6, 0xef, 0x0d, 0xda, 0x7d, 0xcc,
+		0xb3, 0x7b, 0x80, 0x8f, 0xd8, 0x3e, 0x23, 0xd8, 0x9e, 0x39, 0x10, 0x33, 0x75, 0xd8, 0xff, 0x3c,
+		0x0c, 0x04, 0x9e, 0xa2, 0xcf, 0x30, 0x35, 0x12, 0x32, 0x30, 0x68, 0x2b, 0xcc, 0x91, 0x41, 0x30,
+		0x24, 0x3c, 0x18, 0x43, 0x03, 0x26, 0xee, 0x02, 0x25, 0x66, 0x9e, 0x15, 0xcd, 0x1c, 0xce, 0xca,
+		0x4c, 0x3d, 0x4f, 0x6d, 0x44, 0xcc, 0x7d, 0x92, 0x06, 0x67, 0x77, 0x27, 0xe2, 0xcf, 0x99, 0x5e,
+		0x50, 0xcb, 0xf5, 0x46, 0xe6, 0x21, 0x00, 0x9a, 0xf2, 0x25, 0x6b, 0xaf, 0x29, 0x65, 0xdd, 0x30,
+		0x37, 0xf0, 0xe6, 0x2e, 0xda, 0x44, 0x0e, 0x61, 0x11, 0xfb, 0x29, 0x5c, 0x60, 0x80, 0xa6, 0x18,
+		0xc1, 0xdf, 0x1f, 0x89, 0x0f, 0xed, 0xc4, 0x30, 0x6b, 0x9a, 0xb2, 0x5e, 0x43, 0x6e, 0xce, 0xb2,
+		0xdd, 0x5d, 0xd4, 0x96, 0x10, 0x0b, 0xfa, 0x59, 0x21, 0x61, 0x87, 0x17, 0xee, 0xf2, 0x10, 0x5d,
+		0x41, 0x67, 0x33, 0x5f, 0x22, 0x0a, 0xe2, 0x56, 0xa0, 0x63, 0x82, 0x6a, 0x8c, 0x09, 0xea, 0xe7,
+		0x84, 0xfe, 0xed, 0x00, 0x35, 0xa5, 0x57, 0xcb, 0x8b, 0xc2, 0x7b, 0xce, 0xc1, 0xca, 0x8a, 0xef,
+		0x98, 0xdc, 0xa6, 0x5c, 0xe5, 0xfb, 0x23, 0x55, 0xee, 0xd2, 0xdd, 0x1e, 0xd6, 0xa6, 0x6a, 0x5c,
+		0x9b, 0x7e, 0xdd, 0xeb, 0x38, 0xe8, 0xaf, 0x35, 0x90, 0x1f, 0x07, 0xd1, 0x1f, 0x88, 0xf4, 0x7d,
+		0x56, 0x29, 0x78, 0xaa, 0x2e, 0xc6, 0x75, 0x7f, 0x36, 0x91, 0xcf, 0x7b, 0xea, 0x9e, 0x3f, 0x44,
+		0x08, 0x64, 0x13, 0x85, 0x82, 0x57, 0xb6, 0x53, 0x1f, 0x7a, 0x61, 0x4a, 0x79, 0xf1, 0x85, 0xa9,
+		0x9e, 0xcc, 0xe7, 0x15, 0x18, 0x65, 0x9c, 0x81, 0xc0, 0x7d, 0x50, 0x52, 0xfe, 0x0e, 0x5e, 0x33,
+		0xc2, 0x2c, 0xf0, 0x53, 0x0b, 0xde, 0x6f, 0x2a, 0x90, 0xee, 0xd0, 0x95, 0xdb, 0x7b, 0x3e, 0x96,
+		0xca, 0x59, 0xa5, 0xf4, 0xb3, 0xb7, 0xf9, 0x35, 0xe8, 0xdd, 0xac, 0x37, 0x51, 0x1b, 0xaf, 0x04,
+		0xf8, 0x03, 0x55, 0x99, 0x1f, 0xe6, 0xd0, 0x21, 0x4e, 0xa3, 0xca, 0x09, 0xb4, 0x05, 0x3d, 0x0d,
+		0xc9, 0xa2, 0xe9, 0x9a, 0x44, 0x83, 0x41, 0xaf, 0xbe, 0x9a, 0xae, 0x99, 0x39, 0x0b, 0x83, 0xab,
+		0xfb, 0xe4, 0xae, 0x4c, 0x8d, 0xdc, 0x03, 0x11, 0xbb, 0x3f, 0xde, 0xaf, 0x9e, 0x99, 0xed, 0x4d,
+		0xd5, 0xb4, 0x1b, 0x4a, 0x36, 0x49, 0xf4, 0x79, 0x0a, 0x86, 0xd7, 0xb0, 0xda, 0x04, 0x27, 0xc0,
+		0xe8, 0xd3, 0x55, 0x6f, 0xf2, 0x52, 0x53, 0xa6, 0xfa, 0x4d, 0xd9, 0x34, 0x28, 0xab, 0x62, 0xeb,
+		0x14, 0xd4, 0xc3, 0x50, 0x56, 0x67, 0x93, 0xa9, 0x61, 0x6d, 0x74, 0x36, 0x99, 0x02, 0x6d, 0x88,
+		0x3d, 0xf7, 0x1f, 0x55, 0xd0, 0x68, 0xab, 0x53, 0x44, 0xdb, 0x75, 0xab, 0xee, 0x76, 0xf6, 0xab,
+		0x9e, 0xc6, 0xfa, 0x23, 0xd0, 0x8f, 0x4d, 0x7a, 0x99, 0xfd, 0xc6, 0x16, 0x36, 0xfd, 0x09, 0xd6,
+		0xa2, 0x48, 0x22, 0xd8, 0x00, 0x09, 0x1d, 0x1f, 0xa3, 0x5f, 0x06, 0xb5, 0x5c, 0x5e, 0x65, 0x8b,
+		0xdb, 0xe2, 0x81, 0x50, 0x76, 0xd5, 0x86, 0x7d, 0x63, 0x63, 0xce, 0x8e, 0x81, 0x05, 0xe8, 0x8b,
+		0x90, 0x28, 0xaf, 0xb2, 0x86, 0xf7, 0x64, 0x1c, 0x31, 0x46, 0xa2, 0xbc, 0x3a, 0xf1, 0x77, 0x0a,
+		0x0c, 0x09, 0xa3, 0x7a, 0x06, 0x06, 0xe9, 0x40, 0x60, 0xba, 0x7d, 0x86, 0x30, 0xc6, 0x75, 0x4e,
+		0xdc, 0xa6, 0xce, 0x13, 0x39, 0x18, 0x91, 0xc6, 0xf5, 0x39, 0xd0, 0x83, 0x43, 0x4c, 0x09, 0xfa,
+		0xfb, 0x44, 0x21, 0x94, 0xcc, 0xdd, 0x00, 0xbe, 0x5d, 0xbd, 0x9f, 0xd5, 0x29, 0x97, 0x36, 0x36,
+		0x4b, 0x45, 0x4d, 0xc9, 0x7c, 0x55, 0x81, 0x01, 0xd6, 0xb6, 0x56, 0xed, 0x16, 0xd2, 0xf3, 0xa0,
+		0xe4, 0x58, 0x3c, 0xbc, 0x39, 0xbd, 0x95, 0x9c, 0x7e, 0x1a, 0x94, 0x7c, 0x7c, 0x57, 0x2b, 0x79,
+		0x7d, 0x01, 0x94, 0x02, 0x73, 0x70, 0x3c, 0xcf, 0x28, 0x85, 0xcc, 0x0f, 0x54, 0x18, 0x0b, 0xb6,
+		0xd1, 0xbc, 0x9e, 0x9c, 0x10, 0xdf, 0x9b, 0xb2, 0xfd, 0x67, 0x16, 0xce, 0x2e, 0xce, 0xe1, 0x7f,
+		0xbc, 0x90, 0x3c, 0x21, 0xbe, 0x42, 0x75, 0xb2, 0x74, 0x5c, 0x13, 0xc9, 0x26, 0x03, 0xd4, 0x8e,
+		0x6b, 0x22, 0x02, 0xb5, 0xe3, 0x9a, 0x88, 0x40, 0xed, 0xb8, 0x26, 0x22, 0x50, 0x3b, 0x8e, 0x02,
+		0x04, 0x6a, 0xc7, 0x35, 0x11, 0x81, 0xda, 0x71, 0x4d, 0x44, 0xa0, 0x76, 0x5e, 0x13, 0x61, 0xe4,
+		0xae, 0xd7, 0x44, 0x44, 0x7a, 0xe7, 0x35, 0x11, 0x91, 0xde, 0x79, 0x4d, 0x24, 0x9b, 0x74, 0xdb,
+		0x7b, 0xa8, 0xfb, 0xa1, 0x83, 0x88, 0x3f, 0xe8, 0x1d, 0xd0, 0x2f, 0xc0, 0x6b, 0x30, 0x42, 0xf7,
+		0x23, 0x0a, 0xb6, 0xe5, 0x9a, 0x75, 0x0b, 0xb5, 0xf5, 0x77, 0xc2, 0x20, 0x1d, 0xa2, 0x6f, 0x39,
+		0x61, 0x6f, 0x81, 0x94, 0xce, 0xca, 0xad, 0xc0, 0x9d, 0xf9, 0x49, 0x12, 0xc6, 0xe9, 0x40, 0xd9,
+		0x6c, 0x22, 0xe1, 0x92, 0xd1, 0x29, 0xe9, 0x48, 0x69, 0x18, 0xc3, 0x6f, 0xbd, 0x32, 0x45, 0x47,
+		0x73, 0x5e, 0x30, 0x9d, 0x92, 0x0e, 0x97, 0x44, 0x3e, 0x7f, 0xfd, 0x39, 0x25, 0x5d, 0x3c, 0x12,
+		0xf9, 0xbc, 0xe5, 0xc6, 0xe3, 0xe3, 0x57, 0x90, 0x44, 0xbe, 0xa2, 0x17, 0x65, 0xa7, 0xa4, 0xcb,
+		0x48, 0x22, 0x5f, 0xc9, 0x8b, 0xb7, 0x53, 0xd2, 0xd1, 0x93, 0xc8, 0x77, 0xd9, 0x8b, 0xbc, 0x53,
+		0xd2, 0x21, 0x94, 0xc8, 0x77, 0xc5, 0x8b, 0xc1, 0x53, 0xd2, 0x55, 0x25, 0x91, 0xef, 0x51, 0x2f,
+		0x1a, 0x4f, 0x49, 0x97, 0x96, 0x44, 0xbe, 0x65, 0x2f, 0x2e, 0x67, 0xe4, 0xeb, 0x4b, 0x22, 0xe3,
+		0x55, 0x3f, 0x42, 0x67, 0xe4, 0x8b, 0x4c, 0x22, 0xe7, 0xbb, 0xfc, 0x58, 0x9d, 0x91, 0xaf, 0x34,
+		0x89, 0x9c, 0x2b, 0x7e, 0xd4, 0xce, 0xc8, 0x47, 0x65, 0x22, 0xe7, 0xaa, 0x1f, 0xbf, 0x33, 0xf2,
+		0xa1, 0x99, 0xc8, 0x59, 0xf6, 0x23, 0x79, 0x46, 0x3e, 0x3e, 0x13, 0x39, 0xd7, 0xfc, 0x3d, 0xf4,
+		0x6f, 0x48, 0xe1, 0x17, 0xb8, 0x04, 0x95, 0x91, 0xc2, 0x0f, 0x42, 0x42, 0x2f, 0x23, 0x85, 0x1e,
+		0x84, 0x84, 0x5d, 0x46, 0x0a, 0x3b, 0x08, 0x09, 0xb9, 0x8c, 0x14, 0x72, 0x10, 0x12, 0x6e, 0x19,
+		0x29, 0xdc, 0x20, 0x24, 0xd4, 0x32, 0x52, 0xa8, 0x41, 0x48, 0x98, 0x65, 0xa4, 0x30, 0x83, 0x90,
+		0x10, 0xcb, 0x48, 0x21, 0x06, 0x21, 0xe1, 0x95, 0x91, 0xc2, 0x0b, 0x42, 0x42, 0xeb, 0xa4, 0x1c,
+		0x5a, 0x10, 0x16, 0x56, 0x27, 0xe5, 0xb0, 0x82, 0xb0, 0x90, 0xba, 0x47, 0x0e, 0xa9, 0xfe, 0x5b,
+		0xaf, 0x4c, 0xf5, 0xe2, 0xa1, 0x40, 0x34, 0x9d, 0x94, 0xa3, 0x09, 0xc2, 0x22, 0xe9, 0xa4, 0x1c,
+		0x49, 0x10, 0x16, 0x45, 0x27, 0xe5, 0x28, 0x82, 0xb0, 0x08, 0x7a, 0x49, 0x8e, 0x20, 0xff, 0x8a,
+		0x4f, 0x46, 0x3a, 0x51, 0x8c, 0x8a, 0x20, 0x35, 0x46, 0x04, 0xa9, 0x31, 0x22, 0x48, 0x8d, 0x11,
+		0x41, 0x6a, 0x8c, 0x08, 0x52, 0x63, 0x44, 0x90, 0x1a, 0x23, 0x82, 0xd4, 0x18, 0x11, 0xa4, 0xc6,
+		0x89, 0x20, 0x35, 0x56, 0x04, 0xa9, 0xdd, 0x22, 0xe8, 0xa4, 0x7c, 0xe1, 0x01, 0xc2, 0x0a, 0xd2,
+		0x49, 0xf9, 0xe4, 0x33, 0x3a, 0x84, 0xd4, 0x58, 0x21, 0xa4, 0x76, 0x0b, 0xa1, 0x6f, 0xa8, 0x30,
+		0x26, 0x84, 0x10, 0x3b, 0x1e, 0x7a, 0xab, 0x2a, 0xd0, 0xb9, 0x18, 0xf7, 0x2b, 0xc2, 0x62, 0xea,
+		0x5c, 0x8c, 0x33, 0xea, 0x83, 0xe2, 0xac, 0xb3, 0x0a, 0x95, 0x62, 0x54, 0xa1, 0xcb, 0x5e, 0x0c,
+		0x9d, 0x8b, 0x71, 0xef, 0xa2, 0x33, 0xf6, 0x2e, 0x1c, 0x54, 0x04, 0x1e, 0x8d, 0x55, 0x04, 0x96,
+		0x63, 0x15, 0x81, 0xab, 0xbe, 0x07, 0x3f, 0x98, 0x80, 0xa3, 0xbe, 0x07, 0xe9, 0x27, 0xf2, 0x5b,
+		0x48, 0x99, 0xc0, 0x09, 0x95, 0xce, 0x4f, 0x6d, 0x02, 0x6e, 0x4c, 0x2c, 0xd7, 0xf4, 0x75, 0xf1,
+		0xac, 0x2a, 0x7b, 0xd8, 0xf3, 0x9b, 0x80, 0xc7, 0xd9, 0x5e, 0xe8, 0x49, 0x50, 0x97, 0x6b, 0x0e,
+		0xa9, 0x16, 0x61, 0x8f, 0x2d, 0x18, 0x98, 0xac, 0x1b, 0xd0, 0x47, 0xd8, 0x1d, 0xe2, 0xde, 0xdb,
+		0x79, 0x70, 0xd1, 0x60, 0x92, 0x32, 0x2f, 0x29, 0x30, 0x2d, 0x84, 0xf2, 0x5b, 0x73, 0x62, 0x70,
+		0x29, 0xd6, 0x89, 0x81, 0x90, 0x20, 0xfe, 0xe9, 0xc1, 0x7d, 0x9d, 0x07, 0xd5, 0xc1, 0x2c, 0x91,
+		0x4f, 0x12, 0x7e, 0x09, 0x86, 0xfd, 0x19, 0x90, 0x57, 0xb6, 0xa5, 0xe8, 0xcd, 0xcc, 0xb0, 0xd4,
+		0x5c, 0x92, 0x36, 0xd1, 0x0e, 0x84, 0x79, 0xd9, 0x9a, 0xc9, 0xc2, 0x48, 0x59, 0xfc, 0xa3, 0x9d,
+		0xa8, 0xbd, 0x88, 0x14, 0x6e, 0xcd, 0x6f, 0x7c, 0x7a, 0xaa, 0x27, 0xf3, 0x00, 0x0c, 0x06, 0xff,
+		0x2e, 0x47, 0x02, 0xf6, 0x73, 0x60, 0x36, 0xf9, 0x32, 0xe6, 0xfe, 0x03, 0x05, 0xee, 0x08, 0xb2,
+		0x3f, 0x56, 0x77, 0x77, 0x97, 0x2d, 0xdc, 0xd3, 0x3f, 0x04, 0x29, 0xc4, 0x1c, 0xc7, 0x7e, 0xd6,
+		0x84, 0xbd, 0x46, 0x86, 0xb2, 0xcf, 0x91, 0x7f, 0x0d, 0x0f, 0x22, 0x6d, 0x82, 0xf0, 0xc7, 0x2e,
+		0x4c, 0xdc, 0x0b, 0xbd, 0x54, 0xbe, 0xa8, 0xd7, 0x90, 0xa4, 0xd7, 0x67, 0x43, 0xf4, 0x22, 0x71,
+		0xa4, 0x5f, 0x15, 0xf4, 0x0a, 0xbc, 0xad, 0x86, 0xb2, 0xcf, 0xf1, 0xe0, 0xcb, 0xa7, 0x70, 0xff,
+		0x47, 0x22, 0x2a, 0x5a, 0xc9, 0x19, 0x48, 0x95, 0x64, 0x9e, 0x70, 0x3d, 0x8b, 0x90, 0x2c, 0xdb,
+		0x35, 0xf2, 0x83, 0x2b, 0xe4, 0x87, 0x71, 0x99, 0x91, 0xd9, 0xaf, 0xe4, 0x9e, 0x82, 0x54, 0x61,
+		0xb7, 0xde, 0xa8, 0xb5, 0x91, 0xc5, 0x8e, 0xec, 0xd9, 0x0e, 0x3a, 0xc6, 0x18, 0x1e, 0x2d, 0x53,
+		0x80, 0xd1, 0xb2, 0x6d, 0xe5, 0xf7, 0xdd, 0x60, 0xdd, 0x98, 0x93, 0x52, 0x84, 0x1d, 0xf9, 0x90,
+		0xbf, 0xf4, 0xc0, 0x0c, 0xf9, 0xde, 0x6f, 0xbf, 0x32, 0xa5, 0x6c, 0x7a, 0xdb, 0xe7, 0xab, 0x70,
+		0x8c, 0xa5, 0x4f, 0x87, 0xa8, 0x85, 0x28, 0x51, 0xfd, 0xec, 0x98, 0x3a, 0x20, 0x6e, 0x19, 0x8b,
+		0xb3, 0x42, 0xc5, 0xbd, 0x39, 0xcd, 0x70, 0x53, 0x74, 0xa0, 0x66, 0xea, 0xa1, 0x34, 0x0b, 0x15,
+		0x37, 0x17, 0x25, 0x4e, 0xd2, 0xec, 0x1e, 0xe8, 0xf7, 0x68, 0x81, 0x68, 0x08, 0x66, 0xca, 0xc2,
+		0x6c, 0x06, 0x06, 0x02, 0x09, 0xab, 0xf7, 0x82, 0x92, 0xd3, 0x7a, 0xf0, 0x7f, 0x79, 0x4d, 0xc1,
+		0xff, 0x15, 0xb4, 0xc4, 0xec, 0xbd, 0x30, 0x22, 0x6d, 0x5f, 0x62, 0x4a, 0x51, 0x03, 0xfc, 0x5f,
+		0x49, 0x1b, 0x98, 0x48, 0x7e, 0xe8, 0x8f, 0x27, 0x7b, 0x66, 0x2f, 0x81, 0xde, 0xb9, 0xd1, 0xa9,
+		0xf7, 0x41, 0x22, 0x87, 0x45, 0x1e, 0x83, 0x44, 0x3e, 0xaf, 0x29, 0x13, 0x23, 0xbf, 0xfe, 0xc9,
+		0xe9, 0x81, 0x3c, 0xf9, 0xa3, 0xe3, 0x6b, 0xc8, 0xcd, 0xe7, 0x19, 0xf8, 0x61, 0xb8, 0x23, 0x74,
+		0xa3, 0x14, 0xe3, 0x0b, 0x05, 0x8a, 0x2f, 0x16, 0x3b, 0xf0, 0xc5, 0x22, 0xc1, 0x2b, 0x59, 0x7e,
+		0xe0, 0x9c, 0xd3, 0x43, 0x36, 0x19, 0xd3, 0xb5, 0xc0, 0x01, 0x77, 0x2e, 0xfb, 0x30, 0xe3, 0xcd,
+		0x87, 0xf2, 0xa2, 0x88, 0x03, 0xeb, 0x7c, 0xb6, 0xc0, 0xf0, 0x85, 0x50, 0xfc, 0xb6, 0x74, 0xaa,
+		0x2a, 0xae, 0x10, 0x4c, 0x48, 0xc1, 0x53, 0xb8, 0x18, 0x2a, 0x64, 0x37, 0x70, 0xd7, 0xbd, 0xe8,
+		0x29, 0x5c, 0x0a, 0xe5, 0xad, 0x47, 0xdc, 0xf9, 0x2a, 0x65, 0x4f, 0xb3, 0x45, 0x3e, 0x77, 0x46,
+		0xbf, 0x83, 0xe7, 0xa8, 0x50, 0x81, 0x99, 0x81, 0x38, 0x57, 0xb6, 0xc0, 0x00, 0xf9, 0xae, 0x80,
+		0xee, 0x56, 0xe2, 0xc8, 0xec, 0xa3, 0x4c, 0x48, 0xa1, 0xab, 0x90, 0x08, 0x53, 0x71, 0x78, 0x7e,
+		0xf3, 0xc6, 0xcd, 0xc9, 0x9e, 0x97, 0x6f, 0x4e, 0xf6, 0xfc, 0xeb, 0xcd, 0xc9, 0x9e, 0xef, 0xdc,
+		0x9c, 0x54, 0xbe, 0x77, 0x73, 0x52, 0xf9, 0xfe, 0xcd, 0x49, 0xe5, 0xc7, 0x37, 0x27, 0x95, 0xe7,
+		0x6e, 0x4d, 0x2a, 0x2f, 0xde, 0x9a, 0x54, 0xbe, 0x74, 0x6b, 0x52, 0xf9, 0xda, 0xad, 0x49, 0xe5,
+		0xa5, 0x5b, 0x93, 0xca, 0x8d, 0x5b, 0x93, 0x3d, 0x2f, 0xdf, 0x9a, 0x54, 0xbe, 0x73, 0x6b, 0x52,
+		0xf9, 0xde, 0xad, 0xc9, 0x9e, 0xef, 0xdf, 0x9a, 0x54, 0x7e, 0x7c, 0x6b, 0xb2, 0xe7, 0xb9, 0x57,
+		0x27, 0x7b, 0x5e, 0x78, 0x75, 0xb2, 0xe7, 0xc5, 0x57, 0x27, 0x95, 0xff, 0x0f, 0x00, 0x00, 0xff,
+		0xff, 0x60, 0x11, 0x0b, 0xa5, 0xac, 0x64, 0x00, 0x00,
+	}
+	r := bytes.NewReader(gzipped)
+	gzipr, err := compress_gzip.NewReader(r)
+	if err != nil {
+		panic(err)
+	}
+	ungzipped, err := io_ioutil.ReadAll(gzipr)
+	if err != nil {
+		panic(err)
+	}
+	if err := github_com_gogo_protobuf_proto.Unmarshal(ungzipped, d); err != nil {
+		panic(err)
+	}
+	return d
 }
 func (x TheTestEnum) String() string {
 	s, ok := TheTestEnum_name[int32(x)]
@@ -4541,6 +7401,20 @@ func (x TheTestEnum) String() string {
 }
 func (x AnotherTestEnum) String() string {
 	s, ok := AnotherTestEnum_name[int32(x)]
+	if ok {
+		return s
+	}
+	return strconv.Itoa(int(x))
+}
+func (x YetAnotherTestEnum) String() string {
+	s, ok := YetAnotherTestEnum_name[int32(x)]
+	if ok {
+		return s
+	}
+	return strconv.Itoa(int(x))
+}
+func (x YetYetAnotherTestEnum) String() string {
+	s, ok := YetYetAnotherTestEnum_name[int32(x)]
 	if ok {
 		return s
 	}
@@ -8959,6 +11833,24 @@ func (this *NinOptEnum) VerboseEqual(that interface{}) error {
 	} else if that1.Field1 != nil {
 		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
 	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", *this.Field2, *that1.Field2)
+		}
+	} else if this.Field2 != nil {
+		return fmt.Errorf("this.Field2 == nil && that.Field2 != nil")
+	} else if that1.Field2 != nil {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", this.Field2, that1.Field2)
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", *this.Field3, *that1.Field3)
+		}
+	} else if this.Field3 != nil {
+		return fmt.Errorf("this.Field3 == nil && that.Field3 != nil")
+	} else if that1.Field3 != nil {
+		return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", this.Field3, that1.Field3)
+	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
 	}
@@ -8996,6 +11888,24 @@ func (this *NinOptEnum) Equal(that interface{}) bool {
 	} else if this.Field1 != nil {
 		return false
 	} else if that1.Field1 != nil {
+		return false
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return false
+		}
+	} else if this.Field2 != nil {
+		return false
+	} else if that1.Field2 != nil {
+		return false
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return false
+		}
+	} else if this.Field3 != nil {
+		return false
+	} else if that1.Field3 != nil {
 		return false
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
@@ -9036,6 +11946,22 @@ func (this *NidRepEnum) VerboseEqual(that interface{}) error {
 			return fmt.Errorf("Field1 this[%v](%v) Not Equal that[%v](%v)", i, this.Field1[i], i, that1.Field1[i])
 		}
 	}
+	if len(this.Field2) != len(that1.Field2) {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", len(this.Field2), len(that1.Field2))
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			return fmt.Errorf("Field2 this[%v](%v) Not Equal that[%v](%v)", i, this.Field2[i], i, that1.Field2[i])
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", len(this.Field3), len(that1.Field3))
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			return fmt.Errorf("Field3 this[%v](%v) Not Equal that[%v](%v)", i, this.Field3[i], i, that1.Field3[i])
+		}
+	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
 	}
@@ -9071,6 +11997,22 @@ func (this *NidRepEnum) Equal(that interface{}) bool {
 	}
 	for i := range this.Field1 {
 		if this.Field1[i] != that1.Field1[i] {
+			return false
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		return false
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			return false
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		return false
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
 			return false
 		}
 	}
@@ -9112,6 +12054,22 @@ func (this *NinRepEnum) VerboseEqual(that interface{}) error {
 			return fmt.Errorf("Field1 this[%v](%v) Not Equal that[%v](%v)", i, this.Field1[i], i, that1.Field1[i])
 		}
 	}
+	if len(this.Field2) != len(that1.Field2) {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", len(this.Field2), len(that1.Field2))
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			return fmt.Errorf("Field2 this[%v](%v) Not Equal that[%v](%v)", i, this.Field2[i], i, that1.Field2[i])
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", len(this.Field3), len(that1.Field3))
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
+			return fmt.Errorf("Field3 this[%v](%v) Not Equal that[%v](%v)", i, this.Field3[i], i, that1.Field3[i])
+		}
+	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
 	}
@@ -9147,6 +12105,22 @@ func (this *NinRepEnum) Equal(that interface{}) bool {
 	}
 	for i := range this.Field1 {
 		if this.Field1[i] != that1.Field1[i] {
+			return false
+		}
+	}
+	if len(this.Field2) != len(that1.Field2) {
+		return false
+	}
+	for i := range this.Field2 {
+		if this.Field2[i] != that1.Field2[i] {
+			return false
+		}
+	}
+	if len(this.Field3) != len(that1.Field3) {
+		return false
+	}
+	for i := range this.Field3 {
+		if this.Field3[i] != that1.Field3[i] {
 			return false
 		}
 	}
@@ -9189,6 +12163,24 @@ func (this *NinOptEnumDefault) VerboseEqual(that interface{}) error {
 	} else if that1.Field1 != nil {
 		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
 	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", *this.Field2, *that1.Field2)
+		}
+	} else if this.Field2 != nil {
+		return fmt.Errorf("this.Field2 == nil && that.Field2 != nil")
+	} else if that1.Field2 != nil {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", this.Field2, that1.Field2)
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", *this.Field3, *that1.Field3)
+		}
+	} else if this.Field3 != nil {
+		return fmt.Errorf("this.Field3 == nil && that.Field3 != nil")
+	} else if that1.Field3 != nil {
+		return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", this.Field3, that1.Field3)
+	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
 	}
@@ -9226,6 +12218,24 @@ func (this *NinOptEnumDefault) Equal(that interface{}) bool {
 	} else if this.Field1 != nil {
 		return false
 	} else if that1.Field1 != nil {
+		return false
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return false
+		}
+	} else if this.Field2 != nil {
+		return false
+	} else if that1.Field2 != nil {
+		return false
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return false
+		}
+	} else if this.Field3 != nil {
+		return false
+	} else if that1.Field3 != nil {
 		return false
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
@@ -9267,6 +12277,24 @@ func (this *AnotherNinOptEnum) VerboseEqual(that interface{}) error {
 	} else if that1.Field1 != nil {
 		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
 	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", *this.Field2, *that1.Field2)
+		}
+	} else if this.Field2 != nil {
+		return fmt.Errorf("this.Field2 == nil && that.Field2 != nil")
+	} else if that1.Field2 != nil {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", this.Field2, that1.Field2)
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", *this.Field3, *that1.Field3)
+		}
+	} else if this.Field3 != nil {
+		return fmt.Errorf("this.Field3 == nil && that.Field3 != nil")
+	} else if that1.Field3 != nil {
+		return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", this.Field3, that1.Field3)
+	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
 	}
@@ -9304,6 +12332,24 @@ func (this *AnotherNinOptEnum) Equal(that interface{}) bool {
 	} else if this.Field1 != nil {
 		return false
 	} else if that1.Field1 != nil {
+		return false
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return false
+		}
+	} else if this.Field2 != nil {
+		return false
+	} else if that1.Field2 != nil {
+		return false
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return false
+		}
+	} else if this.Field3 != nil {
+		return false
+	} else if that1.Field3 != nil {
 		return false
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
@@ -9345,6 +12391,24 @@ func (this *AnotherNinOptEnumDefault) VerboseEqual(that interface{}) error {
 	} else if that1.Field1 != nil {
 		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
 	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", *this.Field2, *that1.Field2)
+		}
+	} else if this.Field2 != nil {
+		return fmt.Errorf("this.Field2 == nil && that.Field2 != nil")
+	} else if that1.Field2 != nil {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", this.Field2, that1.Field2)
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", *this.Field3, *that1.Field3)
+		}
+	} else if this.Field3 != nil {
+		return fmt.Errorf("this.Field3 == nil && that.Field3 != nil")
+	} else if that1.Field3 != nil {
+		return fmt.Errorf("Field3 this(%v) Not Equal that(%v)", this.Field3, that1.Field3)
+	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
 	}
@@ -9382,6 +12446,24 @@ func (this *AnotherNinOptEnumDefault) Equal(that interface{}) bool {
 	} else if this.Field1 != nil {
 		return false
 	} else if that1.Field1 != nil {
+		return false
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return false
+		}
+	} else if this.Field2 != nil {
+		return false
+	} else if that1.Field2 != nil {
+		return false
+	}
+	if this.Field3 != nil && that1.Field3 != nil {
+		if *this.Field3 != *that1.Field3 {
+			return false
+		}
+	} else if this.Field3 != nil {
+		return false
+	} else if that1.Field3 != nil {
 		return false
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
@@ -9501,18 +12583,20 @@ func (this *MyExtendable) VerboseEqual(that interface{}) error {
 	} else if that1.Field1 != nil {
 		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
 	}
-	for k, v := range this.XXX_extensions {
-		if v2, ok := that1.XXX_extensions[k]; ok {
+	thismap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(this)
+	thatmap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(that1)
+	for k, v := range thismap {
+		if v2, ok := thatmap[k]; ok {
 			if !v.Equal(&v2) {
-				return fmt.Errorf("XXX_extensions this[%v](%v) Not Equal that[%v](%v)", k, this.XXX_extensions[k], k, that1.XXX_extensions[k])
+				return fmt.Errorf("XXX_InternalExtensions this[%v](%v) Not Equal that[%v](%v)", k, thismap[k], k, thatmap[k])
 			}
 		} else {
-			return fmt.Errorf("XXX_extensions[%v] Not In that", k)
+			return fmt.Errorf("XXX_InternalExtensions[%v] Not In that", k)
 		}
 	}
-	for k := range that1.XXX_extensions {
-		if _, ok := this.XXX_extensions[k]; !ok {
-			return fmt.Errorf("XXX_extensions[%v] Not In this", k)
+	for k := range thatmap {
+		if _, ok := thismap[k]; !ok {
+			return fmt.Errorf("XXX_InternalExtensions[%v] Not In this", k)
 		}
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
@@ -9554,8 +12638,10 @@ func (this *MyExtendable) Equal(that interface{}) bool {
 	} else if that1.Field1 != nil {
 		return false
 	}
-	for k, v := range this.XXX_extensions {
-		if v2, ok := that1.XXX_extensions[k]; ok {
+	thismap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(this)
+	thatmap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(that1)
+	for k, v := range thismap {
+		if v2, ok := thatmap[k]; ok {
 			if !v.Equal(&v2) {
 				return false
 			}
@@ -9563,8 +12649,8 @@ func (this *MyExtendable) Equal(that interface{}) bool {
 			return false
 		}
 	}
-	for k := range that1.XXX_extensions {
-		if _, ok := this.XXX_extensions[k]; !ok {
+	for k := range thatmap {
+		if _, ok := thismap[k]; !ok {
 			return false
 		}
 	}
@@ -9619,18 +12705,20 @@ func (this *OtherExtenable) VerboseEqual(that interface{}) error {
 	if !this.M.Equal(that1.M) {
 		return fmt.Errorf("M this(%v) Not Equal that(%v)", this.M, that1.M)
 	}
-	for k, v := range this.XXX_extensions {
-		if v2, ok := that1.XXX_extensions[k]; ok {
+	thismap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(this)
+	thatmap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(that1)
+	for k, v := range thismap {
+		if v2, ok := thatmap[k]; ok {
 			if !v.Equal(&v2) {
-				return fmt.Errorf("XXX_extensions this[%v](%v) Not Equal that[%v](%v)", k, this.XXX_extensions[k], k, that1.XXX_extensions[k])
+				return fmt.Errorf("XXX_InternalExtensions this[%v](%v) Not Equal that[%v](%v)", k, thismap[k], k, thatmap[k])
 			}
 		} else {
-			return fmt.Errorf("XXX_extensions[%v] Not In that", k)
+			return fmt.Errorf("XXX_InternalExtensions[%v] Not In that", k)
 		}
 	}
-	for k := range that1.XXX_extensions {
-		if _, ok := this.XXX_extensions[k]; !ok {
-			return fmt.Errorf("XXX_extensions[%v] Not In this", k)
+	for k := range thatmap {
+		if _, ok := thismap[k]; !ok {
+			return fmt.Errorf("XXX_InternalExtensions[%v] Not In this", k)
 		}
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
@@ -9684,8 +12772,10 @@ func (this *OtherExtenable) Equal(that interface{}) bool {
 	if !this.M.Equal(that1.M) {
 		return false
 	}
-	for k, v := range this.XXX_extensions {
-		if v2, ok := that1.XXX_extensions[k]; ok {
+	thismap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(this)
+	thatmap := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(that1)
+	for k, v := range thismap {
+		if v2, ok := thatmap[k]; ok {
 			if !v.Equal(&v2) {
 				return false
 			}
@@ -9693,8 +12783,8 @@ func (this *OtherExtenable) Equal(that interface{}) bool {
 			return false
 		}
 	}
-	for k := range that1.XXX_extensions {
-		if _, ok := this.XXX_extensions[k]; !ok {
+	for k := range thatmap {
+		if _, ok := thismap[k]; !ok {
 			return false
 		}
 	}
@@ -12293,6 +15383,450 @@ func (this *Node) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *NonByteCustomType) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*NonByteCustomType)
+	if !ok {
+		that2, ok := that.(NonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *NonByteCustomType")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *NonByteCustomType but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *NonByteCustomType but is not nil && this == nil")
+	}
+	if that1.Field1 == nil {
+		if this.Field1 != nil {
+			return fmt.Errorf("this.Field1 != nil && that1.Field1 == nil")
+		}
+	} else if !this.Field1.Equal(*that1.Field1) {
+		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *NonByteCustomType) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*NonByteCustomType)
+	if !ok {
+		that2, ok := that.(NonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if that1.Field1 == nil {
+		if this.Field1 != nil {
+			return false
+		}
+	} else if !this.Field1.Equal(*that1.Field1) {
+		return false
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *NidOptNonByteCustomType) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*NidOptNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NidOptNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *NidOptNonByteCustomType")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *NidOptNonByteCustomType but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *NidOptNonByteCustomType but is not nil && this == nil")
+	}
+	if !this.Field1.Equal(that1.Field1) {
+		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *NidOptNonByteCustomType) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*NidOptNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NidOptNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if !this.Field1.Equal(that1.Field1) {
+		return false
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *NinOptNonByteCustomType) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*NinOptNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NinOptNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *NinOptNonByteCustomType")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *NinOptNonByteCustomType but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *NinOptNonByteCustomType but is not nil && this == nil")
+	}
+	if that1.Field1 == nil {
+		if this.Field1 != nil {
+			return fmt.Errorf("this.Field1 != nil && that1.Field1 == nil")
+		}
+	} else if !this.Field1.Equal(*that1.Field1) {
+		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", this.Field1, that1.Field1)
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *NinOptNonByteCustomType) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*NinOptNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NinOptNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if that1.Field1 == nil {
+		if this.Field1 != nil {
+			return false
+		}
+	} else if !this.Field1.Equal(*that1.Field1) {
+		return false
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *NidRepNonByteCustomType) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*NidRepNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NidRepNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *NidRepNonByteCustomType")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *NidRepNonByteCustomType but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *NidRepNonByteCustomType but is not nil && this == nil")
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", len(this.Field1), len(that1.Field1))
+	}
+	for i := range this.Field1 {
+		if !this.Field1[i].Equal(that1.Field1[i]) {
+			return fmt.Errorf("Field1 this[%v](%v) Not Equal that[%v](%v)", i, this.Field1[i], i, that1.Field1[i])
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *NidRepNonByteCustomType) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*NidRepNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NidRepNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		return false
+	}
+	for i := range this.Field1 {
+		if !this.Field1[i].Equal(that1.Field1[i]) {
+			return false
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *NinRepNonByteCustomType) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*NinRepNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NinRepNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *NinRepNonByteCustomType")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *NinRepNonByteCustomType but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *NinRepNonByteCustomType but is not nil && this == nil")
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		return fmt.Errorf("Field1 this(%v) Not Equal that(%v)", len(this.Field1), len(that1.Field1))
+	}
+	for i := range this.Field1 {
+		if !this.Field1[i].Equal(that1.Field1[i]) {
+			return fmt.Errorf("Field1 this[%v](%v) Not Equal that[%v](%v)", i, this.Field1[i], i, that1.Field1[i])
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *NinRepNonByteCustomType) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*NinRepNonByteCustomType)
+	if !ok {
+		that2, ok := that.(NinRepNonByteCustomType)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if len(this.Field1) != len(that1.Field1) {
+		return false
+	}
+	for i := range this.Field1 {
+		if !this.Field1[i].Equal(that1.Field1[i]) {
+			return false
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *ProtoType) VerboseEqual(that interface{}) error {
+	if that == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that == nil && this != nil")
+	}
+
+	that1, ok := that.(*ProtoType)
+	if !ok {
+		that2, ok := that.(ProtoType)
+		if ok {
+			that1 = &that2
+		} else {
+			return fmt.Errorf("that is not of type *ProtoType")
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return nil
+		}
+		return fmt.Errorf("that is type *ProtoType but is nil && this != nil")
+	} else if this == nil {
+		return fmt.Errorf("that is type *ProtoType but is not nil && this == nil")
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", *this.Field2, *that1.Field2)
+		}
+	} else if this.Field2 != nil {
+		return fmt.Errorf("this.Field2 == nil && that.Field2 != nil")
+	} else if that1.Field2 != nil {
+		return fmt.Errorf("Field2 this(%v) Not Equal that(%v)", this.Field2, that1.Field2)
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return fmt.Errorf("XXX_unrecognized this(%v) Not Equal that(%v)", this.XXX_unrecognized, that1.XXX_unrecognized)
+	}
+	return nil
+}
+func (this *ProtoType) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*ProtoType)
+	if !ok {
+		that2, ok := that.(ProtoType)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if this.Field2 != nil && that1.Field2 != nil {
+		if *this.Field2 != *that1.Field2 {
+			return false
+		}
+	} else if this.Field2 != nil {
+		return false
+	} else if that1.Field2 != nil {
+		return false
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
 
 type NidOptNativeFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
@@ -13974,6 +17508,8 @@ func NewNidOptEnumFromFace(that NidOptEnumFace) *NidOptEnum {
 type NinOptEnumFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetField1() *TheTestEnum
+	GetField2() *YetAnotherTestEnum
+	GetField3() *YetYetAnotherTestEnum
 }
 
 func (this *NinOptEnum) Proto() github_com_gogo_protobuf_proto.Message {
@@ -13988,15 +17524,27 @@ func (this *NinOptEnum) GetField1() *TheTestEnum {
 	return this.Field1
 }
 
+func (this *NinOptEnum) GetField2() *YetAnotherTestEnum {
+	return this.Field2
+}
+
+func (this *NinOptEnum) GetField3() *YetYetAnotherTestEnum {
+	return this.Field3
+}
+
 func NewNinOptEnumFromFace(that NinOptEnumFace) *NinOptEnum {
 	this := &NinOptEnum{}
 	this.Field1 = that.GetField1()
+	this.Field2 = that.GetField2()
+	this.Field3 = that.GetField3()
 	return this
 }
 
 type NidRepEnumFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetField1() []TheTestEnum
+	GetField2() []YetAnotherTestEnum
+	GetField3() []YetYetAnotherTestEnum
 }
 
 func (this *NidRepEnum) Proto() github_com_gogo_protobuf_proto.Message {
@@ -14011,15 +17559,27 @@ func (this *NidRepEnum) GetField1() []TheTestEnum {
 	return this.Field1
 }
 
+func (this *NidRepEnum) GetField2() []YetAnotherTestEnum {
+	return this.Field2
+}
+
+func (this *NidRepEnum) GetField3() []YetYetAnotherTestEnum {
+	return this.Field3
+}
+
 func NewNidRepEnumFromFace(that NidRepEnumFace) *NidRepEnum {
 	this := &NidRepEnum{}
 	this.Field1 = that.GetField1()
+	this.Field2 = that.GetField2()
+	this.Field3 = that.GetField3()
 	return this
 }
 
 type NinRepEnumFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetField1() []TheTestEnum
+	GetField2() []YetAnotherTestEnum
+	GetField3() []YetYetAnotherTestEnum
 }
 
 func (this *NinRepEnum) Proto() github_com_gogo_protobuf_proto.Message {
@@ -14034,15 +17594,27 @@ func (this *NinRepEnum) GetField1() []TheTestEnum {
 	return this.Field1
 }
 
+func (this *NinRepEnum) GetField2() []YetAnotherTestEnum {
+	return this.Field2
+}
+
+func (this *NinRepEnum) GetField3() []YetYetAnotherTestEnum {
+	return this.Field3
+}
+
 func NewNinRepEnumFromFace(that NinRepEnumFace) *NinRepEnum {
 	this := &NinRepEnum{}
 	this.Field1 = that.GetField1()
+	this.Field2 = that.GetField2()
+	this.Field3 = that.GetField3()
 	return this
 }
 
 type AnotherNinOptEnumFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetField1() *AnotherTestEnum
+	GetField2() *YetAnotherTestEnum
+	GetField3() *YetYetAnotherTestEnum
 }
 
 func (this *AnotherNinOptEnum) Proto() github_com_gogo_protobuf_proto.Message {
@@ -14057,9 +17629,19 @@ func (this *AnotherNinOptEnum) GetField1() *AnotherTestEnum {
 	return this.Field1
 }
 
+func (this *AnotherNinOptEnum) GetField2() *YetAnotherTestEnum {
+	return this.Field2
+}
+
+func (this *AnotherNinOptEnum) GetField3() *YetYetAnotherTestEnum {
+	return this.Field3
+}
+
 func NewAnotherNinOptEnumFromFace(that AnotherNinOptEnumFace) *AnotherNinOptEnum {
 	this := &AnotherNinOptEnum{}
 	this.Field1 = that.GetField1()
+	this.Field2 = that.GetField2()
+	this.Field3 = that.GetField3()
 	return this
 }
 
@@ -14905,6 +18487,144 @@ func NewNodeFromFace(that NodeFace) *Node {
 	this := &Node{}
 	this.Label = that.GetLabel()
 	this.Children = that.GetChildren()
+	return this
+}
+
+type NonByteCustomTypeFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetField1() *T
+}
+
+func (this *NonByteCustomType) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *NonByteCustomType) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewNonByteCustomTypeFromFace(this)
+}
+
+func (this *NonByteCustomType) GetField1() *T {
+	return this.Field1
+}
+
+func NewNonByteCustomTypeFromFace(that NonByteCustomTypeFace) *NonByteCustomType {
+	this := &NonByteCustomType{}
+	this.Field1 = that.GetField1()
+	return this
+}
+
+type NidOptNonByteCustomTypeFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetField1() T
+}
+
+func (this *NidOptNonByteCustomType) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *NidOptNonByteCustomType) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewNidOptNonByteCustomTypeFromFace(this)
+}
+
+func (this *NidOptNonByteCustomType) GetField1() T {
+	return this.Field1
+}
+
+func NewNidOptNonByteCustomTypeFromFace(that NidOptNonByteCustomTypeFace) *NidOptNonByteCustomType {
+	this := &NidOptNonByteCustomType{}
+	this.Field1 = that.GetField1()
+	return this
+}
+
+type NinOptNonByteCustomTypeFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetField1() *T
+}
+
+func (this *NinOptNonByteCustomType) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *NinOptNonByteCustomType) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewNinOptNonByteCustomTypeFromFace(this)
+}
+
+func (this *NinOptNonByteCustomType) GetField1() *T {
+	return this.Field1
+}
+
+func NewNinOptNonByteCustomTypeFromFace(that NinOptNonByteCustomTypeFace) *NinOptNonByteCustomType {
+	this := &NinOptNonByteCustomType{}
+	this.Field1 = that.GetField1()
+	return this
+}
+
+type NidRepNonByteCustomTypeFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetField1() []T
+}
+
+func (this *NidRepNonByteCustomType) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *NidRepNonByteCustomType) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewNidRepNonByteCustomTypeFromFace(this)
+}
+
+func (this *NidRepNonByteCustomType) GetField1() []T {
+	return this.Field1
+}
+
+func NewNidRepNonByteCustomTypeFromFace(that NidRepNonByteCustomTypeFace) *NidRepNonByteCustomType {
+	this := &NidRepNonByteCustomType{}
+	this.Field1 = that.GetField1()
+	return this
+}
+
+type NinRepNonByteCustomTypeFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetField1() []T
+}
+
+func (this *NinRepNonByteCustomType) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *NinRepNonByteCustomType) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewNinRepNonByteCustomTypeFromFace(this)
+}
+
+func (this *NinRepNonByteCustomType) GetField1() []T {
+	return this.Field1
+}
+
+func NewNinRepNonByteCustomTypeFromFace(that NinRepNonByteCustomTypeFace) *NinRepNonByteCustomType {
+	this := &NinRepNonByteCustomType{}
+	this.Field1 = that.GetField1()
+	return this
+}
+
+type ProtoTypeFace interface {
+	Proto() github_com_gogo_protobuf_proto.Message
+	GetField2() *string
+}
+
+func (this *ProtoType) Proto() github_com_gogo_protobuf_proto.Message {
+	return this
+}
+
+func (this *ProtoType) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewProtoTypeFromFace(this)
+}
+
+func (this *ProtoType) GetField2() *string {
+	return this.Field2
+}
+
+func NewProtoTypeFromFace(that ProtoTypeFace) *ProtoType {
+	this := &ProtoType{}
+	this.Field2 = that.GetField2()
 	return this
 }
 
@@ -15784,10 +19504,16 @@ func (this *NinOptEnum) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
+	s := make([]string, 0, 7)
 	s = append(s, "&test.NinOptEnum{")
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "test.TheTestEnum")+",\n")
+	}
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+valueToGoStringThetest(this.Field2, "test.YetAnotherTestEnum")+",\n")
+	}
+	if this.Field3 != nil {
+		s = append(s, "Field3: "+valueToGoStringThetest(this.Field3, "test.YetYetAnotherTestEnum")+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -15799,10 +19525,16 @@ func (this *NidRepEnum) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
+	s := make([]string, 0, 7)
 	s = append(s, "&test.NidRepEnum{")
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+fmt.Sprintf("%#v", this.Field1)+",\n")
+	}
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+fmt.Sprintf("%#v", this.Field2)+",\n")
+	}
+	if this.Field3 != nil {
+		s = append(s, "Field3: "+fmt.Sprintf("%#v", this.Field3)+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -15814,10 +19546,16 @@ func (this *NinRepEnum) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
+	s := make([]string, 0, 7)
 	s = append(s, "&test.NinRepEnum{")
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+fmt.Sprintf("%#v", this.Field1)+",\n")
+	}
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+fmt.Sprintf("%#v", this.Field2)+",\n")
+	}
+	if this.Field3 != nil {
+		s = append(s, "Field3: "+fmt.Sprintf("%#v", this.Field3)+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -15829,10 +19567,16 @@ func (this *NinOptEnumDefault) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
+	s := make([]string, 0, 7)
 	s = append(s, "&test.NinOptEnumDefault{")
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "test.TheTestEnum")+",\n")
+	}
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+valueToGoStringThetest(this.Field2, "test.YetAnotherTestEnum")+",\n")
+	}
+	if this.Field3 != nil {
+		s = append(s, "Field3: "+valueToGoStringThetest(this.Field3, "test.YetYetAnotherTestEnum")+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -15844,10 +19588,16 @@ func (this *AnotherNinOptEnum) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
+	s := make([]string, 0, 7)
 	s = append(s, "&test.AnotherNinOptEnum{")
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "test.AnotherTestEnum")+",\n")
+	}
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+valueToGoStringThetest(this.Field2, "test.YetAnotherTestEnum")+",\n")
+	}
+	if this.Field3 != nil {
+		s = append(s, "Field3: "+valueToGoStringThetest(this.Field3, "test.YetYetAnotherTestEnum")+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -15859,10 +19609,16 @@ func (this *AnotherNinOptEnumDefault) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
+	s := make([]string, 0, 7)
 	s = append(s, "&test.AnotherNinOptEnumDefault{")
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "test.AnotherTestEnum")+",\n")
+	}
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+valueToGoStringThetest(this.Field2, "test.YetAnotherTestEnum")+",\n")
+	}
+	if this.Field3 != nil {
+		s = append(s, "Field3: "+valueToGoStringThetest(this.Field3, "test.YetYetAnotherTestEnum")+",\n")
 	}
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
@@ -15894,9 +19650,7 @@ func (this *MyExtendable) GoString() string {
 	if this.Field1 != nil {
 		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "int64")+",\n")
 	}
-	if this.XXX_extensions != nil {
-		s = append(s, "XXX_extensions: "+extensionToGoStringThetest(this.XXX_extensions)+",\n")
-	}
+	s = append(s, "XXX_InternalExtensions: "+extensionToGoStringThetest(this)+",\n")
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
 	}
@@ -15918,9 +19672,7 @@ func (this *OtherExtenable) GoString() string {
 	if this.M != nil {
 		s = append(s, "M: "+fmt.Sprintf("%#v", this.M)+",\n")
 	}
-	if this.XXX_extensions != nil {
-		s = append(s, "XXX_extensions: "+extensionToGoStringThetest(this.XXX_extensions)+",\n")
-	}
+	s = append(s, "XXX_InternalExtensions: "+extensionToGoStringThetest(this)+",\n")
 	if this.XXX_unrecognized != nil {
 		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
 	}
@@ -16427,6 +20179,94 @@ func (this *Node) GoString() string {
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
+func (this *NonByteCustomType) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&test.NonByteCustomType{")
+	if this.Field1 != nil {
+		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "T")+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *NidOptNonByteCustomType) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&test.NidOptNonByteCustomType{")
+	s = append(s, "Field1: "+fmt.Sprintf("%#v", this.Field1)+",\n")
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *NinOptNonByteCustomType) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&test.NinOptNonByteCustomType{")
+	if this.Field1 != nil {
+		s = append(s, "Field1: "+valueToGoStringThetest(this.Field1, "T")+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *NidRepNonByteCustomType) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&test.NidRepNonByteCustomType{")
+	if this.Field1 != nil {
+		s = append(s, "Field1: "+fmt.Sprintf("%#v", this.Field1)+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *NinRepNonByteCustomType) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&test.NinRepNonByteCustomType{")
+	if this.Field1 != nil {
+		s = append(s, "Field1: "+fmt.Sprintf("%#v", this.Field1)+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *ProtoType) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&test.ProtoType{")
+	if this.Field2 != nil {
+		s = append(s, "Field2: "+valueToGoStringThetest(this.Field2, "string")+",\n")
+	}
+	if this.XXX_unrecognized != nil {
+		s = append(s, "XXX_unrecognized:"+fmt.Sprintf("%#v", this.XXX_unrecognized)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
 func valueToGoStringThetest(v interface{}, typ string) string {
 	rv := reflect.ValueOf(v)
 	if rv.IsNil() {
@@ -16435,11 +20275,12 @@ func valueToGoStringThetest(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
-func extensionToGoStringThetest(e map[int32]github_com_gogo_protobuf_proto.Extension) string {
+func extensionToGoStringThetest(m github_com_gogo_protobuf_proto.Message) string {
+	e := github_com_gogo_protobuf_proto.GetUnsafeExtensionsMap(m)
 	if e == nil {
 		return "nil"
 	}
-	s := "map[int32]proto.Extension{"
+	s := "proto.NewUnsafeXXX_InternalExtensions(map[int32]proto.Extension{"
 	keys := make([]int, 0, len(e))
 	for k := range e {
 		keys = append(keys, int(k))
@@ -16449,7 +20290,7 @@ func extensionToGoStringThetest(e map[int32]github_com_gogo_protobuf_proto.Exten
 	for _, k := range keys {
 		ss = append(ss, strconv.Itoa(k)+": "+e[int32(k)].GoString())
 	}
-	s += strings.Join(ss, ",") + "}"
+	s += strings.Join(ss, ",") + "})"
 	return s
 }
 func NewPopulatedNidOptNative(r randyThetest, easy bool) *NidOptNative {
@@ -16491,7 +20332,7 @@ func NewPopulatedNidOptNative(r randyThetest, easy bool) *NidOptNative {
 		this.Field12 *= -1
 	}
 	this.Field13 = bool(bool(r.Intn(2) == 0))
-	this.Field14 = randStringThetest(r)
+	this.Field14 = string(randStringThetest(r))
 	v1 := r.Intn(100)
 	this.Field15 = make([]byte, v1)
 	for i := 0; i < v1; i++ {
@@ -16582,7 +20423,7 @@ func NewPopulatedNinOptNative(r randyThetest, easy bool) *NinOptNative {
 		this.Field13 = &v14
 	}
 	if r.Intn(10) != 0 {
-		v15 := randStringThetest(r)
+		v15 := string(randStringThetest(r))
 		this.Field14 = &v15
 	}
 	if r.Intn(10) != 0 {
@@ -16719,7 +20560,7 @@ func NewPopulatedNidRepNative(r randyThetest, easy bool) *NidRepNative {
 		v30 := r.Intn(10)
 		this.Field14 = make([]string, v30)
 		for i := 0; i < v30; i++ {
-			this.Field14[i] = randStringThetest(r)
+			this.Field14[i] = string(randStringThetest(r))
 		}
 	}
 	if r.Intn(10) != 0 {
@@ -16860,7 +20701,7 @@ func NewPopulatedNinRepNative(r randyThetest, easy bool) *NinRepNative {
 		v46 := r.Intn(10)
 		this.Field14 = make([]string, v46)
 		for i := 0; i < v46; i++ {
-			this.Field14[i] = randStringThetest(r)
+			this.Field14[i] = string(randStringThetest(r))
 		}
 	}
 	if r.Intn(10) != 0 {
@@ -17148,7 +20989,7 @@ func NewPopulatedNidOptStruct(r randyThetest, easy bool) *NidOptStruct {
 	v77 := NewPopulatedNidOptNative(r, easy)
 	this.Field8 = *v77
 	this.Field13 = bool(bool(r.Intn(2) == 0))
-	this.Field14 = randStringThetest(r)
+	this.Field14 = string(randStringThetest(r))
 	v78 := r.Intn(100)
 	this.Field15 = make([]byte, v78)
 	for i := 0; i < v78; i++ {
@@ -17201,7 +21042,7 @@ func NewPopulatedNinOptStruct(r randyThetest, easy bool) *NinOptStruct {
 		this.Field13 = &v83
 	}
 	if r.Intn(10) != 0 {
-		v84 := randStringThetest(r)
+		v84 := string(randStringThetest(r))
 		this.Field14 = &v84
 	}
 	if r.Intn(10) != 0 {
@@ -17291,7 +21132,7 @@ func NewPopulatedNidRepStruct(r randyThetest, easy bool) *NidRepStruct {
 		v97 := r.Intn(10)
 		this.Field14 = make([]string, v97)
 		for i := 0; i < v97; i++ {
-			this.Field14[i] = randStringThetest(r)
+			this.Field14[i] = string(randStringThetest(r))
 		}
 	}
 	if r.Intn(10) != 0 {
@@ -17382,7 +21223,7 @@ func NewPopulatedNinRepStruct(r randyThetest, easy bool) *NinRepStruct {
 		v108 := r.Intn(10)
 		this.Field14 = make([]string, v108)
 		for i := 0; i < v108; i++ {
-			this.Field14[i] = randStringThetest(r)
+			this.Field14[i] = string(randStringThetest(r))
 		}
 	}
 	if r.Intn(10) != 0 {
@@ -17593,7 +21434,7 @@ func NewPopulatedNinOptNativeUnion(r randyThetest, easy bool) *NinOptNativeUnion
 		v133 := bool(bool(r.Intn(2) == 0))
 		this.Field13 = &v133
 	case 7:
-		v134 := randStringThetest(r)
+		v134 := string(randStringThetest(r))
 		this.Field14 = &v134
 	case 8:
 		v135 := r.Intn(100)
@@ -17638,7 +21479,7 @@ func NewPopulatedNinOptStructUnion(r randyThetest, easy bool) *NinOptStructUnion
 		v140 := bool(bool(r.Intn(2) == 0))
 		this.Field13 = &v140
 	case 7:
-		v141 := randStringThetest(r)
+		v141 := string(randStringThetest(r))
 		this.Field14 = &v141
 	case 8:
 		v142 := r.Intn(100)
@@ -17723,7 +21564,7 @@ func NewPopulatedLeaf(r randyThetest, easy bool) *Leaf {
 	if r.Intn(2) == 0 {
 		this.Value *= -1
 	}
-	this.StrValue = randStringThetest(r)
+	this.StrValue = string(randStringThetest(r))
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedThetest(r, 3)
 	}
@@ -17799,8 +21640,16 @@ func NewPopulatedNinOptEnum(r randyThetest, easy bool) *NinOptEnum {
 		v152 := TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
 		this.Field1 = &v152
 	}
+	if r.Intn(10) != 0 {
+		v153 := YetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field2 = &v153
+	}
+	if r.Intn(10) != 0 {
+		v154 := YetYetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field3 = &v154
+	}
 	if !easy && r.Intn(10) != 0 {
-		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 4)
 	}
 	return this
 }
@@ -17808,14 +21657,28 @@ func NewPopulatedNinOptEnum(r randyThetest, easy bool) *NinOptEnum {
 func NewPopulatedNidRepEnum(r randyThetest, easy bool) *NidRepEnum {
 	this := &NidRepEnum{}
 	if r.Intn(10) != 0 {
-		v153 := r.Intn(10)
-		this.Field1 = make([]TheTestEnum, v153)
-		for i := 0; i < v153; i++ {
+		v155 := r.Intn(10)
+		this.Field1 = make([]TheTestEnum, v155)
+		for i := 0; i < v155; i++ {
 			this.Field1[i] = TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
 		}
 	}
+	if r.Intn(10) != 0 {
+		v156 := r.Intn(10)
+		this.Field2 = make([]YetAnotherTestEnum, v156)
+		for i := 0; i < v156; i++ {
+			this.Field2[i] = YetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		}
+	}
+	if r.Intn(10) != 0 {
+		v157 := r.Intn(10)
+		this.Field3 = make([]YetYetAnotherTestEnum, v157)
+		for i := 0; i < v157; i++ {
+			this.Field3[i] = YetYetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		}
+	}
 	if !easy && r.Intn(10) != 0 {
-		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 4)
 	}
 	return this
 }
@@ -17823,14 +21686,28 @@ func NewPopulatedNidRepEnum(r randyThetest, easy bool) *NidRepEnum {
 func NewPopulatedNinRepEnum(r randyThetest, easy bool) *NinRepEnum {
 	this := &NinRepEnum{}
 	if r.Intn(10) != 0 {
-		v154 := r.Intn(10)
-		this.Field1 = make([]TheTestEnum, v154)
-		for i := 0; i < v154; i++ {
+		v158 := r.Intn(10)
+		this.Field1 = make([]TheTestEnum, v158)
+		for i := 0; i < v158; i++ {
 			this.Field1[i] = TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
 		}
 	}
+	if r.Intn(10) != 0 {
+		v159 := r.Intn(10)
+		this.Field2 = make([]YetAnotherTestEnum, v159)
+		for i := 0; i < v159; i++ {
+			this.Field2[i] = YetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		}
+	}
+	if r.Intn(10) != 0 {
+		v160 := r.Intn(10)
+		this.Field3 = make([]YetYetAnotherTestEnum, v160)
+		for i := 0; i < v160; i++ {
+			this.Field3[i] = YetYetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		}
+	}
 	if !easy && r.Intn(10) != 0 {
-		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 4)
 	}
 	return this
 }
@@ -17838,11 +21715,19 @@ func NewPopulatedNinRepEnum(r randyThetest, easy bool) *NinRepEnum {
 func NewPopulatedNinOptEnumDefault(r randyThetest, easy bool) *NinOptEnumDefault {
 	this := &NinOptEnumDefault{}
 	if r.Intn(10) != 0 {
-		v155 := TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
-		this.Field1 = &v155
+		v161 := TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
+		this.Field1 = &v161
+	}
+	if r.Intn(10) != 0 {
+		v162 := YetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field2 = &v162
+	}
+	if r.Intn(10) != 0 {
+		v163 := YetYetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field3 = &v163
 	}
 	if !easy && r.Intn(10) != 0 {
-		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 4)
 	}
 	return this
 }
@@ -17850,11 +21735,19 @@ func NewPopulatedNinOptEnumDefault(r randyThetest, easy bool) *NinOptEnumDefault
 func NewPopulatedAnotherNinOptEnum(r randyThetest, easy bool) *AnotherNinOptEnum {
 	this := &AnotherNinOptEnum{}
 	if r.Intn(10) != 0 {
-		v156 := AnotherTestEnum([]int32{10, 11}[r.Intn(2)])
-		this.Field1 = &v156
+		v164 := AnotherTestEnum([]int32{10, 11}[r.Intn(2)])
+		this.Field1 = &v164
+	}
+	if r.Intn(10) != 0 {
+		v165 := YetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field2 = &v165
+	}
+	if r.Intn(10) != 0 {
+		v166 := YetYetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field3 = &v166
 	}
 	if !easy && r.Intn(10) != 0 {
-		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 4)
 	}
 	return this
 }
@@ -17862,11 +21755,19 @@ func NewPopulatedAnotherNinOptEnum(r randyThetest, easy bool) *AnotherNinOptEnum
 func NewPopulatedAnotherNinOptEnumDefault(r randyThetest, easy bool) *AnotherNinOptEnumDefault {
 	this := &AnotherNinOptEnumDefault{}
 	if r.Intn(10) != 0 {
-		v157 := AnotherTestEnum([]int32{10, 11}[r.Intn(2)])
-		this.Field1 = &v157
+		v167 := AnotherTestEnum([]int32{10, 11}[r.Intn(2)])
+		this.Field1 = &v167
+	}
+	if r.Intn(10) != 0 {
+		v168 := YetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field2 = &v168
+	}
+	if r.Intn(10) != 0 {
+		v169 := YetYetAnotherTestEnum([]int32{0, 1}[r.Intn(2)])
+		this.Field3 = &v169
 	}
 	if !easy && r.Intn(10) != 0 {
-		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 4)
 	}
 	return this
 }
@@ -17881,9 +21782,9 @@ func NewPopulatedTimer(r randyThetest, easy bool) *Timer {
 	if r.Intn(2) == 0 {
 		this.Time2 *= -1
 	}
-	v158 := r.Intn(100)
-	this.Data = make([]byte, v158)
-	for i := 0; i < v158; i++ {
+	v170 := r.Intn(100)
+	this.Data = make([]byte, v170)
+	for i := 0; i < v170; i++ {
 		this.Data[i] = byte(r.Intn(256))
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -17895,11 +21796,11 @@ func NewPopulatedTimer(r randyThetest, easy bool) *Timer {
 func NewPopulatedMyExtendable(r randyThetest, easy bool) *MyExtendable {
 	this := &MyExtendable{}
 	if r.Intn(10) != 0 {
-		v159 := int64(r.Int63())
+		v171 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v159 *= -1
+			v171 *= -1
 		}
-		this.Field1 = &v159
+		this.Field1 = &v171
 	}
 	if !easy && r.Intn(10) != 0 {
 		l := r.Intn(5)
@@ -17909,8 +21810,8 @@ func NewPopulatedMyExtendable(r randyThetest, easy bool) *MyExtendable {
 			if wire == 3 {
 				wire = 5
 			}
-			data := randFieldThetest(nil, r, fieldNumber, wire)
-			github_com_gogo_protobuf_proto.SetRawExtension(this, int32(fieldNumber), data)
+			dAtA := randFieldThetest(nil, r, fieldNumber, wire)
+			github_com_gogo_protobuf_proto.SetRawExtension(this, int32(fieldNumber), dAtA)
 		}
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -17922,18 +21823,18 @@ func NewPopulatedMyExtendable(r randyThetest, easy bool) *MyExtendable {
 func NewPopulatedOtherExtenable(r randyThetest, easy bool) *OtherExtenable {
 	this := &OtherExtenable{}
 	if r.Intn(10) != 0 {
-		v160 := int64(r.Int63())
+		v172 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v160 *= -1
+			v172 *= -1
 		}
-		this.Field2 = &v160
+		this.Field2 = &v172
 	}
 	if r.Intn(10) != 0 {
-		v161 := int64(r.Int63())
+		v173 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v161 *= -1
+			v173 *= -1
 		}
-		this.Field13 = &v161
+		this.Field13 = &v173
 	}
 	if r.Intn(10) != 0 {
 		this.M = NewPopulatedMyExtendable(r, easy)
@@ -17953,8 +21854,8 @@ func NewPopulatedOtherExtenable(r randyThetest, easy bool) *OtherExtenable {
 			if wire == 3 {
 				wire = 5
 			}
-			data := randFieldThetest(nil, r, fieldNumber, wire)
-			github_com_gogo_protobuf_proto.SetRawExtension(this, int32(fieldNumber), data)
+			dAtA := randFieldThetest(nil, r, fieldNumber, wire)
+			github_com_gogo_protobuf_proto.SetRawExtension(this, int32(fieldNumber), dAtA)
 		}
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -17966,15 +21867,15 @@ func NewPopulatedOtherExtenable(r randyThetest, easy bool) *OtherExtenable {
 func NewPopulatedNestedDefinition(r randyThetest, easy bool) *NestedDefinition {
 	this := &NestedDefinition{}
 	if r.Intn(10) != 0 {
-		v162 := int64(r.Int63())
+		v174 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v162 *= -1
+			v174 *= -1
 		}
-		this.Field1 = &v162
+		this.Field1 = &v174
 	}
 	if r.Intn(10) != 0 {
-		v163 := NestedDefinition_NestedEnum([]int32{1}[r.Intn(1)])
-		this.EnumField = &v163
+		v175 := NestedDefinition_NestedEnum([]int32{1}[r.Intn(1)])
+		this.EnumField = &v175
 	}
 	if r.Intn(10) != 0 {
 		this.NNM = NewPopulatedNestedDefinition_NestedMessage_NestedNestedMsg(r, easy)
@@ -17991,8 +21892,8 @@ func NewPopulatedNestedDefinition(r randyThetest, easy bool) *NestedDefinition {
 func NewPopulatedNestedDefinition_NestedMessage(r randyThetest, easy bool) *NestedDefinition_NestedMessage {
 	this := &NestedDefinition_NestedMessage{}
 	if r.Intn(10) != 0 {
-		v164 := uint64(uint64(r.Uint32()))
-		this.NestedField1 = &v164
+		v176 := uint64(uint64(r.Uint32()))
+		this.NestedField1 = &v176
 	}
 	if r.Intn(10) != 0 {
 		this.NNM = NewPopulatedNestedDefinition_NestedMessage_NestedNestedMsg(r, easy)
@@ -18006,8 +21907,8 @@ func NewPopulatedNestedDefinition_NestedMessage(r randyThetest, easy bool) *Nest
 func NewPopulatedNestedDefinition_NestedMessage_NestedNestedMsg(r randyThetest, easy bool) *NestedDefinition_NestedMessage_NestedNestedMsg {
 	this := &NestedDefinition_NestedMessage_NestedNestedMsg{}
 	if r.Intn(10) != 0 {
-		v165 := randStringThetest(r)
-		this.NestedNestedField1 = &v165
+		v177 := string(randStringThetest(r))
+		this.NestedNestedField1 = &v177
 	}
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedThetest(r, 11)
@@ -18021,8 +21922,8 @@ func NewPopulatedNestedScope(r randyThetest, easy bool) *NestedScope {
 		this.A = NewPopulatedNestedDefinition_NestedMessage_NestedNestedMsg(r, easy)
 	}
 	if r.Intn(10) != 0 {
-		v166 := NestedDefinition_NestedEnum([]int32{1}[r.Intn(1)])
-		this.B = &v166
+		v178 := NestedDefinition_NestedEnum([]int32{1}[r.Intn(1)])
+		this.B = &v178
 	}
 	if r.Intn(10) != 0 {
 		this.C = NewPopulatedNestedDefinition_NestedMessage(r, easy)
@@ -18036,89 +21937,89 @@ func NewPopulatedNestedScope(r randyThetest, easy bool) *NestedScope {
 func NewPopulatedNinOptNativeDefault(r randyThetest, easy bool) *NinOptNativeDefault {
 	this := &NinOptNativeDefault{}
 	if r.Intn(10) != 0 {
-		v167 := float64(r.Float64())
+		v179 := float64(r.Float64())
 		if r.Intn(2) == 0 {
-			v167 *= -1
+			v179 *= -1
 		}
-		this.Field1 = &v167
+		this.Field1 = &v179
 	}
 	if r.Intn(10) != 0 {
-		v168 := float32(r.Float32())
+		v180 := float32(r.Float32())
 		if r.Intn(2) == 0 {
-			v168 *= -1
+			v180 *= -1
 		}
-		this.Field2 = &v168
+		this.Field2 = &v180
 	}
 	if r.Intn(10) != 0 {
-		v169 := int32(r.Int31())
+		v181 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v169 *= -1
+			v181 *= -1
 		}
-		this.Field3 = &v169
+		this.Field3 = &v181
 	}
 	if r.Intn(10) != 0 {
-		v170 := int64(r.Int63())
+		v182 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v170 *= -1
+			v182 *= -1
 		}
-		this.Field4 = &v170
+		this.Field4 = &v182
 	}
 	if r.Intn(10) != 0 {
-		v171 := uint32(r.Uint32())
-		this.Field5 = &v171
+		v183 := uint32(r.Uint32())
+		this.Field5 = &v183
 	}
 	if r.Intn(10) != 0 {
-		v172 := uint64(uint64(r.Uint32()))
-		this.Field6 = &v172
+		v184 := uint64(uint64(r.Uint32()))
+		this.Field6 = &v184
 	}
 	if r.Intn(10) != 0 {
-		v173 := int32(r.Int31())
+		v185 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v173 *= -1
+			v185 *= -1
 		}
-		this.Field7 = &v173
+		this.Field7 = &v185
 	}
 	if r.Intn(10) != 0 {
-		v174 := int64(r.Int63())
+		v186 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v174 *= -1
+			v186 *= -1
 		}
-		this.Field8 = &v174
+		this.Field8 = &v186
 	}
 	if r.Intn(10) != 0 {
-		v175 := uint32(r.Uint32())
-		this.Field9 = &v175
+		v187 := uint32(r.Uint32())
+		this.Field9 = &v187
 	}
 	if r.Intn(10) != 0 {
-		v176 := int32(r.Int31())
+		v188 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v176 *= -1
+			v188 *= -1
 		}
-		this.Field10 = &v176
+		this.Field10 = &v188
 	}
 	if r.Intn(10) != 0 {
-		v177 := uint64(uint64(r.Uint32()))
-		this.Field11 = &v177
+		v189 := uint64(uint64(r.Uint32()))
+		this.Field11 = &v189
 	}
 	if r.Intn(10) != 0 {
-		v178 := int64(r.Int63())
+		v190 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v178 *= -1
+			v190 *= -1
 		}
-		this.Field12 = &v178
+		this.Field12 = &v190
 	}
 	if r.Intn(10) != 0 {
-		v179 := bool(bool(r.Intn(2) == 0))
-		this.Field13 = &v179
+		v191 := bool(bool(r.Intn(2) == 0))
+		this.Field13 = &v191
 	}
 	if r.Intn(10) != 0 {
-		v180 := randStringThetest(r)
-		this.Field14 = &v180
+		v192 := string(randStringThetest(r))
+		this.Field14 = &v192
 	}
 	if r.Intn(10) != 0 {
-		v181 := r.Intn(100)
-		this.Field15 = make([]byte, v181)
-		for i := 0; i < v181; i++ {
+		v193 := r.Intn(100)
+		this.Field15 = make([]byte, v193)
+		for i := 0; i < v193; i++ {
 			this.Field15[i] = byte(r.Intn(256))
 		}
 	}
@@ -18130,8 +22031,8 @@ func NewPopulatedNinOptNativeDefault(r randyThetest, easy bool) *NinOptNativeDef
 
 func NewPopulatedCustomContainer(r randyThetest, easy bool) *CustomContainer {
 	this := &CustomContainer{}
-	v182 := NewPopulatedNidOptCustom(r, easy)
-	this.CustomStruct = *v182
+	v194 := NewPopulatedNidOptCustom(r, easy)
+	this.CustomStruct = *v194
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
 	}
@@ -18177,10 +22078,10 @@ func NewPopulatedCustomNameNidOptNative(r randyThetest, easy bool) *CustomNameNi
 		this.FieldL *= -1
 	}
 	this.FieldM = bool(bool(r.Intn(2) == 0))
-	this.FieldN = randStringThetest(r)
-	v183 := r.Intn(100)
-	this.FieldO = make([]byte, v183)
-	for i := 0; i < v183; i++ {
+	this.FieldN = string(randStringThetest(r))
+	v195 := r.Intn(100)
+	this.FieldO = make([]byte, v195)
+	for i := 0; i < v195; i++ {
 		this.FieldO[i] = byte(r.Intn(256))
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -18192,89 +22093,89 @@ func NewPopulatedCustomNameNidOptNative(r randyThetest, easy bool) *CustomNameNi
 func NewPopulatedCustomNameNinOptNative(r randyThetest, easy bool) *CustomNameNinOptNative {
 	this := &CustomNameNinOptNative{}
 	if r.Intn(10) != 0 {
-		v184 := float64(r.Float64())
+		v196 := float64(r.Float64())
 		if r.Intn(2) == 0 {
-			v184 *= -1
+			v196 *= -1
 		}
-		this.FieldA = &v184
+		this.FieldA = &v196
 	}
 	if r.Intn(10) != 0 {
-		v185 := float32(r.Float32())
+		v197 := float32(r.Float32())
 		if r.Intn(2) == 0 {
-			v185 *= -1
+			v197 *= -1
 		}
-		this.FieldB = &v185
+		this.FieldB = &v197
 	}
 	if r.Intn(10) != 0 {
-		v186 := int32(r.Int31())
+		v198 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v186 *= -1
+			v198 *= -1
 		}
-		this.FieldC = &v186
+		this.FieldC = &v198
 	}
 	if r.Intn(10) != 0 {
-		v187 := int64(r.Int63())
+		v199 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v187 *= -1
+			v199 *= -1
 		}
-		this.FieldD = &v187
+		this.FieldD = &v199
 	}
 	if r.Intn(10) != 0 {
-		v188 := uint32(r.Uint32())
-		this.FieldE = &v188
+		v200 := uint32(r.Uint32())
+		this.FieldE = &v200
 	}
 	if r.Intn(10) != 0 {
-		v189 := uint64(uint64(r.Uint32()))
-		this.FieldF = &v189
+		v201 := uint64(uint64(r.Uint32()))
+		this.FieldF = &v201
 	}
 	if r.Intn(10) != 0 {
-		v190 := int32(r.Int31())
+		v202 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v190 *= -1
+			v202 *= -1
 		}
-		this.FieldG = &v190
+		this.FieldG = &v202
 	}
 	if r.Intn(10) != 0 {
-		v191 := int64(r.Int63())
+		v203 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v191 *= -1
+			v203 *= -1
 		}
-		this.FieldH = &v191
+		this.FieldH = &v203
 	}
 	if r.Intn(10) != 0 {
-		v192 := uint32(r.Uint32())
-		this.FieldI = &v192
+		v204 := uint32(r.Uint32())
+		this.FieldI = &v204
 	}
 	if r.Intn(10) != 0 {
-		v193 := int32(r.Int31())
+		v205 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v193 *= -1
+			v205 *= -1
 		}
-		this.FieldJ = &v193
+		this.FieldJ = &v205
 	}
 	if r.Intn(10) != 0 {
-		v194 := uint64(uint64(r.Uint32()))
-		this.FieldK = &v194
+		v206 := uint64(uint64(r.Uint32()))
+		this.FieldK = &v206
 	}
 	if r.Intn(10) != 0 {
-		v195 := int64(r.Int63())
+		v207 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v195 *= -1
+			v207 *= -1
 		}
-		this.FielL = &v195
+		this.FielL = &v207
 	}
 	if r.Intn(10) != 0 {
-		v196 := bool(bool(r.Intn(2) == 0))
-		this.FieldM = &v196
+		v208 := bool(bool(r.Intn(2) == 0))
+		this.FieldM = &v208
 	}
 	if r.Intn(10) != 0 {
-		v197 := randStringThetest(r)
-		this.FieldN = &v197
+		v209 := string(randStringThetest(r))
+		this.FieldN = &v209
 	}
 	if r.Intn(10) != 0 {
-		v198 := r.Intn(100)
-		this.FieldO = make([]byte, v198)
-		for i := 0; i < v198; i++ {
+		v210 := r.Intn(100)
+		this.FieldO = make([]byte, v210)
+		for i := 0; i < v210; i++ {
 			this.FieldO[i] = byte(r.Intn(256))
 		}
 	}
@@ -18287,9 +22188,9 @@ func NewPopulatedCustomNameNinOptNative(r randyThetest, easy bool) *CustomNameNi
 func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNinRepNative {
 	this := &CustomNameNinRepNative{}
 	if r.Intn(10) != 0 {
-		v199 := r.Intn(10)
-		this.FieldA = make([]float64, v199)
-		for i := 0; i < v199; i++ {
+		v211 := r.Intn(10)
+		this.FieldA = make([]float64, v211)
+		for i := 0; i < v211; i++ {
 			this.FieldA[i] = float64(r.Float64())
 			if r.Intn(2) == 0 {
 				this.FieldA[i] *= -1
@@ -18297,9 +22198,9 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v200 := r.Intn(10)
-		this.FieldB = make([]float32, v200)
-		for i := 0; i < v200; i++ {
+		v212 := r.Intn(10)
+		this.FieldB = make([]float32, v212)
+		for i := 0; i < v212; i++ {
 			this.FieldB[i] = float32(r.Float32())
 			if r.Intn(2) == 0 {
 				this.FieldB[i] *= -1
@@ -18307,9 +22208,9 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v201 := r.Intn(10)
-		this.FieldC = make([]int32, v201)
-		for i := 0; i < v201; i++ {
+		v213 := r.Intn(10)
+		this.FieldC = make([]int32, v213)
+		for i := 0; i < v213; i++ {
 			this.FieldC[i] = int32(r.Int31())
 			if r.Intn(2) == 0 {
 				this.FieldC[i] *= -1
@@ -18317,9 +22218,9 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v202 := r.Intn(10)
-		this.FieldD = make([]int64, v202)
-		for i := 0; i < v202; i++ {
+		v214 := r.Intn(10)
+		this.FieldD = make([]int64, v214)
+		for i := 0; i < v214; i++ {
 			this.FieldD[i] = int64(r.Int63())
 			if r.Intn(2) == 0 {
 				this.FieldD[i] *= -1
@@ -18327,23 +22228,23 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v203 := r.Intn(10)
-		this.FieldE = make([]uint32, v203)
-		for i := 0; i < v203; i++ {
+		v215 := r.Intn(10)
+		this.FieldE = make([]uint32, v215)
+		for i := 0; i < v215; i++ {
 			this.FieldE[i] = uint32(r.Uint32())
 		}
 	}
 	if r.Intn(10) != 0 {
-		v204 := r.Intn(10)
-		this.FieldF = make([]uint64, v204)
-		for i := 0; i < v204; i++ {
+		v216 := r.Intn(10)
+		this.FieldF = make([]uint64, v216)
+		for i := 0; i < v216; i++ {
 			this.FieldF[i] = uint64(uint64(r.Uint32()))
 		}
 	}
 	if r.Intn(10) != 0 {
-		v205 := r.Intn(10)
-		this.FieldG = make([]int32, v205)
-		for i := 0; i < v205; i++ {
+		v217 := r.Intn(10)
+		this.FieldG = make([]int32, v217)
+		for i := 0; i < v217; i++ {
 			this.FieldG[i] = int32(r.Int31())
 			if r.Intn(2) == 0 {
 				this.FieldG[i] *= -1
@@ -18351,9 +22252,9 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v206 := r.Intn(10)
-		this.FieldH = make([]int64, v206)
-		for i := 0; i < v206; i++ {
+		v218 := r.Intn(10)
+		this.FieldH = make([]int64, v218)
+		for i := 0; i < v218; i++ {
 			this.FieldH[i] = int64(r.Int63())
 			if r.Intn(2) == 0 {
 				this.FieldH[i] *= -1
@@ -18361,16 +22262,16 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v207 := r.Intn(10)
-		this.FieldI = make([]uint32, v207)
-		for i := 0; i < v207; i++ {
+		v219 := r.Intn(10)
+		this.FieldI = make([]uint32, v219)
+		for i := 0; i < v219; i++ {
 			this.FieldI[i] = uint32(r.Uint32())
 		}
 	}
 	if r.Intn(10) != 0 {
-		v208 := r.Intn(10)
-		this.FieldJ = make([]int32, v208)
-		for i := 0; i < v208; i++ {
+		v220 := r.Intn(10)
+		this.FieldJ = make([]int32, v220)
+		for i := 0; i < v220; i++ {
 			this.FieldJ[i] = int32(r.Int31())
 			if r.Intn(2) == 0 {
 				this.FieldJ[i] *= -1
@@ -18378,16 +22279,16 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v209 := r.Intn(10)
-		this.FieldK = make([]uint64, v209)
-		for i := 0; i < v209; i++ {
+		v221 := r.Intn(10)
+		this.FieldK = make([]uint64, v221)
+		for i := 0; i < v221; i++ {
 			this.FieldK[i] = uint64(uint64(r.Uint32()))
 		}
 	}
 	if r.Intn(10) != 0 {
-		v210 := r.Intn(10)
-		this.FieldL = make([]int64, v210)
-		for i := 0; i < v210; i++ {
+		v222 := r.Intn(10)
+		this.FieldL = make([]int64, v222)
+		for i := 0; i < v222; i++ {
 			this.FieldL[i] = int64(r.Int63())
 			if r.Intn(2) == 0 {
 				this.FieldL[i] *= -1
@@ -18395,26 +22296,26 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 		}
 	}
 	if r.Intn(10) != 0 {
-		v211 := r.Intn(10)
-		this.FieldM = make([]bool, v211)
-		for i := 0; i < v211; i++ {
+		v223 := r.Intn(10)
+		this.FieldM = make([]bool, v223)
+		for i := 0; i < v223; i++ {
 			this.FieldM[i] = bool(bool(r.Intn(2) == 0))
 		}
 	}
 	if r.Intn(10) != 0 {
-		v212 := r.Intn(10)
-		this.FieldN = make([]string, v212)
-		for i := 0; i < v212; i++ {
-			this.FieldN[i] = randStringThetest(r)
+		v224 := r.Intn(10)
+		this.FieldN = make([]string, v224)
+		for i := 0; i < v224; i++ {
+			this.FieldN[i] = string(randStringThetest(r))
 		}
 	}
 	if r.Intn(10) != 0 {
-		v213 := r.Intn(10)
-		this.FieldO = make([][]byte, v213)
-		for i := 0; i < v213; i++ {
-			v214 := r.Intn(100)
-			this.FieldO[i] = make([]byte, v214)
-			for j := 0; j < v214; j++ {
+		v225 := r.Intn(10)
+		this.FieldO = make([][]byte, v225)
+		for i := 0; i < v225; i++ {
+			v226 := r.Intn(100)
+			this.FieldO[i] = make([]byte, v226)
+			for j := 0; j < v226; j++ {
 				this.FieldO[i][j] = byte(r.Intn(256))
 			}
 		}
@@ -18428,55 +22329,55 @@ func NewPopulatedCustomNameNinRepNative(r randyThetest, easy bool) *CustomNameNi
 func NewPopulatedCustomNameNinStruct(r randyThetest, easy bool) *CustomNameNinStruct {
 	this := &CustomNameNinStruct{}
 	if r.Intn(10) != 0 {
-		v215 := float64(r.Float64())
+		v227 := float64(r.Float64())
 		if r.Intn(2) == 0 {
-			v215 *= -1
+			v227 *= -1
 		}
-		this.FieldA = &v215
+		this.FieldA = &v227
 	}
 	if r.Intn(10) != 0 {
-		v216 := float32(r.Float32())
+		v228 := float32(r.Float32())
 		if r.Intn(2) == 0 {
-			v216 *= -1
+			v228 *= -1
 		}
-		this.FieldB = &v216
+		this.FieldB = &v228
 	}
 	if r.Intn(10) != 0 {
 		this.FieldC = NewPopulatedNidOptNative(r, easy)
 	}
 	if r.Intn(10) != 0 {
-		v217 := r.Intn(5)
-		this.FieldD = make([]*NinOptNative, v217)
-		for i := 0; i < v217; i++ {
+		v229 := r.Intn(5)
+		this.FieldD = make([]*NinOptNative, v229)
+		for i := 0; i < v229; i++ {
 			this.FieldD[i] = NewPopulatedNinOptNative(r, easy)
 		}
 	}
 	if r.Intn(10) != 0 {
-		v218 := uint64(uint64(r.Uint32()))
-		this.FieldE = &v218
+		v230 := uint64(uint64(r.Uint32()))
+		this.FieldE = &v230
 	}
 	if r.Intn(10) != 0 {
-		v219 := int32(r.Int31())
+		v231 := int32(r.Int31())
 		if r.Intn(2) == 0 {
-			v219 *= -1
+			v231 *= -1
 		}
-		this.FieldF = &v219
+		this.FieldF = &v231
 	}
 	if r.Intn(10) != 0 {
 		this.FieldG = NewPopulatedNidOptNative(r, easy)
 	}
 	if r.Intn(10) != 0 {
-		v220 := bool(bool(r.Intn(2) == 0))
-		this.FieldH = &v220
+		v232 := bool(bool(r.Intn(2) == 0))
+		this.FieldH = &v232
 	}
 	if r.Intn(10) != 0 {
-		v221 := randStringThetest(r)
-		this.FieldI = &v221
+		v233 := string(randStringThetest(r))
+		this.FieldI = &v233
 	}
 	if r.Intn(10) != 0 {
-		v222 := r.Intn(100)
-		this.FieldJ = make([]byte, v222)
-		for i := 0; i < v222; i++ {
+		v234 := r.Intn(100)
+		this.FieldJ = make([]byte, v234)
+		for i := 0; i < v234; i++ {
 			this.FieldJ[i] = byte(r.Intn(256))
 		}
 	}
@@ -18495,19 +22396,19 @@ func NewPopulatedCustomNameCustomType(r randyThetest, easy bool) *CustomNameCust
 		this.FieldB = github_com_gogo_protobuf_test_custom.NewPopulatedUint128(r)
 	}
 	if r.Intn(10) != 0 {
-		v223 := r.Intn(10)
-		this.FieldC = make([]Uuid, v223)
-		for i := 0; i < v223; i++ {
-			v224 := NewPopulatedUuid(r)
-			this.FieldC[i] = *v224
+		v235 := r.Intn(10)
+		this.FieldC = make([]Uuid, v235)
+		for i := 0; i < v235; i++ {
+			v236 := NewPopulatedUuid(r)
+			this.FieldC[i] = *v236
 		}
 	}
 	if r.Intn(10) != 0 {
-		v225 := r.Intn(10)
-		this.FieldD = make([]github_com_gogo_protobuf_test_custom.Uint128, v225)
-		for i := 0; i < v225; i++ {
-			v226 := github_com_gogo_protobuf_test_custom.NewPopulatedUint128(r)
-			this.FieldD[i] = *v226
+		v237 := r.Intn(10)
+		this.FieldD = make([]github_com_gogo_protobuf_test_custom.Uint128, v237)
+		for i := 0; i < v237; i++ {
+			v238 := github_com_gogo_protobuf_test_custom.NewPopulatedUint128(r)
+			this.FieldD[i] = *v238
 		}
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -18525,8 +22426,8 @@ func NewPopulatedCustomNameNinEmbeddedStructUnion(r randyThetest, easy bool) *Cu
 	case 1:
 		this.FieldA = NewPopulatedNinOptNative(r, easy)
 	case 2:
-		v227 := bool(bool(r.Intn(2) == 0))
-		this.FieldB = &v227
+		v239 := bool(bool(r.Intn(2) == 0))
+		this.FieldB = &v239
 	}
 	return this
 }
@@ -18534,13 +22435,13 @@ func NewPopulatedCustomNameNinEmbeddedStructUnion(r randyThetest, easy bool) *Cu
 func NewPopulatedCustomNameEnum(r randyThetest, easy bool) *CustomNameEnum {
 	this := &CustomNameEnum{}
 	if r.Intn(10) != 0 {
-		v228 := TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
-		this.FieldA = &v228
+		v240 := TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
+		this.FieldA = &v240
 	}
 	if r.Intn(10) != 0 {
-		v229 := r.Intn(10)
-		this.FieldB = make([]TheTestEnum, v229)
-		for i := 0; i < v229; i++ {
+		v241 := r.Intn(10)
+		this.FieldB = make([]TheTestEnum, v241)
+		for i := 0; i < v241; i++ {
 			this.FieldB[i] = TheTestEnum([]int32{0, 1, 2}[r.Intn(3)])
 		}
 	}
@@ -18553,11 +22454,11 @@ func NewPopulatedCustomNameEnum(r randyThetest, easy bool) *CustomNameEnum {
 func NewPopulatedNoExtensionsMap(r randyThetest, easy bool) *NoExtensionsMap {
 	this := &NoExtensionsMap{}
 	if r.Intn(10) != 0 {
-		v230 := int64(r.Int63())
+		v242 := int64(r.Int63())
 		if r.Intn(2) == 0 {
-			v230 *= -1
+			v242 *= -1
 		}
-		this.Field1 = &v230
+		this.Field1 = &v242
 	}
 	if !easy && r.Intn(10) != 0 {
 		l := r.Intn(5)
@@ -18567,8 +22468,8 @@ func NewPopulatedNoExtensionsMap(r randyThetest, easy bool) *NoExtensionsMap {
 			if wire == 3 {
 				wire = 5
 			}
-			data := randFieldThetest(nil, r, fieldNumber, wire)
-			github_com_gogo_protobuf_proto.SetRawExtension(this, int32(fieldNumber), data)
+			dAtA := randFieldThetest(nil, r, fieldNumber, wire)
+			github_com_gogo_protobuf_proto.SetRawExtension(this, int32(fieldNumber), dAtA)
 		}
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -18580,8 +22481,8 @@ func NewPopulatedNoExtensionsMap(r randyThetest, easy bool) *NoExtensionsMap {
 func NewPopulatedUnrecognized(r randyThetest, easy bool) *Unrecognized {
 	this := &Unrecognized{}
 	if r.Intn(10) != 0 {
-		v231 := randStringThetest(r)
-		this.Field1 = &v231
+		v243 := string(randStringThetest(r))
+		this.Field1 = &v243
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -18591,15 +22492,15 @@ func NewPopulatedUnrecognized(r randyThetest, easy bool) *Unrecognized {
 func NewPopulatedUnrecognizedWithInner(r randyThetest, easy bool) *UnrecognizedWithInner {
 	this := &UnrecognizedWithInner{}
 	if r.Intn(10) != 0 {
-		v232 := r.Intn(5)
-		this.Embedded = make([]*UnrecognizedWithInner_Inner, v232)
-		for i := 0; i < v232; i++ {
+		v244 := r.Intn(5)
+		this.Embedded = make([]*UnrecognizedWithInner_Inner, v244)
+		for i := 0; i < v244; i++ {
 			this.Embedded[i] = NewPopulatedUnrecognizedWithInner_Inner(r, easy)
 		}
 	}
 	if r.Intn(10) != 0 {
-		v233 := randStringThetest(r)
-		this.Field2 = &v233
+		v245 := string(randStringThetest(r))
+		this.Field2 = &v245
 	}
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedThetest(r, 3)
@@ -18610,8 +22511,8 @@ func NewPopulatedUnrecognizedWithInner(r randyThetest, easy bool) *UnrecognizedW
 func NewPopulatedUnrecognizedWithInner_Inner(r randyThetest, easy bool) *UnrecognizedWithInner_Inner {
 	this := &UnrecognizedWithInner_Inner{}
 	if r.Intn(10) != 0 {
-		v234 := uint32(r.Uint32())
-		this.Field1 = &v234
+		v246 := uint32(r.Uint32())
+		this.Field1 = &v246
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -18620,11 +22521,11 @@ func NewPopulatedUnrecognizedWithInner_Inner(r randyThetest, easy bool) *Unrecog
 
 func NewPopulatedUnrecognizedWithEmbed(r randyThetest, easy bool) *UnrecognizedWithEmbed {
 	this := &UnrecognizedWithEmbed{}
-	v235 := NewPopulatedUnrecognizedWithEmbed_Embedded(r, easy)
-	this.UnrecognizedWithEmbed_Embedded = *v235
+	v247 := NewPopulatedUnrecognizedWithEmbed_Embedded(r, easy)
+	this.UnrecognizedWithEmbed_Embedded = *v247
 	if r.Intn(10) != 0 {
-		v236 := randStringThetest(r)
-		this.Field2 = &v236
+		v248 := string(randStringThetest(r))
+		this.Field2 = &v248
 	}
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedThetest(r, 3)
@@ -18635,8 +22536,8 @@ func NewPopulatedUnrecognizedWithEmbed(r randyThetest, easy bool) *UnrecognizedW
 func NewPopulatedUnrecognizedWithEmbed_Embedded(r randyThetest, easy bool) *UnrecognizedWithEmbed_Embedded {
 	this := &UnrecognizedWithEmbed_Embedded{}
 	if r.Intn(10) != 0 {
-		v237 := uint32(r.Uint32())
-		this.Field1 = &v237
+		v249 := uint32(r.Uint32())
+		this.Field1 = &v249
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -18646,18 +22547,94 @@ func NewPopulatedUnrecognizedWithEmbed_Embedded(r randyThetest, easy bool) *Unre
 func NewPopulatedNode(r randyThetest, easy bool) *Node {
 	this := &Node{}
 	if r.Intn(10) != 0 {
-		v238 := randStringThetest(r)
-		this.Label = &v238
+		v250 := string(randStringThetest(r))
+		this.Label = &v250
 	}
 	if r.Intn(10) == 0 {
-		v239 := r.Intn(5)
-		this.Children = make([]*Node, v239)
-		for i := 0; i < v239; i++ {
+		v251 := r.Intn(5)
+		this.Children = make([]*Node, v251)
+		for i := 0; i < v251; i++ {
 			this.Children[i] = NewPopulatedNode(r, easy)
 		}
 	}
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedThetest(r, 3)
+	}
+	return this
+}
+
+func NewPopulatedNonByteCustomType(r randyThetest, easy bool) *NonByteCustomType {
+	this := &NonByteCustomType{}
+	if r.Intn(10) != 0 {
+		this.Field1 = NewPopulatedT(r)
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+	}
+	return this
+}
+
+func NewPopulatedNidOptNonByteCustomType(r randyThetest, easy bool) *NidOptNonByteCustomType {
+	this := &NidOptNonByteCustomType{}
+	v252 := NewPopulatedT(r)
+	this.Field1 = *v252
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+	}
+	return this
+}
+
+func NewPopulatedNinOptNonByteCustomType(r randyThetest, easy bool) *NinOptNonByteCustomType {
+	this := &NinOptNonByteCustomType{}
+	if r.Intn(10) != 0 {
+		this.Field1 = NewPopulatedT(r)
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+	}
+	return this
+}
+
+func NewPopulatedNidRepNonByteCustomType(r randyThetest, easy bool) *NidRepNonByteCustomType {
+	this := &NidRepNonByteCustomType{}
+	if r.Intn(10) != 0 {
+		v253 := r.Intn(10)
+		this.Field1 = make([]T, v253)
+		for i := 0; i < v253; i++ {
+			v254 := NewPopulatedT(r)
+			this.Field1[i] = *v254
+		}
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+	}
+	return this
+}
+
+func NewPopulatedNinRepNonByteCustomType(r randyThetest, easy bool) *NinRepNonByteCustomType {
+	this := &NinRepNonByteCustomType{}
+	if r.Intn(10) != 0 {
+		v255 := r.Intn(10)
+		this.Field1 = make([]T, v255)
+		for i := 0; i < v255; i++ {
+			v256 := NewPopulatedT(r)
+			this.Field1[i] = *v256
+		}
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
+	}
+	return this
+}
+
+func NewPopulatedProtoType(r randyThetest, easy bool) *ProtoType {
+	this := &ProtoType{}
+	if r.Intn(10) != 0 {
+		v257 := string(randStringThetest(r))
+		this.Field2 = &v257
+	}
+	if !easy && r.Intn(10) != 0 {
+		this.XXX_unrecognized = randUnrecognizedThetest(r, 2)
 	}
 	return this
 }
@@ -18681,14 +22658,14 @@ func randUTF8RuneThetest(r randyThetest) rune {
 	return rune(ru + 61)
 }
 func randStringThetest(r randyThetest) string {
-	v240 := r.Intn(100)
-	tmps := make([]rune, v240)
-	for i := 0; i < v240; i++ {
+	v258 := r.Intn(100)
+	tmps := make([]rune, v258)
+	for i := 0; i < v258; i++ {
 		tmps[i] = randUTF8RuneThetest(r)
 	}
 	return string(tmps)
 }
-func randUnrecognizedThetest(r randyThetest, maxFieldNumber int) (data []byte) {
+func randUnrecognizedThetest(r randyThetest, maxFieldNumber int) (dAtA []byte) {
 	l := r.Intn(5)
 	for i := 0; i < l; i++ {
 		wire := r.Intn(4)
@@ -18696,43 +22673,43 @@ func randUnrecognizedThetest(r randyThetest, maxFieldNumber int) (data []byte) {
 			wire = 5
 		}
 		fieldNumber := maxFieldNumber + r.Intn(100)
-		data = randFieldThetest(data, r, fieldNumber, wire)
+		dAtA = randFieldThetest(dAtA, r, fieldNumber, wire)
 	}
-	return data
+	return dAtA
 }
-func randFieldThetest(data []byte, r randyThetest, fieldNumber int, wire int) []byte {
+func randFieldThetest(dAtA []byte, r randyThetest, fieldNumber int, wire int) []byte {
 	key := uint32(fieldNumber)<<3 | uint32(wire)
 	switch wire {
 	case 0:
-		data = encodeVarintPopulateThetest(data, uint64(key))
-		v241 := r.Int63()
+		dAtA = encodeVarintPopulateThetest(dAtA, uint64(key))
+		v259 := r.Int63()
 		if r.Intn(2) == 0 {
-			v241 *= -1
+			v259 *= -1
 		}
-		data = encodeVarintPopulateThetest(data, uint64(v241))
+		dAtA = encodeVarintPopulateThetest(dAtA, uint64(v259))
 	case 1:
-		data = encodeVarintPopulateThetest(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateThetest(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	case 2:
-		data = encodeVarintPopulateThetest(data, uint64(key))
+		dAtA = encodeVarintPopulateThetest(dAtA, uint64(key))
 		ll := r.Intn(100)
-		data = encodeVarintPopulateThetest(data, uint64(ll))
+		dAtA = encodeVarintPopulateThetest(dAtA, uint64(ll))
 		for j := 0; j < ll; j++ {
-			data = append(data, byte(r.Intn(256)))
+			dAtA = append(dAtA, byte(r.Intn(256)))
 		}
 	default:
-		data = encodeVarintPopulateThetest(data, uint64(key))
-		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
+		dAtA = encodeVarintPopulateThetest(dAtA, uint64(key))
+		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
 	}
-	return data
+	return dAtA
 }
-func encodeVarintPopulateThetest(data []byte, v uint64) []byte {
+func encodeVarintPopulateThetest(dAtA []byte, v uint64) []byte {
 	for v >= 1<<7 {
-		data = append(data, uint8(uint64(v)&0x7f|0x80))
+		dAtA = append(dAtA, uint8(uint64(v)&0x7f|0x80))
 		v >>= 7
 	}
-	data = append(data, uint8(v))
-	return data
+	dAtA = append(dAtA, uint8(v))
+	return dAtA
 }
 func (m *NidOptNative) Size() (n int) {
 	var l int
@@ -19708,6 +23685,12 @@ func (m *NinOptEnum) Size() (n int) {
 	if m.Field1 != nil {
 		n += 1 + sovThetest(uint64(*m.Field1))
 	}
+	if m.Field2 != nil {
+		n += 1 + sovThetest(uint64(*m.Field2))
+	}
+	if m.Field3 != nil {
+		n += 1 + sovThetest(uint64(*m.Field3))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -19719,6 +23702,16 @@ func (m *NidRepEnum) Size() (n int) {
 	_ = l
 	if len(m.Field1) > 0 {
 		for _, e := range m.Field1 {
+			n += 1 + sovThetest(uint64(e))
+		}
+	}
+	if len(m.Field2) > 0 {
+		for _, e := range m.Field2 {
+			n += 1 + sovThetest(uint64(e))
+		}
+	}
+	if len(m.Field3) > 0 {
+		for _, e := range m.Field3 {
 			n += 1 + sovThetest(uint64(e))
 		}
 	}
@@ -19736,6 +23729,16 @@ func (m *NinRepEnum) Size() (n int) {
 			n += 1 + sovThetest(uint64(e))
 		}
 	}
+	if len(m.Field2) > 0 {
+		for _, e := range m.Field2 {
+			n += 1 + sovThetest(uint64(e))
+		}
+	}
+	if len(m.Field3) > 0 {
+		for _, e := range m.Field3 {
+			n += 1 + sovThetest(uint64(e))
+		}
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -19747,6 +23750,12 @@ func (m *NinOptEnumDefault) Size() (n int) {
 	_ = l
 	if m.Field1 != nil {
 		n += 1 + sovThetest(uint64(*m.Field1))
+	}
+	if m.Field2 != nil {
+		n += 1 + sovThetest(uint64(*m.Field2))
+	}
+	if m.Field3 != nil {
+		n += 1 + sovThetest(uint64(*m.Field3))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -19760,6 +23769,12 @@ func (m *AnotherNinOptEnum) Size() (n int) {
 	if m.Field1 != nil {
 		n += 1 + sovThetest(uint64(*m.Field1))
 	}
+	if m.Field2 != nil {
+		n += 1 + sovThetest(uint64(*m.Field2))
+	}
+	if m.Field3 != nil {
+		n += 1 + sovThetest(uint64(*m.Field3))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -19771,6 +23786,12 @@ func (m *AnotherNinOptEnumDefault) Size() (n int) {
 	_ = l
 	if m.Field1 != nil {
 		n += 1 + sovThetest(uint64(*m.Field1))
+	}
+	if m.Field2 != nil {
+		n += 1 + sovThetest(uint64(*m.Field2))
+	}
+	if m.Field3 != nil {
+		n += 1 + sovThetest(uint64(*m.Field3))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -19799,9 +23820,7 @@ func (m *MyExtendable) Size() (n int) {
 	if m.Field1 != nil {
 		n += 1 + sovThetest(uint64(*m.Field1))
 	}
-	if m.XXX_extensions != nil {
-		n += github_com_gogo_protobuf_proto.SizeOfExtensionMap(m.XXX_extensions)
-	}
+	n += github_com_gogo_protobuf_proto.SizeOfInternalExtension(m)
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -19821,9 +23840,7 @@ func (m *OtherExtenable) Size() (n int) {
 		l = m.M.Size()
 		n += 1 + l + sovThetest(uint64(l))
 	}
-	if m.XXX_extensions != nil {
-		n += github_com_gogo_protobuf_proto.SizeOfExtensionMap(m.XXX_extensions)
-	}
+	n += github_com_gogo_protobuf_proto.SizeOfInternalExtension(m)
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -20326,6 +24343,86 @@ func (m *Node) Size() (n int) {
 			l = e.Size()
 			n += 1 + l + sovThetest(uint64(l))
 		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *NonByteCustomType) Size() (n int) {
+	var l int
+	_ = l
+	if m.Field1 != nil {
+		l = m.Field1.Size()
+		n += 1 + l + sovThetest(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *NidOptNonByteCustomType) Size() (n int) {
+	var l int
+	_ = l
+	l = m.Field1.Size()
+	n += 1 + l + sovThetest(uint64(l))
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *NinOptNonByteCustomType) Size() (n int) {
+	var l int
+	_ = l
+	if m.Field1 != nil {
+		l = m.Field1.Size()
+		n += 1 + l + sovThetest(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *NidRepNonByteCustomType) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Field1) > 0 {
+		for _, e := range m.Field1 {
+			l = e.Size()
+			n += 1 + l + sovThetest(uint64(l))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *NinRepNonByteCustomType) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Field1) > 0 {
+		for _, e := range m.Field1 {
+			l = e.Size()
+			n += 1 + l + sovThetest(uint64(l))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ProtoType) Size() (n int) {
+	var l int
+	_ = l
+	if m.Field2 != nil {
+		l = len(*m.Field2)
+		n += 1 + l + sovThetest(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -20868,6 +24965,8 @@ func (this *NinOptEnum) String() string {
 	}
 	s := strings.Join([]string{`&NinOptEnum{`,
 		`Field1:` + valueToStringThetest(this.Field1) + `,`,
+		`Field2:` + valueToStringThetest(this.Field2) + `,`,
+		`Field3:` + valueToStringThetest(this.Field3) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20879,6 +24978,8 @@ func (this *NidRepEnum) String() string {
 	}
 	s := strings.Join([]string{`&NidRepEnum{`,
 		`Field1:` + fmt.Sprintf("%v", this.Field1) + `,`,
+		`Field2:` + fmt.Sprintf("%v", this.Field2) + `,`,
+		`Field3:` + fmt.Sprintf("%v", this.Field3) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20890,6 +24991,8 @@ func (this *NinRepEnum) String() string {
 	}
 	s := strings.Join([]string{`&NinRepEnum{`,
 		`Field1:` + fmt.Sprintf("%v", this.Field1) + `,`,
+		`Field2:` + fmt.Sprintf("%v", this.Field2) + `,`,
+		`Field3:` + fmt.Sprintf("%v", this.Field3) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20901,6 +25004,8 @@ func (this *NinOptEnumDefault) String() string {
 	}
 	s := strings.Join([]string{`&NinOptEnumDefault{`,
 		`Field1:` + valueToStringThetest(this.Field1) + `,`,
+		`Field2:` + valueToStringThetest(this.Field2) + `,`,
+		`Field3:` + valueToStringThetest(this.Field3) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20912,6 +25017,8 @@ func (this *AnotherNinOptEnum) String() string {
 	}
 	s := strings.Join([]string{`&AnotherNinOptEnum{`,
 		`Field1:` + valueToStringThetest(this.Field1) + `,`,
+		`Field2:` + valueToStringThetest(this.Field2) + `,`,
+		`Field3:` + valueToStringThetest(this.Field3) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20923,6 +25030,8 @@ func (this *AnotherNinOptEnumDefault) String() string {
 	}
 	s := strings.Join([]string{`&AnotherNinOptEnumDefault{`,
 		`Field1:` + valueToStringThetest(this.Field1) + `,`,
+		`Field2:` + valueToStringThetest(this.Field2) + `,`,
+		`Field3:` + valueToStringThetest(this.Field3) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20947,7 +25056,7 @@ func (this *MyExtendable) String() string {
 	}
 	s := strings.Join([]string{`&MyExtendable{`,
 		`Field1:` + valueToStringThetest(this.Field1) + `,`,
-		`XXX_extensions:` + proto.StringFromExtensionsMap(this.XXX_extensions) + `,`,
+		`XXX_InternalExtensions:` + github_com_gogo_protobuf_proto.StringFromInternalExtension(this) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -20961,7 +25070,7 @@ func (this *OtherExtenable) String() string {
 		`Field2:` + valueToStringThetest(this.Field2) + `,`,
 		`Field13:` + valueToStringThetest(this.Field13) + `,`,
 		`M:` + strings.Replace(fmt.Sprintf("%v", this.M), "MyExtendable", "MyExtendable", 1) + `,`,
-		`XXX_extensions:` + proto.StringFromExtensionsMap(this.XXX_extensions) + `,`,
+		`XXX_InternalExtensions:` + github_com_gogo_protobuf_proto.StringFromInternalExtension(this) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -21193,7 +25302,7 @@ func (this *NoExtensionsMap) String() string {
 	}
 	s := strings.Join([]string{`&NoExtensionsMap{`,
 		`Field1:` + valueToStringThetest(this.Field1) + `,`,
-		`XXX_extensions:` + proto.StringFromExtensionsBytes(this.XXX_extensions) + `,`,
+		`XXX_extensions:` + github_com_gogo_protobuf_proto.StringFromExtensionsBytes(this.XXX_extensions) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -21260,6 +25369,72 @@ func (this *Node) String() string {
 	s := strings.Join([]string{`&Node{`,
 		`Label:` + valueToStringThetest(this.Label) + `,`,
 		`Children:` + strings.Replace(fmt.Sprintf("%v", this.Children), "Node", "Node", 1) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NonByteCustomType) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NonByteCustomType{`,
+		`Field1:` + valueToStringThetest(this.Field1) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NidOptNonByteCustomType) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NidOptNonByteCustomType{`,
+		`Field1:` + fmt.Sprintf("%v", this.Field1) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NinOptNonByteCustomType) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NinOptNonByteCustomType{`,
+		`Field1:` + valueToStringThetest(this.Field1) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NidRepNonByteCustomType) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NidRepNonByteCustomType{`,
+		`Field1:` + fmt.Sprintf("%v", this.Field1) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NinRepNonByteCustomType) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NinRepNonByteCustomType{`,
+		`Field1:` + fmt.Sprintf("%v", this.Field1) + `,`,
+		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ProtoType) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ProtoType{`,
+		`Field2:` + valueToStringThetest(this.Field2) + `,`,
 		`XXX_unrecognized:` + fmt.Sprintf("%v", this.XXX_unrecognized) + `,`,
 		`}`,
 	}, "")
@@ -21530,8 +25705,8 @@ func (this *CustomNameNinEmbeddedStructUnion) SetValue(value interface{}) bool {
 	}
 	return true
 }
-func (m *NidOptNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidOptNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -21543,7 +25718,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -21568,14 +25743,14 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.Field1 = float64(math.Float64frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -21586,10 +25761,10 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Field2 = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 0 {
@@ -21603,7 +25778,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Field3 |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21622,7 +25797,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Field4 |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21641,7 +25816,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Field5 |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21660,7 +25835,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Field6 |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21679,7 +25854,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21700,7 +25875,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21718,10 +25893,10 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			m.Field9 = uint32(data[iNdEx-4])
-			m.Field9 |= uint32(data[iNdEx-3]) << 8
-			m.Field9 |= uint32(data[iNdEx-2]) << 16
-			m.Field9 |= uint32(data[iNdEx-1]) << 24
+			m.Field9 = uint32(dAtA[iNdEx-4])
+			m.Field9 |= uint32(dAtA[iNdEx-3]) << 8
+			m.Field9 |= uint32(dAtA[iNdEx-2]) << 16
+			m.Field9 |= uint32(dAtA[iNdEx-1]) << 24
 		case 10:
 			if wireType != 5 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
@@ -21731,10 +25906,10 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			m.Field10 = int32(data[iNdEx-4])
-			m.Field10 |= int32(data[iNdEx-3]) << 8
-			m.Field10 |= int32(data[iNdEx-2]) << 16
-			m.Field10 |= int32(data[iNdEx-1]) << 24
+			m.Field10 = int32(dAtA[iNdEx-4])
+			m.Field10 |= int32(dAtA[iNdEx-3]) << 8
+			m.Field10 |= int32(dAtA[iNdEx-2]) << 16
+			m.Field10 |= int32(dAtA[iNdEx-1]) << 24
 		case 11:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
@@ -21744,14 +25919,14 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			m.Field11 = uint64(data[iNdEx-8])
-			m.Field11 |= uint64(data[iNdEx-7]) << 8
-			m.Field11 |= uint64(data[iNdEx-6]) << 16
-			m.Field11 |= uint64(data[iNdEx-5]) << 24
-			m.Field11 |= uint64(data[iNdEx-4]) << 32
-			m.Field11 |= uint64(data[iNdEx-3]) << 40
-			m.Field11 |= uint64(data[iNdEx-2]) << 48
-			m.Field11 |= uint64(data[iNdEx-1]) << 56
+			m.Field11 = uint64(dAtA[iNdEx-8])
+			m.Field11 |= uint64(dAtA[iNdEx-7]) << 8
+			m.Field11 |= uint64(dAtA[iNdEx-6]) << 16
+			m.Field11 |= uint64(dAtA[iNdEx-5]) << 24
+			m.Field11 |= uint64(dAtA[iNdEx-4]) << 32
+			m.Field11 |= uint64(dAtA[iNdEx-3]) << 40
+			m.Field11 |= uint64(dAtA[iNdEx-2]) << 48
+			m.Field11 |= uint64(dAtA[iNdEx-1]) << 56
 		case 12:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
@@ -21761,14 +25936,14 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			m.Field12 = int64(data[iNdEx-8])
-			m.Field12 |= int64(data[iNdEx-7]) << 8
-			m.Field12 |= int64(data[iNdEx-6]) << 16
-			m.Field12 |= int64(data[iNdEx-5]) << 24
-			m.Field12 |= int64(data[iNdEx-4]) << 32
-			m.Field12 |= int64(data[iNdEx-3]) << 40
-			m.Field12 |= int64(data[iNdEx-2]) << 48
-			m.Field12 |= int64(data[iNdEx-1]) << 56
+			m.Field12 = int64(dAtA[iNdEx-8])
+			m.Field12 |= int64(dAtA[iNdEx-7]) << 8
+			m.Field12 |= int64(dAtA[iNdEx-6]) << 16
+			m.Field12 |= int64(dAtA[iNdEx-5]) << 24
+			m.Field12 |= int64(dAtA[iNdEx-4]) << 32
+			m.Field12 |= int64(dAtA[iNdEx-3]) << 40
+			m.Field12 |= int64(dAtA[iNdEx-2]) << 48
+			m.Field12 |= int64(dAtA[iNdEx-1]) << 56
 		case 13:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
@@ -21781,7 +25956,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21801,7 +25976,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21816,7 +25991,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field14 = string(data[iNdEx:postIndex])
+			m.Field14 = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -21830,7 +26005,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21844,14 +26019,14 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -21861,7 +26036,7 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -21871,8 +26046,8 @@ func (m *NidOptNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -21884,7 +26059,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -21909,14 +26084,14 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.Field1 = &v2
 		case 2:
@@ -21928,10 +26103,10 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.Field2 = &v2
 		case 3:
@@ -21946,7 +26121,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21966,7 +26141,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -21986,7 +26161,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22006,7 +26181,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22026,7 +26201,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22047,7 +26222,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22066,10 +26241,10 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Field9 = &v
 		case 10:
 			if wireType != 5 {
@@ -22080,10 +26255,10 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = int32(data[iNdEx-4])
-			v |= int32(data[iNdEx-3]) << 8
-			v |= int32(data[iNdEx-2]) << 16
-			v |= int32(data[iNdEx-1]) << 24
+			v = int32(dAtA[iNdEx-4])
+			v |= int32(dAtA[iNdEx-3]) << 8
+			v |= int32(dAtA[iNdEx-2]) << 16
+			v |= int32(dAtA[iNdEx-1]) << 24
 			m.Field10 = &v
 		case 11:
 			if wireType != 1 {
@@ -22094,14 +26269,14 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.Field11 = &v
 		case 12:
 			if wireType != 1 {
@@ -22112,14 +26287,14 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = int64(data[iNdEx-8])
-			v |= int64(data[iNdEx-7]) << 8
-			v |= int64(data[iNdEx-6]) << 16
-			v |= int64(data[iNdEx-5]) << 24
-			v |= int64(data[iNdEx-4]) << 32
-			v |= int64(data[iNdEx-3]) << 40
-			v |= int64(data[iNdEx-2]) << 48
-			v |= int64(data[iNdEx-1]) << 56
+			v = int64(dAtA[iNdEx-8])
+			v |= int64(dAtA[iNdEx-7]) << 8
+			v |= int64(dAtA[iNdEx-6]) << 16
+			v |= int64(dAtA[iNdEx-5]) << 24
+			v |= int64(dAtA[iNdEx-4]) << 32
+			v |= int64(dAtA[iNdEx-3]) << 40
+			v |= int64(dAtA[iNdEx-2]) << 48
+			v |= int64(dAtA[iNdEx-1]) << 56
 			m.Field12 = &v
 		case 13:
 			if wireType != 0 {
@@ -22133,7 +26308,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22154,7 +26329,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22169,7 +26344,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field14 = &s
 			iNdEx = postIndex
 		case 15:
@@ -22184,7 +26359,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22198,14 +26373,14 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -22215,7 +26390,7 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -22225,8 +26400,8 @@ func (m *NinOptNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidRepNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidRepNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -22238,7 +26413,7 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -22255,245 +26430,771 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 1 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.Field1 = append(m.Field1, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					v2 := float64(math.Float64frombits(v))
+					m.Field1 = append(m.Field1, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			v2 := float64(math.Float64frombits(v))
-			m.Field1 = append(m.Field1, v2)
 		case 2:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.Field2 = append(m.Field2, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					v2 := float32(math.Float32frombits(v))
+					m.Field2 = append(m.Field2, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			v2 := float32(math.Float32frombits(v))
-			m.Field2 = append(m.Field2, v2)
 		case 3:
-			if wireType != 0 {
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field3 = append(m.Field3, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field3 = append(m.Field3, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 4:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field4 = append(m.Field4, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field4 = append(m.Field4, v)
 				}
-			}
-			m.Field3 = append(m.Field3, v)
-		case 4:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field4", wireType)
 			}
-			var v int64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 5:
+			if wireType == 0 {
+				var v uint32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field5 = append(m.Field5, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field5 = append(m.Field5, v)
 				}
-			}
-			m.Field4 = append(m.Field4, v)
-		case 5:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field5", wireType)
 			}
-			var v uint32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 6:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field6 = append(m.Field6, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field6 = append(m.Field6, v)
 				}
-			}
-			m.Field5 = append(m.Field5, v)
-		case 6:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 7:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.Field7 = append(m.Field7, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+					m.Field7 = append(m.Field7, v)
 				}
-			}
-			m.Field6 = append(m.Field6, v)
-		case 7:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 8:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+				m.Field8 = append(m.Field8, int64(v))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+					m.Field8 = append(m.Field8, int64(v))
 				}
-			}
-			v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-			m.Field7 = append(m.Field7, v)
-		case 8:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field8", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
+		case 9:
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.Field9 = append(m.Field9, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-			}
-			v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-			m.Field8 = append(m.Field8, int64(v))
-		case 9:
-			if wireType != 5 {
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					m.Field9 = append(m.Field9, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field9", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			m.Field9 = append(m.Field9, v)
 		case 10:
-			if wireType != 5 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
-			}
-			var v int32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = int32(data[iNdEx-4])
-			v |= int32(data[iNdEx-3]) << 8
-			v |= int32(data[iNdEx-2]) << 16
-			v |= int32(data[iNdEx-1]) << 24
-			m.Field10 = append(m.Field10, v)
-		case 11:
-			if wireType != 1 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
-			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			m.Field11 = append(m.Field11, v)
-		case 12:
-			if wireType != 1 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
-			}
-			var v int64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = int64(data[iNdEx-8])
-			v |= int64(data[iNdEx-7]) << 8
-			v |= int64(data[iNdEx-6]) << 16
-			v |= int64(data[iNdEx-5]) << 24
-			v |= int64(data[iNdEx-4]) << 32
-			v |= int64(data[iNdEx-3]) << 40
-			v |= int64(data[iNdEx-2]) << 48
-			v |= int64(data[iNdEx-1]) << 56
-			m.Field12 = append(m.Field12, v)
-		case 13:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
+			if wireType == 5 {
+				var v int32
+				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				iNdEx += 4
+				v = int32(dAtA[iNdEx-4])
+				v |= int32(dAtA[iNdEx-3]) << 8
+				v |= int32(dAtA[iNdEx-2]) << 16
+				v |= int32(dAtA[iNdEx-1]) << 24
+				m.Field10 = append(m.Field10, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = int32(dAtA[iNdEx-4])
+					v |= int32(dAtA[iNdEx-3]) << 8
+					v |= int32(dAtA[iNdEx-2]) << 16
+					v |= int32(dAtA[iNdEx-1]) << 24
+					m.Field10 = append(m.Field10, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
 			}
-			m.Field13 = append(m.Field13, bool(v != 0))
+		case 11:
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				m.Field11 = append(m.Field11, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					m.Field11 = append(m.Field11, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
+			}
+		case 12:
+			if wireType == 1 {
+				var v int64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = int64(dAtA[iNdEx-8])
+				v |= int64(dAtA[iNdEx-7]) << 8
+				v |= int64(dAtA[iNdEx-6]) << 16
+				v |= int64(dAtA[iNdEx-5]) << 24
+				v |= int64(dAtA[iNdEx-4]) << 32
+				v |= int64(dAtA[iNdEx-3]) << 40
+				v |= int64(dAtA[iNdEx-2]) << 48
+				v |= int64(dAtA[iNdEx-1]) << 56
+				m.Field12 = append(m.Field12, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = int64(dAtA[iNdEx-8])
+					v |= int64(dAtA[iNdEx-7]) << 8
+					v |= int64(dAtA[iNdEx-6]) << 16
+					v |= int64(dAtA[iNdEx-5]) << 24
+					v |= int64(dAtA[iNdEx-4]) << 32
+					v |= int64(dAtA[iNdEx-3]) << 40
+					v |= int64(dAtA[iNdEx-2]) << 48
+					v |= int64(dAtA[iNdEx-1]) << 56
+					m.Field12 = append(m.Field12, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
+			}
+		case 13:
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field13 = append(m.Field13, bool(v != 0))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field13 = append(m.Field13, bool(v != 0))
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
+			}
 		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field14", wireType)
@@ -22506,7 +27207,7 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22521,7 +27222,7 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field14 = append(m.Field14, string(data[iNdEx:postIndex]))
+			m.Field14 = append(m.Field14, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -22535,7 +27236,7 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22550,11 +27251,11 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field15 = append(m.Field15, make([]byte, postIndex-iNdEx))
-			copy(m.Field15[len(m.Field15)-1], data[iNdEx:postIndex])
+			copy(m.Field15[len(m.Field15)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -22564,7 +27265,7 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -22574,8 +27275,8 @@ func (m *NidRepNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinRepNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinRepNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -22587,7 +27288,7 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -22604,245 +27305,771 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 1 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.Field1 = append(m.Field1, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					v2 := float64(math.Float64frombits(v))
+					m.Field1 = append(m.Field1, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			v2 := float64(math.Float64frombits(v))
-			m.Field1 = append(m.Field1, v2)
 		case 2:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.Field2 = append(m.Field2, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					v2 := float32(math.Float32frombits(v))
+					m.Field2 = append(m.Field2, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			v2 := float32(math.Float32frombits(v))
-			m.Field2 = append(m.Field2, v2)
 		case 3:
-			if wireType != 0 {
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field3 = append(m.Field3, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field3 = append(m.Field3, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 4:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field4 = append(m.Field4, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field4 = append(m.Field4, v)
 				}
-			}
-			m.Field3 = append(m.Field3, v)
-		case 4:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field4", wireType)
 			}
-			var v int64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 5:
+			if wireType == 0 {
+				var v uint32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field5 = append(m.Field5, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field5 = append(m.Field5, v)
 				}
-			}
-			m.Field4 = append(m.Field4, v)
-		case 5:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field5", wireType)
 			}
-			var v uint32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 6:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field6 = append(m.Field6, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field6 = append(m.Field6, v)
 				}
-			}
-			m.Field5 = append(m.Field5, v)
-		case 6:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 7:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.Field7 = append(m.Field7, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+					m.Field7 = append(m.Field7, v)
 				}
-			}
-			m.Field6 = append(m.Field6, v)
-		case 7:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 8:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+				m.Field8 = append(m.Field8, int64(v))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+					m.Field8 = append(m.Field8, int64(v))
 				}
-			}
-			v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-			m.Field7 = append(m.Field7, v)
-		case 8:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field8", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
+		case 9:
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.Field9 = append(m.Field9, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-			}
-			v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-			m.Field8 = append(m.Field8, int64(v))
-		case 9:
-			if wireType != 5 {
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					m.Field9 = append(m.Field9, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field9", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			m.Field9 = append(m.Field9, v)
 		case 10:
-			if wireType != 5 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
-			}
-			var v int32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = int32(data[iNdEx-4])
-			v |= int32(data[iNdEx-3]) << 8
-			v |= int32(data[iNdEx-2]) << 16
-			v |= int32(data[iNdEx-1]) << 24
-			m.Field10 = append(m.Field10, v)
-		case 11:
-			if wireType != 1 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
-			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			m.Field11 = append(m.Field11, v)
-		case 12:
-			if wireType != 1 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
-			}
-			var v int64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = int64(data[iNdEx-8])
-			v |= int64(data[iNdEx-7]) << 8
-			v |= int64(data[iNdEx-6]) << 16
-			v |= int64(data[iNdEx-5]) << 24
-			v |= int64(data[iNdEx-4]) << 32
-			v |= int64(data[iNdEx-3]) << 40
-			v |= int64(data[iNdEx-2]) << 48
-			v |= int64(data[iNdEx-1]) << 56
-			m.Field12 = append(m.Field12, v)
-		case 13:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
+			if wireType == 5 {
+				var v int32
+				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				iNdEx += 4
+				v = int32(dAtA[iNdEx-4])
+				v |= int32(dAtA[iNdEx-3]) << 8
+				v |= int32(dAtA[iNdEx-2]) << 16
+				v |= int32(dAtA[iNdEx-1]) << 24
+				m.Field10 = append(m.Field10, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = int32(dAtA[iNdEx-4])
+					v |= int32(dAtA[iNdEx-3]) << 8
+					v |= int32(dAtA[iNdEx-2]) << 16
+					v |= int32(dAtA[iNdEx-1]) << 24
+					m.Field10 = append(m.Field10, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
 			}
-			m.Field13 = append(m.Field13, bool(v != 0))
+		case 11:
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				m.Field11 = append(m.Field11, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					m.Field11 = append(m.Field11, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
+			}
+		case 12:
+			if wireType == 1 {
+				var v int64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = int64(dAtA[iNdEx-8])
+				v |= int64(dAtA[iNdEx-7]) << 8
+				v |= int64(dAtA[iNdEx-6]) << 16
+				v |= int64(dAtA[iNdEx-5]) << 24
+				v |= int64(dAtA[iNdEx-4]) << 32
+				v |= int64(dAtA[iNdEx-3]) << 40
+				v |= int64(dAtA[iNdEx-2]) << 48
+				v |= int64(dAtA[iNdEx-1]) << 56
+				m.Field12 = append(m.Field12, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = int64(dAtA[iNdEx-8])
+					v |= int64(dAtA[iNdEx-7]) << 8
+					v |= int64(dAtA[iNdEx-6]) << 16
+					v |= int64(dAtA[iNdEx-5]) << 24
+					v |= int64(dAtA[iNdEx-4]) << 32
+					v |= int64(dAtA[iNdEx-3]) << 40
+					v |= int64(dAtA[iNdEx-2]) << 48
+					v |= int64(dAtA[iNdEx-1]) << 56
+					m.Field12 = append(m.Field12, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
+			}
+		case 13:
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field13 = append(m.Field13, bool(v != 0))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field13 = append(m.Field13, bool(v != 0))
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
+			}
 		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field14", wireType)
@@ -22855,7 +28082,7 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22870,7 +28097,7 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field14 = append(m.Field14, string(data[iNdEx:postIndex]))
+			m.Field14 = append(m.Field14, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -22884,7 +28111,7 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -22899,11 +28126,11 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field15 = append(m.Field15, make([]byte, postIndex-iNdEx))
-			copy(m.Field15[len(m.Field15)-1], data[iNdEx:postIndex])
+			copy(m.Field15[len(m.Field15)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -22913,7 +28140,7 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -22923,8 +28150,8 @@ func (m *NinRepNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidRepPackedNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidRepPackedNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -22936,7 +28163,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -22953,7 +28180,23 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType == 2 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.Field1 = append(m.Field1, v2)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -22962,7 +28205,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -22982,38 +28225,34 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 8
-					v = uint64(data[iNdEx-8])
-					v |= uint64(data[iNdEx-7]) << 8
-					v |= uint64(data[iNdEx-6]) << 16
-					v |= uint64(data[iNdEx-5]) << 24
-					v |= uint64(data[iNdEx-4]) << 32
-					v |= uint64(data[iNdEx-3]) << 40
-					v |= uint64(data[iNdEx-2]) << 48
-					v |= uint64(data[iNdEx-1]) << 56
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
 					v2 := float64(math.Float64frombits(v))
 					m.Field1 = append(m.Field1, v2)
 				}
-			} else if wireType == 1 {
-				var v uint64
-				if (iNdEx + 8) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 8
-				v = uint64(data[iNdEx-8])
-				v |= uint64(data[iNdEx-7]) << 8
-				v |= uint64(data[iNdEx-6]) << 16
-				v |= uint64(data[iNdEx-5]) << 24
-				v |= uint64(data[iNdEx-4]) << 32
-				v |= uint64(data[iNdEx-3]) << 40
-				v |= uint64(data[iNdEx-2]) << 48
-				v |= uint64(data[iNdEx-1]) << 56
-				v2 := float64(math.Float64frombits(v))
-				m.Field1 = append(m.Field1, v2)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
 		case 2:
-			if wireType == 2 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.Field2 = append(m.Field2, v2)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23022,7 +28261,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23042,30 +28281,35 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 4
-					v = uint32(data[iNdEx-4])
-					v |= uint32(data[iNdEx-3]) << 8
-					v |= uint32(data[iNdEx-2]) << 16
-					v |= uint32(data[iNdEx-1]) << 24
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
 					v2 := float32(math.Float32frombits(v))
 					m.Field2 = append(m.Field2, v2)
 				}
-			} else if wireType == 5 {
-				var v uint32
-				if (iNdEx + 4) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 4
-				v = uint32(data[iNdEx-4])
-				v |= uint32(data[iNdEx-3]) << 8
-				v |= uint32(data[iNdEx-2]) << 16
-				v |= uint32(data[iNdEx-1]) << 24
-				v2 := float32(math.Float32frombits(v))
-				m.Field2 = append(m.Field2, v2)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
 			}
 		case 3:
-			if wireType == 2 {
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field3 = append(m.Field3, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23074,7 +28318,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23097,7 +28341,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int32(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23106,8 +28350,12 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field3 = append(m.Field3, v)
 				}
-			} else if wireType == 0 {
-				var v int32
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
+		case 4:
+			if wireType == 0 {
+				var v int64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23115,19 +28363,15 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (int32(b) & 0x7F) << shift
+					v |= (int64(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field3 = append(m.Field3, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
-			}
-		case 4:
-			if wireType == 2 {
+				m.Field4 = append(m.Field4, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23136,7 +28380,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23159,7 +28403,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int64(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23168,8 +28412,12 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field4 = append(m.Field4, v)
 				}
-			} else if wireType == 0 {
-				var v int64
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field4", wireType)
+			}
+		case 5:
+			if wireType == 0 {
+				var v uint32
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23177,19 +28425,15 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (int64(b) & 0x7F) << shift
+					v |= (uint32(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field4 = append(m.Field4, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field4", wireType)
-			}
-		case 5:
-			if wireType == 2 {
+				m.Field5 = append(m.Field5, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23198,7 +28442,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23221,7 +28465,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (uint32(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23230,8 +28474,12 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field5 = append(m.Field5, v)
 				}
-			} else if wireType == 0 {
-				var v uint32
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field5", wireType)
+			}
+		case 6:
+			if wireType == 0 {
+				var v uint64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23239,19 +28487,15 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (uint32(b) & 0x7F) << shift
+					v |= (uint64(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field5 = append(m.Field5, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field5", wireType)
-			}
-		case 6:
-			if wireType == 2 {
+				m.Field6 = append(m.Field6, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23260,7 +28504,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23283,7 +28527,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (uint64(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23292,8 +28536,12 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field6 = append(m.Field6, v)
 				}
-			} else if wireType == 0 {
-				var v uint64
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
+			}
+		case 7:
+			if wireType == 0 {
+				var v int32
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23301,19 +28549,16 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (uint64(b) & 0x7F) << shift
+					v |= (int32(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field6 = append(m.Field6, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
-			}
-		case 7:
-			if wireType == 2 {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.Field7 = append(m.Field7, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23322,7 +28567,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23345,7 +28590,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int32(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23355,8 +28600,12 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
 					m.Field7 = append(m.Field7, v)
 				}
-			} else if wireType == 0 {
-				var v int32
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
+			}
+		case 8:
+			if wireType == 0 {
+				var v uint64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23364,20 +28613,16 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (int32(b) & 0x7F) << shift
+					v |= (uint64(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-				m.Field7 = append(m.Field7, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
-			}
-		case 8:
-			if wireType == 2 {
+				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+				m.Field8 = append(m.Field8, int64(v))
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23386,7 +28631,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23409,7 +28654,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (uint64(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23419,29 +28664,22 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
 					m.Field8 = append(m.Field8, int64(v))
 				}
-			} else if wireType == 0 {
-				var v uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowThetest
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := data[iNdEx]
-					iNdEx++
-					v |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-				m.Field8 = append(m.Field8, int64(v))
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field8", wireType)
 			}
 		case 9:
-			if wireType == 2 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.Field9 = append(m.Field9, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23450,7 +28688,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23470,28 +28708,28 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 4
-					v = uint32(data[iNdEx-4])
-					v |= uint32(data[iNdEx-3]) << 8
-					v |= uint32(data[iNdEx-2]) << 16
-					v |= uint32(data[iNdEx-1]) << 24
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
 					m.Field9 = append(m.Field9, v)
 				}
-			} else if wireType == 5 {
-				var v uint32
-				if (iNdEx + 4) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 4
-				v = uint32(data[iNdEx-4])
-				v |= uint32(data[iNdEx-3]) << 8
-				v |= uint32(data[iNdEx-2]) << 16
-				v |= uint32(data[iNdEx-1]) << 24
-				m.Field9 = append(m.Field9, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field9", wireType)
 			}
 		case 10:
-			if wireType == 2 {
+			if wireType == 5 {
+				var v int32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = int32(dAtA[iNdEx-4])
+				v |= int32(dAtA[iNdEx-3]) << 8
+				v |= int32(dAtA[iNdEx-2]) << 16
+				v |= int32(dAtA[iNdEx-1]) << 24
+				m.Field10 = append(m.Field10, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23500,7 +28738,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23520,28 +28758,32 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 4
-					v = int32(data[iNdEx-4])
-					v |= int32(data[iNdEx-3]) << 8
-					v |= int32(data[iNdEx-2]) << 16
-					v |= int32(data[iNdEx-1]) << 24
+					v = int32(dAtA[iNdEx-4])
+					v |= int32(dAtA[iNdEx-3]) << 8
+					v |= int32(dAtA[iNdEx-2]) << 16
+					v |= int32(dAtA[iNdEx-1]) << 24
 					m.Field10 = append(m.Field10, v)
 				}
-			} else if wireType == 5 {
-				var v int32
-				if (iNdEx + 4) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 4
-				v = int32(data[iNdEx-4])
-				v |= int32(data[iNdEx-3]) << 8
-				v |= int32(data[iNdEx-2]) << 16
-				v |= int32(data[iNdEx-1]) << 24
-				m.Field10 = append(m.Field10, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
 			}
 		case 11:
-			if wireType == 2 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				m.Field11 = append(m.Field11, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23550,7 +28792,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23570,36 +28812,36 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 8
-					v = uint64(data[iNdEx-8])
-					v |= uint64(data[iNdEx-7]) << 8
-					v |= uint64(data[iNdEx-6]) << 16
-					v |= uint64(data[iNdEx-5]) << 24
-					v |= uint64(data[iNdEx-4]) << 32
-					v |= uint64(data[iNdEx-3]) << 40
-					v |= uint64(data[iNdEx-2]) << 48
-					v |= uint64(data[iNdEx-1]) << 56
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.Field11 = append(m.Field11, v)
 				}
-			} else if wireType == 1 {
-				var v uint64
-				if (iNdEx + 8) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 8
-				v = uint64(data[iNdEx-8])
-				v |= uint64(data[iNdEx-7]) << 8
-				v |= uint64(data[iNdEx-6]) << 16
-				v |= uint64(data[iNdEx-5]) << 24
-				v |= uint64(data[iNdEx-4]) << 32
-				v |= uint64(data[iNdEx-3]) << 40
-				v |= uint64(data[iNdEx-2]) << 48
-				v |= uint64(data[iNdEx-1]) << 56
-				m.Field11 = append(m.Field11, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
 			}
 		case 12:
-			if wireType == 2 {
+			if wireType == 1 {
+				var v int64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = int64(dAtA[iNdEx-8])
+				v |= int64(dAtA[iNdEx-7]) << 8
+				v |= int64(dAtA[iNdEx-6]) << 16
+				v |= int64(dAtA[iNdEx-5]) << 24
+				v |= int64(dAtA[iNdEx-4]) << 32
+				v |= int64(dAtA[iNdEx-3]) << 40
+				v |= int64(dAtA[iNdEx-2]) << 48
+				v |= int64(dAtA[iNdEx-1]) << 56
+				m.Field12 = append(m.Field12, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23608,7 +28850,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23628,36 +28870,38 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 8
-					v = int64(data[iNdEx-8])
-					v |= int64(data[iNdEx-7]) << 8
-					v |= int64(data[iNdEx-6]) << 16
-					v |= int64(data[iNdEx-5]) << 24
-					v |= int64(data[iNdEx-4]) << 32
-					v |= int64(data[iNdEx-3]) << 40
-					v |= int64(data[iNdEx-2]) << 48
-					v |= int64(data[iNdEx-1]) << 56
+					v = int64(dAtA[iNdEx-8])
+					v |= int64(dAtA[iNdEx-7]) << 8
+					v |= int64(dAtA[iNdEx-6]) << 16
+					v |= int64(dAtA[iNdEx-5]) << 24
+					v |= int64(dAtA[iNdEx-4]) << 32
+					v |= int64(dAtA[iNdEx-3]) << 40
+					v |= int64(dAtA[iNdEx-2]) << 48
+					v |= int64(dAtA[iNdEx-1]) << 56
 					m.Field12 = append(m.Field12, v)
 				}
-			} else if wireType == 1 {
-				var v int64
-				if (iNdEx + 8) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 8
-				v = int64(data[iNdEx-8])
-				v |= int64(data[iNdEx-7]) << 8
-				v |= int64(data[iNdEx-6]) << 16
-				v |= int64(data[iNdEx-5]) << 24
-				v |= int64(data[iNdEx-4]) << 32
-				v |= int64(data[iNdEx-3]) << 40
-				v |= int64(data[iNdEx-2]) << 48
-				v |= int64(data[iNdEx-1]) << 56
-				m.Field12 = append(m.Field12, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
 			}
 		case 13:
-			if wireType == 2 {
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field13 = append(m.Field13, bool(v != 0))
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23666,7 +28910,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23689,7 +28933,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23698,29 +28942,12 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field13 = append(m.Field13, bool(v != 0))
 				}
-			} else if wireType == 0 {
-				var v int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowThetest
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := data[iNdEx]
-					iNdEx++
-					v |= (int(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				m.Field13 = append(m.Field13, bool(v != 0))
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
 			}
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -23730,7 +28957,7 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -23740,8 +28967,8 @@ func (m *NidRepPackedNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinRepPackedNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinRepPackedNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -23753,7 +28980,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -23770,7 +28997,23 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType == 2 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.Field1 = append(m.Field1, v2)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23779,7 +29022,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23799,38 +29042,34 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 8
-					v = uint64(data[iNdEx-8])
-					v |= uint64(data[iNdEx-7]) << 8
-					v |= uint64(data[iNdEx-6]) << 16
-					v |= uint64(data[iNdEx-5]) << 24
-					v |= uint64(data[iNdEx-4]) << 32
-					v |= uint64(data[iNdEx-3]) << 40
-					v |= uint64(data[iNdEx-2]) << 48
-					v |= uint64(data[iNdEx-1]) << 56
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
 					v2 := float64(math.Float64frombits(v))
 					m.Field1 = append(m.Field1, v2)
 				}
-			} else if wireType == 1 {
-				var v uint64
-				if (iNdEx + 8) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 8
-				v = uint64(data[iNdEx-8])
-				v |= uint64(data[iNdEx-7]) << 8
-				v |= uint64(data[iNdEx-6]) << 16
-				v |= uint64(data[iNdEx-5]) << 24
-				v |= uint64(data[iNdEx-4]) << 32
-				v |= uint64(data[iNdEx-3]) << 40
-				v |= uint64(data[iNdEx-2]) << 48
-				v |= uint64(data[iNdEx-1]) << 56
-				v2 := float64(math.Float64frombits(v))
-				m.Field1 = append(m.Field1, v2)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
 		case 2:
-			if wireType == 2 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.Field2 = append(m.Field2, v2)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23839,7 +29078,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23859,30 +29098,35 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 4
-					v = uint32(data[iNdEx-4])
-					v |= uint32(data[iNdEx-3]) << 8
-					v |= uint32(data[iNdEx-2]) << 16
-					v |= uint32(data[iNdEx-1]) << 24
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
 					v2 := float32(math.Float32frombits(v))
 					m.Field2 = append(m.Field2, v2)
 				}
-			} else if wireType == 5 {
-				var v uint32
-				if (iNdEx + 4) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 4
-				v = uint32(data[iNdEx-4])
-				v |= uint32(data[iNdEx-3]) << 8
-				v |= uint32(data[iNdEx-2]) << 16
-				v |= uint32(data[iNdEx-1]) << 24
-				v2 := float32(math.Float32frombits(v))
-				m.Field2 = append(m.Field2, v2)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
 			}
 		case 3:
-			if wireType == 2 {
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field3 = append(m.Field3, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23891,7 +29135,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23914,7 +29158,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int32(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23923,8 +29167,12 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field3 = append(m.Field3, v)
 				}
-			} else if wireType == 0 {
-				var v int32
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
+		case 4:
+			if wireType == 0 {
+				var v int64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23932,19 +29180,15 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (int32(b) & 0x7F) << shift
+					v |= (int64(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field3 = append(m.Field3, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
-			}
-		case 4:
-			if wireType == 2 {
+				m.Field4 = append(m.Field4, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -23953,7 +29197,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -23976,7 +29220,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int64(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -23985,8 +29229,12 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field4 = append(m.Field4, v)
 				}
-			} else if wireType == 0 {
-				var v int64
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field4", wireType)
+			}
+		case 5:
+			if wireType == 0 {
+				var v uint32
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -23994,19 +29242,15 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (int64(b) & 0x7F) << shift
+					v |= (uint32(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field4 = append(m.Field4, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field4", wireType)
-			}
-		case 5:
-			if wireType == 2 {
+				m.Field5 = append(m.Field5, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24015,7 +29259,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24038,7 +29282,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (uint32(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -24047,8 +29291,12 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field5 = append(m.Field5, v)
 				}
-			} else if wireType == 0 {
-				var v uint32
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field5", wireType)
+			}
+		case 6:
+			if wireType == 0 {
+				var v uint64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -24056,19 +29304,15 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (uint32(b) & 0x7F) << shift
+					v |= (uint64(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field5 = append(m.Field5, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field5", wireType)
-			}
-		case 6:
-			if wireType == 2 {
+				m.Field6 = append(m.Field6, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24077,7 +29321,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24100,7 +29344,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (uint64(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -24109,8 +29353,12 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field6 = append(m.Field6, v)
 				}
-			} else if wireType == 0 {
-				var v uint64
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
+			}
+		case 7:
+			if wireType == 0 {
+				var v int32
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -24118,19 +29366,16 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (uint64(b) & 0x7F) << shift
+					v |= (int32(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Field6 = append(m.Field6, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
-			}
-		case 7:
-			if wireType == 2 {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.Field7 = append(m.Field7, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24139,7 +29384,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24162,7 +29407,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int32(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -24172,8 +29417,12 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
 					m.Field7 = append(m.Field7, v)
 				}
-			} else if wireType == 0 {
-				var v int32
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
+			}
+		case 8:
+			if wireType == 0 {
+				var v uint64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return ErrIntOverflowThetest
@@ -24181,20 +29430,16 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (int32(b) & 0x7F) << shift
+					v |= (uint64(b) & 0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-				m.Field7 = append(m.Field7, v)
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
-			}
-		case 8:
-			if wireType == 2 {
+				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+				m.Field8 = append(m.Field8, int64(v))
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24203,7 +29448,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24226,7 +29471,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (uint64(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -24236,29 +29481,22 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
 					m.Field8 = append(m.Field8, int64(v))
 				}
-			} else if wireType == 0 {
-				var v uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowThetest
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := data[iNdEx]
-					iNdEx++
-					v |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-				m.Field8 = append(m.Field8, int64(v))
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field8", wireType)
 			}
 		case 9:
-			if wireType == 2 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.Field9 = append(m.Field9, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24267,7 +29505,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24287,28 +29525,28 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 4
-					v = uint32(data[iNdEx-4])
-					v |= uint32(data[iNdEx-3]) << 8
-					v |= uint32(data[iNdEx-2]) << 16
-					v |= uint32(data[iNdEx-1]) << 24
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
 					m.Field9 = append(m.Field9, v)
 				}
-			} else if wireType == 5 {
-				var v uint32
-				if (iNdEx + 4) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 4
-				v = uint32(data[iNdEx-4])
-				v |= uint32(data[iNdEx-3]) << 8
-				v |= uint32(data[iNdEx-2]) << 16
-				v |= uint32(data[iNdEx-1]) << 24
-				m.Field9 = append(m.Field9, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field9", wireType)
 			}
 		case 10:
-			if wireType == 2 {
+			if wireType == 5 {
+				var v int32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = int32(dAtA[iNdEx-4])
+				v |= int32(dAtA[iNdEx-3]) << 8
+				v |= int32(dAtA[iNdEx-2]) << 16
+				v |= int32(dAtA[iNdEx-1]) << 24
+				m.Field10 = append(m.Field10, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24317,7 +29555,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24337,28 +29575,32 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 4
-					v = int32(data[iNdEx-4])
-					v |= int32(data[iNdEx-3]) << 8
-					v |= int32(data[iNdEx-2]) << 16
-					v |= int32(data[iNdEx-1]) << 24
+					v = int32(dAtA[iNdEx-4])
+					v |= int32(dAtA[iNdEx-3]) << 8
+					v |= int32(dAtA[iNdEx-2]) << 16
+					v |= int32(dAtA[iNdEx-1]) << 24
 					m.Field10 = append(m.Field10, v)
 				}
-			} else if wireType == 5 {
-				var v int32
-				if (iNdEx + 4) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 4
-				v = int32(data[iNdEx-4])
-				v |= int32(data[iNdEx-3]) << 8
-				v |= int32(data[iNdEx-2]) << 16
-				v |= int32(data[iNdEx-1]) << 24
-				m.Field10 = append(m.Field10, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field10", wireType)
 			}
 		case 11:
-			if wireType == 2 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				m.Field11 = append(m.Field11, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24367,7 +29609,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24387,36 +29629,36 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 8
-					v = uint64(data[iNdEx-8])
-					v |= uint64(data[iNdEx-7]) << 8
-					v |= uint64(data[iNdEx-6]) << 16
-					v |= uint64(data[iNdEx-5]) << 24
-					v |= uint64(data[iNdEx-4]) << 32
-					v |= uint64(data[iNdEx-3]) << 40
-					v |= uint64(data[iNdEx-2]) << 48
-					v |= uint64(data[iNdEx-1]) << 56
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.Field11 = append(m.Field11, v)
 				}
-			} else if wireType == 1 {
-				var v uint64
-				if (iNdEx + 8) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 8
-				v = uint64(data[iNdEx-8])
-				v |= uint64(data[iNdEx-7]) << 8
-				v |= uint64(data[iNdEx-6]) << 16
-				v |= uint64(data[iNdEx-5]) << 24
-				v |= uint64(data[iNdEx-4]) << 32
-				v |= uint64(data[iNdEx-3]) << 40
-				v |= uint64(data[iNdEx-2]) << 48
-				v |= uint64(data[iNdEx-1]) << 56
-				m.Field11 = append(m.Field11, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field11", wireType)
 			}
 		case 12:
-			if wireType == 2 {
+			if wireType == 1 {
+				var v int64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = int64(dAtA[iNdEx-8])
+				v |= int64(dAtA[iNdEx-7]) << 8
+				v |= int64(dAtA[iNdEx-6]) << 16
+				v |= int64(dAtA[iNdEx-5]) << 24
+				v |= int64(dAtA[iNdEx-4]) << 32
+				v |= int64(dAtA[iNdEx-3]) << 40
+				v |= int64(dAtA[iNdEx-2]) << 48
+				v |= int64(dAtA[iNdEx-1]) << 56
+				m.Field12 = append(m.Field12, v)
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24425,7 +29667,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24445,36 +29687,38 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						return io.ErrUnexpectedEOF
 					}
 					iNdEx += 8
-					v = int64(data[iNdEx-8])
-					v |= int64(data[iNdEx-7]) << 8
-					v |= int64(data[iNdEx-6]) << 16
-					v |= int64(data[iNdEx-5]) << 24
-					v |= int64(data[iNdEx-4]) << 32
-					v |= int64(data[iNdEx-3]) << 40
-					v |= int64(data[iNdEx-2]) << 48
-					v |= int64(data[iNdEx-1]) << 56
+					v = int64(dAtA[iNdEx-8])
+					v |= int64(dAtA[iNdEx-7]) << 8
+					v |= int64(dAtA[iNdEx-6]) << 16
+					v |= int64(dAtA[iNdEx-5]) << 24
+					v |= int64(dAtA[iNdEx-4]) << 32
+					v |= int64(dAtA[iNdEx-3]) << 40
+					v |= int64(dAtA[iNdEx-2]) << 48
+					v |= int64(dAtA[iNdEx-1]) << 56
 					m.Field12 = append(m.Field12, v)
 				}
-			} else if wireType == 1 {
-				var v int64
-				if (iNdEx + 8) > l {
-					return io.ErrUnexpectedEOF
-				}
-				iNdEx += 8
-				v = int64(data[iNdEx-8])
-				v |= int64(data[iNdEx-7]) << 8
-				v |= int64(data[iNdEx-6]) << 16
-				v |= int64(data[iNdEx-5]) << 24
-				v |= int64(data[iNdEx-4]) << 32
-				v |= int64(data[iNdEx-3]) << 40
-				v |= int64(data[iNdEx-2]) << 48
-				v |= int64(data[iNdEx-1]) << 56
-				m.Field12 = append(m.Field12, v)
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field12", wireType)
 			}
 		case 13:
-			if wireType == 2 {
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field13 = append(m.Field13, bool(v != 0))
+			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
@@ -24483,7 +29727,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					if iNdEx >= l {
 						return io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					packedLen |= (int(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -24506,7 +29750,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 						if iNdEx >= l {
 							return io.ErrUnexpectedEOF
 						}
-						b := data[iNdEx]
+						b := dAtA[iNdEx]
 						iNdEx++
 						v |= (int(b) & 0x7F) << shift
 						if b < 0x80 {
@@ -24515,29 +29759,12 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 					}
 					m.Field13 = append(m.Field13, bool(v != 0))
 				}
-			} else if wireType == 0 {
-				var v int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowThetest
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := data[iNdEx]
-					iNdEx++
-					v |= (int(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				m.Field13 = append(m.Field13, bool(v != 0))
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
 			}
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -24547,7 +29774,7 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -24557,8 +29784,8 @@ func (m *NinRepPackedNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidOptStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidOptStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -24570,7 +29797,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -24595,14 +29822,14 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.Field1 = float64(math.Float64frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -24613,10 +29840,10 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Field2 = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 2 {
@@ -24630,7 +29857,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24644,7 +29871,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Field3.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field3.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -24660,7 +29887,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24674,7 +29901,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Field4.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field4.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -24690,7 +29917,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Field6 |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24709,7 +29936,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24730,7 +29957,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24744,7 +29971,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Field8.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field8.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -24760,7 +29987,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24780,7 +30007,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24795,7 +30022,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field14 = string(data[iNdEx:postIndex])
+			m.Field14 = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -24809,7 +30036,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24823,14 +30050,14 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -24840,7 +30067,7 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -24850,8 +30077,8 @@ func (m *NidOptStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -24863,7 +30090,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -24888,14 +30115,14 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.Field1 = &v2
 		case 2:
@@ -24907,10 +30134,10 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.Field2 = &v2
 		case 3:
@@ -24925,7 +30152,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24942,7 +30169,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if m.Field3 == nil {
 				m.Field3 = &NidOptNative{}
 			}
-			if err := m.Field3.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field3.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -24958,7 +30185,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -24975,7 +30202,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if m.Field4 == nil {
 				m.Field4 = &NinOptNative{}
 			}
-			if err := m.Field4.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field4.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -24991,7 +30218,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25011,7 +30238,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25032,7 +30259,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25049,7 +30276,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if m.Field8 == nil {
 				m.Field8 = &NidOptNative{}
 			}
-			if err := m.Field8.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field8.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25065,7 +30292,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25086,7 +30313,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25101,7 +30328,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field14 = &s
 			iNdEx = postIndex
 		case 15:
@@ -25116,7 +30343,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25130,14 +30357,14 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -25147,7 +30374,7 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -25157,8 +30384,8 @@ func (m *NinOptStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidRepStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidRepStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -25170,7 +30397,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -25187,39 +30414,117 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 1 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.Field1 = append(m.Field1, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					v2 := float64(math.Float64frombits(v))
+					m.Field1 = append(m.Field1, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			v2 := float64(math.Float64frombits(v))
-			m.Field1 = append(m.Field1, v2)
 		case 2:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.Field2 = append(m.Field2, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					v2 := float32(math.Float32frombits(v))
+					m.Field2 = append(m.Field2, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			v2 := float32(math.Float32frombits(v))
-			m.Field2 = append(m.Field2, v2)
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
@@ -25232,7 +30537,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25247,7 +30552,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field3 = append(m.Field3, NidOptNative{})
-			if err := m.Field3[len(m.Field3)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field3[len(m.Field3)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25263,7 +30568,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25278,51 +30583,136 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field4 = append(m.Field4, NinOptNative{})
-			if err := m.Field4[len(m.Field4)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field4[len(m.Field4)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 6:
-			if wireType != 0 {
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field6 = append(m.Field6, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field6 = append(m.Field6, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 7:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.Field7 = append(m.Field7, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+					m.Field7 = append(m.Field7, v)
 				}
-			}
-			m.Field6 = append(m.Field6, v)
-		case 7:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-			m.Field7 = append(m.Field7, v)
 		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field8", wireType)
@@ -25335,7 +30725,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25350,30 +30740,72 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field8 = append(m.Field8, NidOptNative{})
-			if err := m.Field8[len(m.Field8)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field8[len(m.Field8)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 13:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field13 = append(m.Field13, bool(v != 0))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field13 = append(m.Field13, bool(v != 0))
 				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
 			}
-			m.Field13 = append(m.Field13, bool(v != 0))
 		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field14", wireType)
@@ -25386,7 +30818,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25401,7 +30833,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field14 = append(m.Field14, string(data[iNdEx:postIndex]))
+			m.Field14 = append(m.Field14, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -25415,7 +30847,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25430,11 +30862,11 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field15 = append(m.Field15, make([]byte, postIndex-iNdEx))
-			copy(m.Field15[len(m.Field15)-1], data[iNdEx:postIndex])
+			copy(m.Field15[len(m.Field15)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -25444,7 +30876,7 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -25454,8 +30886,8 @@ func (m *NidRepStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinRepStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinRepStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -25467,7 +30899,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -25484,39 +30916,117 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 1 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.Field1 = append(m.Field1, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					v2 := float64(math.Float64frombits(v))
+					m.Field1 = append(m.Field1, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			v2 := float64(math.Float64frombits(v))
-			m.Field1 = append(m.Field1, v2)
 		case 2:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.Field2 = append(m.Field2, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					v2 := float32(math.Float32frombits(v))
+					m.Field2 = append(m.Field2, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			v2 := float32(math.Float32frombits(v))
-			m.Field2 = append(m.Field2, v2)
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
@@ -25529,7 +31039,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25544,7 +31054,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field3 = append(m.Field3, &NidOptNative{})
-			if err := m.Field3[len(m.Field3)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field3[len(m.Field3)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25560,7 +31070,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25575,51 +31085,136 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field4 = append(m.Field4, &NinOptNative{})
-			if err := m.Field4[len(m.Field4)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field4[len(m.Field4)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 6:
-			if wireType != 0 {
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field6 = append(m.Field6, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field6 = append(m.Field6, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field6", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 7:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.Field7 = append(m.Field7, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+					m.Field7 = append(m.Field7, v)
 				}
-			}
-			m.Field6 = append(m.Field6, v)
-		case 7:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field7", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-			m.Field7 = append(m.Field7, v)
 		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field8", wireType)
@@ -25632,7 +31227,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25647,30 +31242,72 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field8 = append(m.Field8, &NidOptNative{})
-			if err := m.Field8[len(m.Field8)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field8[len(m.Field8)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 13:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field13 = append(m.Field13, bool(v != 0))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field13 = append(m.Field13, bool(v != 0))
 				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field13", wireType)
 			}
-			m.Field13 = append(m.Field13, bool(v != 0))
 		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Field14", wireType)
@@ -25683,7 +31320,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25698,7 +31335,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field14 = append(m.Field14, string(data[iNdEx:postIndex]))
+			m.Field14 = append(m.Field14, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -25712,7 +31349,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25727,11 +31364,11 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field15 = append(m.Field15, make([]byte, postIndex-iNdEx))
-			copy(m.Field15[len(m.Field15)-1], data[iNdEx:postIndex])
+			copy(m.Field15[len(m.Field15)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -25741,7 +31378,7 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -25751,8 +31388,8 @@ func (m *NinRepStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidEmbeddedStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -25764,7 +31401,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -25792,7 +31429,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25809,7 +31446,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 			if m.NidOptNative == nil {
 				m.NidOptNative = &NidOptNative{}
 			}
-			if err := m.NidOptNative.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NidOptNative.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25825,7 +31462,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25839,7 +31476,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Field200.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field200.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25855,7 +31492,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25865,7 +31502,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 			m.Field210 = bool(v != 0)
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -25875,7 +31512,7 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -25885,8 +31522,8 @@ func (m *NidEmbeddedStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinEmbeddedStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -25898,7 +31535,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -25926,7 +31563,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25943,7 +31580,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 			if m.NidOptNative == nil {
 				m.NidOptNative = &NidOptNative{}
 			}
-			if err := m.NidOptNative.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NidOptNative.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25959,7 +31596,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -25976,7 +31613,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 			if m.Field200 == nil {
 				m.Field200 = &NidOptNative{}
 			}
-			if err := m.Field200.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field200.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -25992,7 +31629,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26003,7 +31640,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 			m.Field210 = &b
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26013,7 +31650,7 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26023,8 +31660,8 @@ func (m *NinEmbeddedStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidNestedStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidNestedStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26036,7 +31673,7 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26064,7 +31701,7 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26078,7 +31715,7 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Field1.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -26094,7 +31731,7 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26109,13 +31746,13 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field2 = append(m.Field2, NidRepStruct{})
-			if err := m.Field2[len(m.Field2)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field2[len(m.Field2)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26125,7 +31762,7 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26135,8 +31772,8 @@ func (m *NidNestedStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinNestedStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinNestedStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26148,7 +31785,7 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26176,7 +31813,7 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26193,7 +31830,7 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 			if m.Field1 == nil {
 				m.Field1 = &NinOptStruct{}
 			}
-			if err := m.Field1.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -26209,7 +31846,7 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26224,13 +31861,13 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Field2 = append(m.Field2, &NinRepStruct{})
-			if err := m.Field2[len(m.Field2)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field2[len(m.Field2)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26240,7 +31877,7 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26250,8 +31887,8 @@ func (m *NinNestedStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidOptCustom) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidOptCustom) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26263,7 +31900,7 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26291,7 +31928,7 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26305,7 +31942,7 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Id.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Id.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -26321,7 +31958,7 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26335,13 +31972,13 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Value.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26351,7 +31988,7 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26361,8 +31998,8 @@ func (m *NidOptCustom) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomDash) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomDash) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26374,7 +32011,7 @@ func (m *CustomDash) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26402,7 +32039,7 @@ func (m *CustomDash) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26418,13 +32055,13 @@ func (m *CustomDash) Unmarshal(data []byte) error {
 			}
 			var v github_com_gogo_protobuf_test_custom_dash_type.Bytes
 			m.Value = &v
-			if err := m.Value.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26434,7 +32071,7 @@ func (m *CustomDash) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26444,8 +32081,8 @@ func (m *CustomDash) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptCustom) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptCustom) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26457,7 +32094,7 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26485,7 +32122,7 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26501,7 +32138,7 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 			}
 			var v Uuid
 			m.Id = &v
-			if err := m.Id.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Id.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -26517,7 +32154,7 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26533,13 +32170,13 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 			}
 			var v github_com_gogo_protobuf_test_custom.Uint128
 			m.Value = &v
-			if err := m.Value.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26549,7 +32186,7 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26559,8 +32196,8 @@ func (m *NinOptCustom) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidRepCustom) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidRepCustom) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26572,7 +32209,7 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26600,7 +32237,7 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26616,7 +32253,7 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 			}
 			var v Uuid
 			m.Id = append(m.Id, v)
-			if err := m.Id[len(m.Id)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Id[len(m.Id)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -26632,7 +32269,7 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26648,13 +32285,13 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 			}
 			var v github_com_gogo_protobuf_test_custom.Uint128
 			m.Value = append(m.Value, v)
-			if err := m.Value[len(m.Value)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Value[len(m.Value)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26664,7 +32301,7 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26674,8 +32311,8 @@ func (m *NidRepCustom) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinRepCustom) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinRepCustom) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26687,7 +32324,7 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26715,7 +32352,7 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26731,7 +32368,7 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 			}
 			var v Uuid
 			m.Id = append(m.Id, v)
-			if err := m.Id[len(m.Id)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Id[len(m.Id)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -26747,7 +32384,7 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26763,13 +32400,13 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 			}
 			var v github_com_gogo_protobuf_test_custom.Uint128
 			m.Value = append(m.Value, v)
-			if err := m.Value[len(m.Value)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Value[len(m.Value)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -26779,7 +32416,7 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -26789,8 +32426,8 @@ func (m *NinRepCustom) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptNativeUnion) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -26802,7 +32439,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -26827,14 +32464,14 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.Field1 = &v2
 		case 2:
@@ -26846,10 +32483,10 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.Field2 = &v2
 		case 3:
@@ -26864,7 +32501,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26884,7 +32521,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26904,7 +32541,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26924,7 +32561,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26944,7 +32581,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26965,7 +32602,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -26980,7 +32617,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field14 = &s
 			iNdEx = postIndex
 		case 15:
@@ -26995,7 +32632,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27009,14 +32646,14 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27026,7 +32663,7 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27036,8 +32673,8 @@ func (m *NinOptNativeUnion) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptStructUnion) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptStructUnion) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27049,7 +32686,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -27074,14 +32711,14 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.Field1 = &v2
 		case 2:
@@ -27093,10 +32730,10 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.Field2 = &v2
 		case 3:
@@ -27111,7 +32748,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27128,7 +32765,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 			if m.Field3 == nil {
 				m.Field3 = &NidOptNative{}
 			}
-			if err := m.Field3.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field3.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27144,7 +32781,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27161,7 +32798,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 			if m.Field4 == nil {
 				m.Field4 = &NinOptNative{}
 			}
-			if err := m.Field4.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field4.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27177,7 +32814,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27197,7 +32834,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27218,7 +32855,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27239,7 +32876,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27254,7 +32891,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field14 = &s
 			iNdEx = postIndex
 		case 15:
@@ -27269,7 +32906,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27283,14 +32920,14 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27300,7 +32937,7 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27310,8 +32947,8 @@ func (m *NinOptStructUnion) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinEmbeddedStructUnion) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27323,7 +32960,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -27351,7 +32988,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27368,7 +33005,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if m.NidOptNative == nil {
 				m.NidOptNative = &NidOptNative{}
 			}
-			if err := m.NidOptNative.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NidOptNative.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27384,7 +33021,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27401,7 +33038,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if m.Field200 == nil {
 				m.Field200 = &NinOptNative{}
 			}
-			if err := m.Field200.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field200.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27417,7 +33054,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27428,7 +33065,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			m.Field210 = &b
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27438,7 +33075,7 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27448,8 +33085,8 @@ func (m *NinEmbeddedStructUnion) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinNestedStructUnion) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27461,7 +33098,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -27489,7 +33126,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27506,7 +33143,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 			if m.Field1 == nil {
 				m.Field1 = &NinOptNativeUnion{}
 			}
-			if err := m.Field1.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27522,7 +33159,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27539,7 +33176,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 			if m.Field2 == nil {
 				m.Field2 = &NinOptStructUnion{}
 			}
-			if err := m.Field2.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field2.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27555,7 +33192,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27572,13 +33209,13 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 			if m.Field3 == nil {
 				m.Field3 = &NinEmbeddedStructUnion{}
 			}
-			if err := m.Field3.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Field3.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27588,7 +33225,7 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27598,8 +33235,8 @@ func (m *NinNestedStructUnion) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *Tree) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *Tree) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27611,7 +33248,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -27639,7 +33276,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27656,7 +33293,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 			if m.Or == nil {
 				m.Or = &OrBranch{}
 			}
-			if err := m.Or.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Or.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27672,7 +33309,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27689,7 +33326,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 			if m.And == nil {
 				m.And = &AndBranch{}
 			}
-			if err := m.And.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.And.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27705,7 +33342,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27722,13 +33359,13 @@ func (m *Tree) Unmarshal(data []byte) error {
 			if m.Leaf == nil {
 				m.Leaf = &Leaf{}
 			}
-			if err := m.Leaf.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Leaf.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27738,7 +33375,7 @@ func (m *Tree) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27748,8 +33385,8 @@ func (m *Tree) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *OrBranch) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *OrBranch) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27761,7 +33398,7 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -27789,7 +33426,7 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27803,7 +33440,7 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Left.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Left.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27819,7 +33456,7 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27833,13 +33470,13 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Right.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Right.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27849,7 +33486,7 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27859,8 +33496,8 @@ func (m *OrBranch) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *AndBranch) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *AndBranch) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27872,7 +33509,7 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -27900,7 +33537,7 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27914,7 +33551,7 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Left.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Left.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -27930,7 +33567,7 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -27944,13 +33581,13 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Right.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Right.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -27960,7 +33597,7 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -27970,8 +33607,8 @@ func (m *AndBranch) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *Leaf) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *Leaf) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -27983,7 +33620,7 @@ func (m *Leaf) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28011,7 +33648,7 @@ func (m *Leaf) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Value |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28030,7 +33667,7 @@ func (m *Leaf) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28045,11 +33682,11 @@ func (m *Leaf) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.StrValue = string(data[iNdEx:postIndex])
+			m.StrValue = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28059,7 +33696,7 @@ func (m *Leaf) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28069,8 +33706,8 @@ func (m *Leaf) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *DeepTree) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *DeepTree) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28082,7 +33719,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28110,7 +33747,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28127,7 +33764,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 			if m.Down == nil {
 				m.Down = &ADeepBranch{}
 			}
-			if err := m.Down.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Down.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -28143,7 +33780,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28160,7 +33797,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 			if m.And == nil {
 				m.And = &AndDeepBranch{}
 			}
-			if err := m.And.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.And.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -28176,7 +33813,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28193,13 +33830,13 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 			if m.Leaf == nil {
 				m.Leaf = &DeepLeaf{}
 			}
-			if err := m.Leaf.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Leaf.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28209,7 +33846,7 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28219,8 +33856,8 @@ func (m *DeepTree) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *ADeepBranch) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *ADeepBranch) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28232,7 +33869,7 @@ func (m *ADeepBranch) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28260,7 +33897,7 @@ func (m *ADeepBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28274,13 +33911,13 @@ func (m *ADeepBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Down.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Down.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28290,7 +33927,7 @@ func (m *ADeepBranch) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28300,8 +33937,8 @@ func (m *ADeepBranch) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *AndDeepBranch) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *AndDeepBranch) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28313,7 +33950,7 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28341,7 +33978,7 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28355,7 +33992,7 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Left.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Left.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -28371,7 +34008,7 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28385,13 +34022,13 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Right.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Right.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28401,7 +34038,7 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28411,8 +34048,8 @@ func (m *AndDeepBranch) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *DeepLeaf) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *DeepLeaf) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28424,7 +34061,7 @@ func (m *DeepLeaf) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28452,7 +34089,7 @@ func (m *DeepLeaf) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28466,13 +34103,13 @@ func (m *DeepLeaf) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Tree.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Tree.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28482,7 +34119,7 @@ func (m *DeepLeaf) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28492,8 +34129,8 @@ func (m *DeepLeaf) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *Nil) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *Nil) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28505,7 +34142,7 @@ func (m *Nil) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28523,7 +34160,7 @@ func (m *Nil) Unmarshal(data []byte) error {
 		switch fieldNum {
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28533,7 +34170,7 @@ func (m *Nil) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28543,8 +34180,8 @@ func (m *Nil) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidOptEnum) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidOptEnum) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28556,7 +34193,7 @@ func (m *NidOptEnum) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28584,7 +34221,7 @@ func (m *NidOptEnum) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.Field1 |= (TheTestEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28593,7 +34230,7 @@ func (m *NidOptEnum) Unmarshal(data []byte) error {
 			}
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28603,7 +34240,7 @@ func (m *NidOptEnum) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28613,8 +34250,8 @@ func (m *NidOptEnum) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptEnum) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptEnum) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28626,7 +34263,7 @@ func (m *NinOptEnum) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28654,7 +34291,7 @@ func (m *NinOptEnum) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (TheTestEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28662,9 +34299,49 @@ func (m *NinOptEnum) Unmarshal(data []byte) error {
 				}
 			}
 			m.Field1 = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+			var v YetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field2 = &v
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
+			var v YetYetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field3 = &v
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28674,7 +34351,7 @@ func (m *NinOptEnum) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28684,8 +34361,8 @@ func (m *NinOptEnum) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NidRepEnum) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NidRepEnum) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28697,7 +34374,7 @@ func (m *NidRepEnum) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28714,28 +34391,194 @@ func (m *NidRepEnum) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
-			}
-			var v TheTestEnum
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+			if wireType == 0 {
+				var v TheTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (TheTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field1 = append(m.Field1, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (TheTestEnum(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v TheTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (TheTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field1 = append(m.Field1, v)
 				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
-			m.Field1 = append(m.Field1, v)
+		case 2:
+			if wireType == 0 {
+				var v YetAnotherTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field2 = append(m.Field2, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v YetAnotherTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field2 = append(m.Field2, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+		case 3:
+			if wireType == 0 {
+				var v YetYetAnotherTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field3 = append(m.Field3, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v YetYetAnotherTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field3 = append(m.Field3, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28745,7 +34588,7 @@ func (m *NidRepEnum) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28755,8 +34598,8 @@ func (m *NidRepEnum) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinRepEnum) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinRepEnum) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28768,7 +34611,7 @@ func (m *NinRepEnum) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28785,28 +34628,194 @@ func (m *NinRepEnum) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
-			}
-			var v TheTestEnum
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+			if wireType == 0 {
+				var v TheTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (TheTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.Field1 = append(m.Field1, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (TheTestEnum(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v TheTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (TheTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field1 = append(m.Field1, v)
 				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
 			}
-			m.Field1 = append(m.Field1, v)
+		case 2:
+			if wireType == 0 {
+				var v YetAnotherTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field2 = append(m.Field2, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v YetAnotherTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field2 = append(m.Field2, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+		case 3:
+			if wireType == 0 {
+				var v YetYetAnotherTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Field3 = append(m.Field3, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v YetYetAnotherTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Field3 = append(m.Field3, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28816,7 +34825,7 @@ func (m *NinRepEnum) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28826,8 +34835,8 @@ func (m *NinRepEnum) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptEnumDefault) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptEnumDefault) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28839,7 +34848,7 @@ func (m *NinOptEnumDefault) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28867,7 +34876,7 @@ func (m *NinOptEnumDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (TheTestEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28875,9 +34884,49 @@ func (m *NinOptEnumDefault) Unmarshal(data []byte) error {
 				}
 			}
 			m.Field1 = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+			var v YetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field2 = &v
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
+			var v YetYetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field3 = &v
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28887,7 +34936,7 @@ func (m *NinOptEnumDefault) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28897,8 +34946,8 @@ func (m *NinOptEnumDefault) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *AnotherNinOptEnum) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *AnotherNinOptEnum) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28910,7 +34959,7 @@ func (m *AnotherNinOptEnum) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -28938,7 +34987,7 @@ func (m *AnotherNinOptEnum) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (AnotherTestEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -28946,9 +34995,49 @@ func (m *AnotherNinOptEnum) Unmarshal(data []byte) error {
 				}
 			}
 			m.Field1 = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+			var v YetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field2 = &v
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
+			var v YetYetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field3 = &v
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -28958,7 +35047,7 @@ func (m *AnotherNinOptEnum) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -28968,8 +35057,8 @@ func (m *AnotherNinOptEnum) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *AnotherNinOptEnumDefault) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *AnotherNinOptEnumDefault) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -28981,7 +35070,7 @@ func (m *AnotherNinOptEnumDefault) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29009,7 +35098,7 @@ func (m *AnotherNinOptEnumDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (AnotherTestEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29017,9 +35106,49 @@ func (m *AnotherNinOptEnumDefault) Unmarshal(data []byte) error {
 				}
 			}
 			m.Field1 = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+			var v YetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field2 = &v
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field3", wireType)
+			}
+			var v YetYetAnotherTestEnum
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (YetYetAnotherTestEnum(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Field3 = &v
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -29029,7 +35158,7 @@ func (m *AnotherNinOptEnumDefault) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -29039,8 +35168,8 @@ func (m *AnotherNinOptEnumDefault) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *Timer) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *Timer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29052,7 +35181,7 @@ func (m *Timer) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29077,14 +35206,14 @@ func (m *Timer) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			m.Time1 = int64(data[iNdEx-8])
-			m.Time1 |= int64(data[iNdEx-7]) << 8
-			m.Time1 |= int64(data[iNdEx-6]) << 16
-			m.Time1 |= int64(data[iNdEx-5]) << 24
-			m.Time1 |= int64(data[iNdEx-4]) << 32
-			m.Time1 |= int64(data[iNdEx-3]) << 40
-			m.Time1 |= int64(data[iNdEx-2]) << 48
-			m.Time1 |= int64(data[iNdEx-1]) << 56
+			m.Time1 = int64(dAtA[iNdEx-8])
+			m.Time1 |= int64(dAtA[iNdEx-7]) << 8
+			m.Time1 |= int64(dAtA[iNdEx-6]) << 16
+			m.Time1 |= int64(dAtA[iNdEx-5]) << 24
+			m.Time1 |= int64(dAtA[iNdEx-4]) << 32
+			m.Time1 |= int64(dAtA[iNdEx-3]) << 40
+			m.Time1 |= int64(dAtA[iNdEx-2]) << 48
+			m.Time1 |= int64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Time2", wireType)
@@ -29094,14 +35223,14 @@ func (m *Timer) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			m.Time2 = int64(data[iNdEx-8])
-			m.Time2 |= int64(data[iNdEx-7]) << 8
-			m.Time2 |= int64(data[iNdEx-6]) << 16
-			m.Time2 |= int64(data[iNdEx-5]) << 24
-			m.Time2 |= int64(data[iNdEx-4]) << 32
-			m.Time2 |= int64(data[iNdEx-3]) << 40
-			m.Time2 |= int64(data[iNdEx-2]) << 48
-			m.Time2 |= int64(data[iNdEx-1]) << 56
+			m.Time2 = int64(dAtA[iNdEx-8])
+			m.Time2 |= int64(dAtA[iNdEx-7]) << 8
+			m.Time2 |= int64(dAtA[iNdEx-6]) << 16
+			m.Time2 |= int64(dAtA[iNdEx-5]) << 24
+			m.Time2 |= int64(dAtA[iNdEx-4]) << 32
+			m.Time2 |= int64(dAtA[iNdEx-3]) << 40
+			m.Time2 |= int64(dAtA[iNdEx-2]) << 48
+			m.Time2 |= int64(dAtA[iNdEx-1]) << 56
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
@@ -29114,7 +35243,7 @@ func (m *Timer) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29128,14 +35257,14 @@ func (m *Timer) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Data = append(m.Data[:0], data[iNdEx:postIndex]...)
+			m.Data = append(m.Data[:0], dAtA[iNdEx:postIndex]...)
 			if m.Data == nil {
 				m.Data = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -29145,7 +35274,7 @@ func (m *Timer) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -29155,8 +35284,8 @@ func (m *Timer) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *MyExtendable) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *MyExtendable) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29168,7 +35297,7 @@ func (m *MyExtendable) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29196,7 +35325,7 @@ func (m *MyExtendable) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29215,7 +35344,7 @@ func (m *MyExtendable) Unmarshal(data []byte) error {
 					}
 				}
 				iNdEx -= sizeOfWire
-				skippy, err := skipThetest(data[iNdEx:])
+				skippy, err := skipThetest(dAtA[iNdEx:])
 				if err != nil {
 					return err
 				}
@@ -29225,14 +35354,11 @@ func (m *MyExtendable) Unmarshal(data []byte) error {
 				if (iNdEx + skippy) > l {
 					return io.ErrUnexpectedEOF
 				}
-				if m.XXX_extensions == nil {
-					m.XXX_extensions = make(map[int32]github_com_gogo_protobuf_proto.Extension)
-				}
-				m.XXX_extensions[int32(fieldNum)] = github_com_gogo_protobuf_proto.NewExtension(data[iNdEx : iNdEx+skippy])
+				github_com_gogo_protobuf_proto.AppendExtension(m, int32(fieldNum), dAtA[iNdEx:iNdEx+skippy])
 				iNdEx += skippy
 			} else {
 				iNdEx = preIndex
-				skippy, err := skipThetest(data[iNdEx:])
+				skippy, err := skipThetest(dAtA[iNdEx:])
 				if err != nil {
 					return err
 				}
@@ -29242,7 +35368,7 @@ func (m *MyExtendable) Unmarshal(data []byte) error {
 				if (iNdEx + skippy) > l {
 					return io.ErrUnexpectedEOF
 				}
-				m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+				m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 				iNdEx += skippy
 			}
 		}
@@ -29253,8 +35379,8 @@ func (m *MyExtendable) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *OtherExtenable) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *OtherExtenable) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29266,7 +35392,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29294,7 +35420,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29314,7 +35440,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29334,7 +35460,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29351,7 +35477,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 			if m.M == nil {
 				m.M = &MyExtendable{}
 			}
-			if err := m.M.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.M.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -29366,7 +35492,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 					}
 				}
 				iNdEx -= sizeOfWire
-				skippy, err := skipThetest(data[iNdEx:])
+				skippy, err := skipThetest(dAtA[iNdEx:])
 				if err != nil {
 					return err
 				}
@@ -29376,14 +35502,11 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 				if (iNdEx + skippy) > l {
 					return io.ErrUnexpectedEOF
 				}
-				if m.XXX_extensions == nil {
-					m.XXX_extensions = make(map[int32]github_com_gogo_protobuf_proto.Extension)
-				}
-				m.XXX_extensions[int32(fieldNum)] = github_com_gogo_protobuf_proto.NewExtension(data[iNdEx : iNdEx+skippy])
+				github_com_gogo_protobuf_proto.AppendExtension(m, int32(fieldNum), dAtA[iNdEx:iNdEx+skippy])
 				iNdEx += skippy
 			} else {
 				iNdEx = preIndex
-				skippy, err := skipThetest(data[iNdEx:])
+				skippy, err := skipThetest(dAtA[iNdEx:])
 				if err != nil {
 					return err
 				}
@@ -29393,7 +35516,7 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 				if (iNdEx + skippy) > l {
 					return io.ErrUnexpectedEOF
 				}
-				m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+				m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 				iNdEx += skippy
 			}
 		}
@@ -29404,8 +35527,8 @@ func (m *OtherExtenable) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NestedDefinition) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NestedDefinition) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29417,7 +35540,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29445,7 +35568,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29465,7 +35588,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (NestedDefinition_NestedEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29485,7 +35608,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29502,7 +35625,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 			if m.NNM == nil {
 				m.NNM = &NestedDefinition_NestedMessage_NestedNestedMsg{}
 			}
-			if err := m.NNM.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NNM.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -29518,7 +35641,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29535,13 +35658,13 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 			if m.NM == nil {
 				m.NM = &NestedDefinition_NestedMessage{}
 			}
-			if err := m.NM.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NM.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -29551,7 +35674,7 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -29561,8 +35684,8 @@ func (m *NestedDefinition) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NestedDefinition_NestedMessage) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29574,7 +35697,7 @@ func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29599,14 +35722,14 @@ func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.NestedField1 = &v
 		case 2:
 			if wireType != 2 {
@@ -29620,7 +35743,7 @@ func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29637,13 +35760,13 @@ func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
 			if m.NNM == nil {
 				m.NNM = &NestedDefinition_NestedMessage_NestedNestedMsg{}
 			}
-			if err := m.NNM.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NNM.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -29653,7 +35776,7 @@ func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -29663,8 +35786,8 @@ func (m *NestedDefinition_NestedMessage) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29676,7 +35799,7 @@ func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(data []byte) 
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29704,7 +35827,7 @@ func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(data []byte) 
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29719,12 +35842,12 @@ func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(data []byte) 
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.NestedNestedField1 = &s
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -29734,7 +35857,7 @@ func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(data []byte) 
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -29744,8 +35867,8 @@ func (m *NestedDefinition_NestedMessage_NestedNestedMsg) Unmarshal(data []byte) 
 	}
 	return nil
 }
-func (m *NestedScope) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NestedScope) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29757,7 +35880,7 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29785,7 +35908,7 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29802,7 +35925,7 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 			if m.A == nil {
 				m.A = &NestedDefinition_NestedMessage_NestedNestedMsg{}
 			}
-			if err := m.A.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.A.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -29818,7 +35941,7 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (NestedDefinition_NestedEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29838,7 +35961,7 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29855,13 +35978,13 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 			if m.C == nil {
 				m.C = &NestedDefinition_NestedMessage{}
 			}
-			if err := m.C.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.C.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -29871,7 +35994,7 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -29881,8 +36004,8 @@ func (m *NestedScope) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NinOptNativeDefault) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -29894,7 +36017,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -29919,14 +36042,14 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.Field1 = &v2
 		case 2:
@@ -29938,10 +36061,10 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.Field2 = &v2
 		case 3:
@@ -29956,7 +36079,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29976,7 +36099,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -29996,7 +36119,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30016,7 +36139,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30036,7 +36159,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30057,7 +36180,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30076,10 +36199,10 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Field9 = &v
 		case 10:
 			if wireType != 5 {
@@ -30090,10 +36213,10 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = int32(data[iNdEx-4])
-			v |= int32(data[iNdEx-3]) << 8
-			v |= int32(data[iNdEx-2]) << 16
-			v |= int32(data[iNdEx-1]) << 24
+			v = int32(dAtA[iNdEx-4])
+			v |= int32(dAtA[iNdEx-3]) << 8
+			v |= int32(dAtA[iNdEx-2]) << 16
+			v |= int32(dAtA[iNdEx-1]) << 24
 			m.Field10 = &v
 		case 11:
 			if wireType != 1 {
@@ -30104,14 +36227,14 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.Field11 = &v
 		case 12:
 			if wireType != 1 {
@@ -30122,14 +36245,14 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = int64(data[iNdEx-8])
-			v |= int64(data[iNdEx-7]) << 8
-			v |= int64(data[iNdEx-6]) << 16
-			v |= int64(data[iNdEx-5]) << 24
-			v |= int64(data[iNdEx-4]) << 32
-			v |= int64(data[iNdEx-3]) << 40
-			v |= int64(data[iNdEx-2]) << 48
-			v |= int64(data[iNdEx-1]) << 56
+			v = int64(dAtA[iNdEx-8])
+			v |= int64(dAtA[iNdEx-7]) << 8
+			v |= int64(dAtA[iNdEx-6]) << 16
+			v |= int64(dAtA[iNdEx-5]) << 24
+			v |= int64(dAtA[iNdEx-4]) << 32
+			v |= int64(dAtA[iNdEx-3]) << 40
+			v |= int64(dAtA[iNdEx-2]) << 48
+			v |= int64(dAtA[iNdEx-1]) << 56
 			m.Field12 = &v
 		case 13:
 			if wireType != 0 {
@@ -30143,7 +36266,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30164,7 +36287,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30179,7 +36302,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field14 = &s
 			iNdEx = postIndex
 		case 15:
@@ -30194,7 +36317,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30208,14 +36331,14 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Field15 = append(m.Field15[:0], data[iNdEx:postIndex]...)
+			m.Field15 = append(m.Field15[:0], dAtA[iNdEx:postIndex]...)
 			if m.Field15 == nil {
 				m.Field15 = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -30225,7 +36348,7 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -30235,8 +36358,8 @@ func (m *NinOptNativeDefault) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomContainer) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomContainer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -30248,7 +36371,7 @@ func (m *CustomContainer) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -30276,7 +36399,7 @@ func (m *CustomContainer) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30290,13 +36413,13 @@ func (m *CustomContainer) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.CustomStruct.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.CustomStruct.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -30306,7 +36429,7 @@ func (m *CustomContainer) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -30316,8 +36439,8 @@ func (m *CustomContainer) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameNidOptNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -30329,7 +36452,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -30354,14 +36477,14 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.FieldA = float64(math.Float64frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -30372,10 +36495,10 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.FieldB = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 0 {
@@ -30389,7 +36512,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.FieldC |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30408,7 +36531,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.FieldD |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30427,7 +36550,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.FieldE |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30446,7 +36569,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				m.FieldF |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30465,7 +36588,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30486,7 +36609,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30504,10 +36627,10 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			m.FieldI = uint32(data[iNdEx-4])
-			m.FieldI |= uint32(data[iNdEx-3]) << 8
-			m.FieldI |= uint32(data[iNdEx-2]) << 16
-			m.FieldI |= uint32(data[iNdEx-1]) << 24
+			m.FieldI = uint32(dAtA[iNdEx-4])
+			m.FieldI |= uint32(dAtA[iNdEx-3]) << 8
+			m.FieldI |= uint32(dAtA[iNdEx-2]) << 16
+			m.FieldI |= uint32(dAtA[iNdEx-1]) << 24
 		case 10:
 			if wireType != 5 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldJ", wireType)
@@ -30517,10 +36640,10 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			m.FieldJ = int32(data[iNdEx-4])
-			m.FieldJ |= int32(data[iNdEx-3]) << 8
-			m.FieldJ |= int32(data[iNdEx-2]) << 16
-			m.FieldJ |= int32(data[iNdEx-1]) << 24
+			m.FieldJ = int32(dAtA[iNdEx-4])
+			m.FieldJ |= int32(dAtA[iNdEx-3]) << 8
+			m.FieldJ |= int32(dAtA[iNdEx-2]) << 16
+			m.FieldJ |= int32(dAtA[iNdEx-1]) << 24
 		case 11:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldK", wireType)
@@ -30530,14 +36653,14 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			m.FieldK = uint64(data[iNdEx-8])
-			m.FieldK |= uint64(data[iNdEx-7]) << 8
-			m.FieldK |= uint64(data[iNdEx-6]) << 16
-			m.FieldK |= uint64(data[iNdEx-5]) << 24
-			m.FieldK |= uint64(data[iNdEx-4]) << 32
-			m.FieldK |= uint64(data[iNdEx-3]) << 40
-			m.FieldK |= uint64(data[iNdEx-2]) << 48
-			m.FieldK |= uint64(data[iNdEx-1]) << 56
+			m.FieldK = uint64(dAtA[iNdEx-8])
+			m.FieldK |= uint64(dAtA[iNdEx-7]) << 8
+			m.FieldK |= uint64(dAtA[iNdEx-6]) << 16
+			m.FieldK |= uint64(dAtA[iNdEx-5]) << 24
+			m.FieldK |= uint64(dAtA[iNdEx-4]) << 32
+			m.FieldK |= uint64(dAtA[iNdEx-3]) << 40
+			m.FieldK |= uint64(dAtA[iNdEx-2]) << 48
+			m.FieldK |= uint64(dAtA[iNdEx-1]) << 56
 		case 12:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldL", wireType)
@@ -30547,14 +36670,14 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			m.FieldL = int64(data[iNdEx-8])
-			m.FieldL |= int64(data[iNdEx-7]) << 8
-			m.FieldL |= int64(data[iNdEx-6]) << 16
-			m.FieldL |= int64(data[iNdEx-5]) << 24
-			m.FieldL |= int64(data[iNdEx-4]) << 32
-			m.FieldL |= int64(data[iNdEx-3]) << 40
-			m.FieldL |= int64(data[iNdEx-2]) << 48
-			m.FieldL |= int64(data[iNdEx-1]) << 56
+			m.FieldL = int64(dAtA[iNdEx-8])
+			m.FieldL |= int64(dAtA[iNdEx-7]) << 8
+			m.FieldL |= int64(dAtA[iNdEx-6]) << 16
+			m.FieldL |= int64(dAtA[iNdEx-5]) << 24
+			m.FieldL |= int64(dAtA[iNdEx-4]) << 32
+			m.FieldL |= int64(dAtA[iNdEx-3]) << 40
+			m.FieldL |= int64(dAtA[iNdEx-2]) << 48
+			m.FieldL |= int64(dAtA[iNdEx-1]) << 56
 		case 13:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldM", wireType)
@@ -30567,7 +36690,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30587,7 +36710,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30602,7 +36725,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FieldN = string(data[iNdEx:postIndex])
+			m.FieldN = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -30616,7 +36739,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30630,14 +36753,14 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FieldO = append(m.FieldO[:0], data[iNdEx:postIndex]...)
+			m.FieldO = append(m.FieldO[:0], dAtA[iNdEx:postIndex]...)
 			if m.FieldO == nil {
 				m.FieldO = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -30647,7 +36770,7 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -30657,8 +36780,8 @@ func (m *CustomNameNidOptNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameNinOptNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -30670,7 +36793,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -30695,14 +36818,14 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.FieldA = &v2
 		case 2:
@@ -30714,10 +36837,10 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.FieldB = &v2
 		case 3:
@@ -30732,7 +36855,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30752,7 +36875,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30772,7 +36895,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30792,7 +36915,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30812,7 +36935,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30833,7 +36956,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30852,10 +36975,10 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.FieldI = &v
 		case 10:
 			if wireType != 5 {
@@ -30866,10 +36989,10 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = int32(data[iNdEx-4])
-			v |= int32(data[iNdEx-3]) << 8
-			v |= int32(data[iNdEx-2]) << 16
-			v |= int32(data[iNdEx-1]) << 24
+			v = int32(dAtA[iNdEx-4])
+			v |= int32(dAtA[iNdEx-3]) << 8
+			v |= int32(dAtA[iNdEx-2]) << 16
+			v |= int32(dAtA[iNdEx-1]) << 24
 			m.FieldJ = &v
 		case 11:
 			if wireType != 1 {
@@ -30880,14 +37003,14 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.FieldK = &v
 		case 12:
 			if wireType != 1 {
@@ -30898,14 +37021,14 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = int64(data[iNdEx-8])
-			v |= int64(data[iNdEx-7]) << 8
-			v |= int64(data[iNdEx-6]) << 16
-			v |= int64(data[iNdEx-5]) << 24
-			v |= int64(data[iNdEx-4]) << 32
-			v |= int64(data[iNdEx-3]) << 40
-			v |= int64(data[iNdEx-2]) << 48
-			v |= int64(data[iNdEx-1]) << 56
+			v = int64(dAtA[iNdEx-8])
+			v |= int64(dAtA[iNdEx-7]) << 8
+			v |= int64(dAtA[iNdEx-6]) << 16
+			v |= int64(dAtA[iNdEx-5]) << 24
+			v |= int64(dAtA[iNdEx-4]) << 32
+			v |= int64(dAtA[iNdEx-3]) << 40
+			v |= int64(dAtA[iNdEx-2]) << 48
+			v |= int64(dAtA[iNdEx-1]) << 56
 			m.FielL = &v
 		case 13:
 			if wireType != 0 {
@@ -30919,7 +37042,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30940,7 +37063,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30955,7 +37078,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.FieldN = &s
 			iNdEx = postIndex
 		case 15:
@@ -30970,7 +37093,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -30984,14 +37107,14 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FieldO = append(m.FieldO[:0], data[iNdEx:postIndex]...)
+			m.FieldO = append(m.FieldO[:0], dAtA[iNdEx:postIndex]...)
 			if m.FieldO == nil {
 				m.FieldO = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -31001,7 +37124,7 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -31011,8 +37134,8 @@ func (m *CustomNameNinOptNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameNinRepNative) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -31024,7 +37147,7 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -31041,245 +37164,771 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 1 {
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				v2 := float64(math.Float64frombits(v))
+				m.FieldA = append(m.FieldA, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					v2 := float64(math.Float64frombits(v))
+					m.FieldA = append(m.FieldA, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldA", wireType)
 			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			v2 := float64(math.Float64frombits(v))
-			m.FieldA = append(m.FieldA, v2)
 		case 2:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				v2 := float32(math.Float32frombits(v))
+				m.FieldB = append(m.FieldB, v2)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					v2 := float32(math.Float32frombits(v))
+					m.FieldB = append(m.FieldB, v2)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldB", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			v2 := float32(math.Float32frombits(v))
-			m.FieldB = append(m.FieldB, v2)
 		case 3:
-			if wireType != 0 {
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.FieldC = append(m.FieldC, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.FieldC = append(m.FieldC, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldC", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 4:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.FieldD = append(m.FieldD, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.FieldD = append(m.FieldD, v)
 				}
-			}
-			m.FieldC = append(m.FieldC, v)
-		case 4:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldD", wireType)
 			}
-			var v int64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 5:
+			if wireType == 0 {
+				var v uint32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.FieldE = append(m.FieldE, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.FieldE = append(m.FieldE, v)
 				}
-			}
-			m.FieldD = append(m.FieldD, v)
-		case 5:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldE", wireType)
 			}
-			var v uint32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 6:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.FieldF = append(m.FieldF, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.FieldF = append(m.FieldF, v)
 				}
-			}
-			m.FieldE = append(m.FieldE, v)
-		case 6:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldF", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 7:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int32(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+				m.FieldG = append(m.FieldG, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int32(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
+					m.FieldG = append(m.FieldG, v)
 				}
-			}
-			m.FieldF = append(m.FieldF, v)
-		case 7:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldG", wireType)
 			}
-			var v int32
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+		case 8:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+				m.FieldH = append(m.FieldH, int64(v))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (uint64(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
+					m.FieldH = append(m.FieldH, int64(v))
 				}
-			}
-			v = int32((uint32(v) >> 1) ^ uint32(((v&1)<<31)>>31))
-			m.FieldG = append(m.FieldG, v)
-		case 8:
-			if wireType != 0 {
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldH", wireType)
 			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
+		case 9:
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.FieldI = append(m.FieldI, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-			}
-			v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-			m.FieldH = append(m.FieldH, int64(v))
-		case 9:
-			if wireType != 5 {
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					m.FieldI = append(m.FieldI, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldI", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
-			m.FieldI = append(m.FieldI, v)
 		case 10:
-			if wireType != 5 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FieldJ", wireType)
-			}
-			var v int32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = int32(data[iNdEx-4])
-			v |= int32(data[iNdEx-3]) << 8
-			v |= int32(data[iNdEx-2]) << 16
-			v |= int32(data[iNdEx-1]) << 24
-			m.FieldJ = append(m.FieldJ, v)
-		case 11:
-			if wireType != 1 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FieldK", wireType)
-			}
-			var v uint64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
-			m.FieldK = append(m.FieldK, v)
-		case 12:
-			if wireType != 1 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FieldL", wireType)
-			}
-			var v int64
-			if (iNdEx + 8) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 8
-			v = int64(data[iNdEx-8])
-			v |= int64(data[iNdEx-7]) << 8
-			v |= int64(data[iNdEx-6]) << 16
-			v |= int64(data[iNdEx-5]) << 24
-			v |= int64(data[iNdEx-4]) << 32
-			v |= int64(data[iNdEx-3]) << 40
-			v |= int64(data[iNdEx-2]) << 48
-			v |= int64(data[iNdEx-1]) << 56
-			m.FieldL = append(m.FieldL, v)
-		case 13:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FieldM", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
-				}
-				if iNdEx >= l {
+			if wireType == 5 {
+				var v int32
+				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				iNdEx += 4
+				v = int32(dAtA[iNdEx-4])
+				v |= int32(dAtA[iNdEx-3]) << 8
+				v |= int32(dAtA[iNdEx-2]) << 16
+				v |= int32(dAtA[iNdEx-1]) << 24
+				m.FieldJ = append(m.FieldJ, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = int32(dAtA[iNdEx-4])
+					v |= int32(dAtA[iNdEx-3]) << 8
+					v |= int32(dAtA[iNdEx-2]) << 16
+					v |= int32(dAtA[iNdEx-1]) << 24
+					m.FieldJ = append(m.FieldJ, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field FieldJ", wireType)
 			}
-			m.FieldM = append(m.FieldM, bool(v != 0))
+		case 11:
+			if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
+				m.FieldK = append(m.FieldK, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
+					m.FieldK = append(m.FieldK, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field FieldK", wireType)
+			}
+		case 12:
+			if wireType == 1 {
+				var v int64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = int64(dAtA[iNdEx-8])
+				v |= int64(dAtA[iNdEx-7]) << 8
+				v |= int64(dAtA[iNdEx-6]) << 16
+				v |= int64(dAtA[iNdEx-5]) << 24
+				v |= int64(dAtA[iNdEx-4]) << 32
+				v |= int64(dAtA[iNdEx-3]) << 40
+				v |= int64(dAtA[iNdEx-2]) << 48
+				v |= int64(dAtA[iNdEx-1]) << 56
+				m.FieldL = append(m.FieldL, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = int64(dAtA[iNdEx-8])
+					v |= int64(dAtA[iNdEx-7]) << 8
+					v |= int64(dAtA[iNdEx-6]) << 16
+					v |= int64(dAtA[iNdEx-5]) << 24
+					v |= int64(dAtA[iNdEx-4]) << 32
+					v |= int64(dAtA[iNdEx-3]) << 40
+					v |= int64(dAtA[iNdEx-2]) << 48
+					v |= int64(dAtA[iNdEx-1]) << 56
+					m.FieldL = append(m.FieldL, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field FieldL", wireType)
+			}
+		case 13:
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.FieldM = append(m.FieldM, bool(v != 0))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (int(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.FieldM = append(m.FieldM, bool(v != 0))
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field FieldM", wireType)
+			}
 		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FieldN", wireType)
@@ -31292,7 +37941,7 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31307,7 +37956,7 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FieldN = append(m.FieldN, string(data[iNdEx:postIndex]))
+			m.FieldN = append(m.FieldN, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 15:
 			if wireType != 2 {
@@ -31321,7 +37970,7 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31336,11 +37985,11 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.FieldO = append(m.FieldO, make([]byte, postIndex-iNdEx))
-			copy(m.FieldO[len(m.FieldO)-1], data[iNdEx:postIndex])
+			copy(m.FieldO[len(m.FieldO)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -31350,7 +37999,7 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -31360,8 +38009,8 @@ func (m *CustomNameNinRepNative) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameNinStruct) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -31373,7 +38022,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -31398,14 +38047,14 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 8
-			v = uint64(data[iNdEx-8])
-			v |= uint64(data[iNdEx-7]) << 8
-			v |= uint64(data[iNdEx-6]) << 16
-			v |= uint64(data[iNdEx-5]) << 24
-			v |= uint64(data[iNdEx-4]) << 32
-			v |= uint64(data[iNdEx-3]) << 40
-			v |= uint64(data[iNdEx-2]) << 48
-			v |= uint64(data[iNdEx-1]) << 56
+			v = uint64(dAtA[iNdEx-8])
+			v |= uint64(dAtA[iNdEx-7]) << 8
+			v |= uint64(dAtA[iNdEx-6]) << 16
+			v |= uint64(dAtA[iNdEx-5]) << 24
+			v |= uint64(dAtA[iNdEx-4]) << 32
+			v |= uint64(dAtA[iNdEx-3]) << 40
+			v |= uint64(dAtA[iNdEx-2]) << 48
+			v |= uint64(dAtA[iNdEx-1]) << 56
 			v2 := float64(math.Float64frombits(v))
 			m.FieldA = &v2
 		case 2:
@@ -31417,10 +38066,10 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			iNdEx += 4
-			v = uint32(data[iNdEx-4])
-			v |= uint32(data[iNdEx-3]) << 8
-			v |= uint32(data[iNdEx-2]) << 16
-			v |= uint32(data[iNdEx-1]) << 24
+			v = uint32(dAtA[iNdEx-4])
+			v |= uint32(dAtA[iNdEx-3]) << 8
+			v |= uint32(dAtA[iNdEx-2]) << 16
+			v |= uint32(dAtA[iNdEx-1]) << 24
 			v2 := float32(math.Float32frombits(v))
 			m.FieldB = &v2
 		case 3:
@@ -31435,7 +38084,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31452,7 +38101,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 			if m.FieldC == nil {
 				m.FieldC = &NidOptNative{}
 			}
-			if err := m.FieldC.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldC.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31468,7 +38117,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31483,7 +38132,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.FieldD = append(m.FieldD, &NinOptNative{})
-			if err := m.FieldD[len(m.FieldD)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldD[len(m.FieldD)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31499,7 +38148,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31519,7 +38168,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31540,7 +38189,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31557,7 +38206,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 			if m.FieldG == nil {
 				m.FieldG = &NidOptNative{}
 			}
-			if err := m.FieldG.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldG.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31573,7 +38222,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31594,7 +38243,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31609,7 +38258,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.FieldI = &s
 			iNdEx = postIndex
 		case 15:
@@ -31624,7 +38273,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31638,14 +38287,14 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FieldJ = append(m.FieldJ[:0], data[iNdEx:postIndex]...)
+			m.FieldJ = append(m.FieldJ[:0], dAtA[iNdEx:postIndex]...)
 			if m.FieldJ == nil {
 				m.FieldJ = []byte{}
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -31655,7 +38304,7 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -31665,8 +38314,8 @@ func (m *CustomNameNinStruct) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameCustomType) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameCustomType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -31678,7 +38327,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -31706,7 +38355,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31722,7 +38371,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 			}
 			var v Uuid
 			m.FieldA = &v
-			if err := m.FieldA.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldA.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31738,7 +38387,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31754,7 +38403,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 			}
 			var v github_com_gogo_protobuf_test_custom.Uint128
 			m.FieldB = &v
-			if err := m.FieldB.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldB.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31770,7 +38419,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31786,7 +38435,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 			}
 			var v Uuid
 			m.FieldC = append(m.FieldC, v)
-			if err := m.FieldC[len(m.FieldC)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldC[len(m.FieldC)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31802,7 +38451,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				byteLen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31818,13 +38467,13 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 			}
 			var v github_com_gogo_protobuf_test_custom.Uint128
 			m.FieldD = append(m.FieldD, v)
-			if err := m.FieldD[len(m.FieldD)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldD[len(m.FieldD)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -31834,7 +38483,7 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -31844,8 +38493,8 @@ func (m *CustomNameCustomType) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -31857,7 +38506,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -31885,7 +38534,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31902,7 +38551,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if m.NidOptNative == nil {
 				m.NidOptNative = &NidOptNative{}
 			}
-			if err := m.NidOptNative.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.NidOptNative.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31918,7 +38567,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31935,7 +38584,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if m.FieldA == nil {
 				m.FieldA = &NinOptNative{}
 			}
-			if err := m.FieldA.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.FieldA.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -31951,7 +38600,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -31962,7 +38611,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			m.FieldB = &b
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -31972,7 +38621,7 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -31982,8 +38631,8 @@ func (m *CustomNameNinEmbeddedStructUnion) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *CustomNameEnum) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *CustomNameEnum) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -31995,7 +38644,7 @@ func (m *CustomNameEnum) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32023,7 +38672,7 @@ func (m *CustomNameEnum) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (TheTestEnum(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32032,28 +38681,70 @@ func (m *CustomNameEnum) Unmarshal(data []byte) error {
 			}
 			m.FieldA = &v
 		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FieldB", wireType)
-			}
-			var v TheTestEnum
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowThetest
+			if wireType == 0 {
+				var v TheTestEnum
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= (TheTestEnum(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
+				m.FieldB = append(m.FieldB, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowThetest
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthThetest
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
-				iNdEx++
-				v |= (TheTestEnum(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
+				for iNdEx < postIndex {
+					var v TheTestEnum
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowThetest
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= (TheTestEnum(b) & 0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.FieldB = append(m.FieldB, v)
 				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field FieldB", wireType)
 			}
-			m.FieldB = append(m.FieldB, v)
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32063,7 +38754,7 @@ func (m *CustomNameEnum) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -32073,8 +38764,8 @@ func (m *CustomNameEnum) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *NoExtensionsMap) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *NoExtensionsMap) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32086,7 +38777,7 @@ func (m *NoExtensionsMap) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32114,7 +38805,7 @@ func (m *NoExtensionsMap) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32133,7 +38824,7 @@ func (m *NoExtensionsMap) Unmarshal(data []byte) error {
 					}
 				}
 				iNdEx -= sizeOfWire
-				skippy, err := skipThetest(data[iNdEx:])
+				skippy, err := skipThetest(dAtA[iNdEx:])
 				if err != nil {
 					return err
 				}
@@ -32143,11 +38834,11 @@ func (m *NoExtensionsMap) Unmarshal(data []byte) error {
 				if (iNdEx + skippy) > l {
 					return io.ErrUnexpectedEOF
 				}
-				m.XXX_extensions = append(m.XXX_extensions, data[iNdEx:iNdEx+skippy]...)
+				github_com_gogo_protobuf_proto.AppendExtension(m, int32(fieldNum), dAtA[iNdEx:iNdEx+skippy])
 				iNdEx += skippy
 			} else {
 				iNdEx = preIndex
-				skippy, err := skipThetest(data[iNdEx:])
+				skippy, err := skipThetest(dAtA[iNdEx:])
 				if err != nil {
 					return err
 				}
@@ -32157,7 +38848,7 @@ func (m *NoExtensionsMap) Unmarshal(data []byte) error {
 				if (iNdEx + skippy) > l {
 					return io.ErrUnexpectedEOF
 				}
-				m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+				m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 				iNdEx += skippy
 			}
 		}
@@ -32168,8 +38859,8 @@ func (m *NoExtensionsMap) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *Unrecognized) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *Unrecognized) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32181,7 +38872,7 @@ func (m *Unrecognized) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32209,7 +38900,7 @@ func (m *Unrecognized) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32224,12 +38915,12 @@ func (m *Unrecognized) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field1 = &s
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32248,8 +38939,8 @@ func (m *Unrecognized) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *UnrecognizedWithInner) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32261,7 +38952,7 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32289,7 +38980,7 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32304,7 +38995,7 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Embedded = append(m.Embedded, &UnrecognizedWithInner_Inner{})
-			if err := m.Embedded[len(m.Embedded)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Embedded[len(m.Embedded)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -32320,7 +39011,7 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32335,12 +39026,12 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field2 = &s
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32350,7 +39041,7 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -32360,8 +39051,8 @@ func (m *UnrecognizedWithInner) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *UnrecognizedWithInner_Inner) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *UnrecognizedWithInner_Inner) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32373,7 +39064,7 @@ func (m *UnrecognizedWithInner_Inner) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32401,7 +39092,7 @@ func (m *UnrecognizedWithInner_Inner) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32411,7 +39102,7 @@ func (m *UnrecognizedWithInner_Inner) Unmarshal(data []byte) error {
 			m.Field1 = &v
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32430,8 +39121,8 @@ func (m *UnrecognizedWithInner_Inner) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *UnrecognizedWithEmbed) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32443,7 +39134,7 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32471,7 +39162,7 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32485,7 +39176,7 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.UnrecognizedWithEmbed_Embedded.Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.UnrecognizedWithEmbed_Embedded.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -32501,7 +39192,7 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32516,12 +39207,12 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Field2 = &s
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32531,7 +39222,7 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -32541,8 +39232,8 @@ func (m *UnrecognizedWithEmbed) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *UnrecognizedWithEmbed_Embedded) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *UnrecognizedWithEmbed_Embedded) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32554,7 +39245,7 @@ func (m *UnrecognizedWithEmbed_Embedded) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32582,7 +39273,7 @@ func (m *UnrecognizedWithEmbed_Embedded) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				v |= (uint32(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32592,7 +39283,7 @@ func (m *UnrecognizedWithEmbed_Embedded) Unmarshal(data []byte) error {
 			m.Field1 = &v
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32611,8 +39302,8 @@ func (m *UnrecognizedWithEmbed_Embedded) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func (m *Node) Unmarshal(data []byte) error {
-	l := len(data)
+func (m *Node) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		preIndex := iNdEx
@@ -32624,7 +39315,7 @@ func (m *Node) Unmarshal(data []byte) error {
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32652,7 +39343,7 @@ func (m *Node) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32667,7 +39358,7 @@ func (m *Node) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			s := string(data[iNdEx:postIndex])
+			s := string(dAtA[iNdEx:postIndex])
 			m.Label = &s
 			iNdEx = postIndex
 		case 2:
@@ -32682,7 +39373,7 @@ func (m *Node) Unmarshal(data []byte) error {
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32697,13 +39388,13 @@ func (m *Node) Unmarshal(data []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Children = append(m.Children, &Node{})
-			if err := m.Children[len(m.Children)-1].Unmarshal(data[iNdEx:postIndex]); err != nil {
+			if err := m.Children[len(m.Children)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
-			skippy, err := skipThetest(data[iNdEx:])
+			skippy, err := skipThetest(dAtA[iNdEx:])
 			if err != nil {
 				return err
 			}
@@ -32713,7 +39404,7 @@ func (m *Node) Unmarshal(data []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -32723,8 +39414,502 @@ func (m *Node) Unmarshal(data []byte) error {
 	}
 	return nil
 }
-func skipThetest(data []byte) (n int, err error) {
-	l := len(data)
+func (m *NonByteCustomType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowThetest
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NonByteCustomType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NonByteCustomType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthThetest
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Field1 == nil {
+				m.Field1 = &T{}
+			}
+			if err := m.Field1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipThetest(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthThetest
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *NidOptNonByteCustomType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowThetest
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NidOptNonByteCustomType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NidOptNonByteCustomType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthThetest
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Field1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipThetest(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthThetest
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *NinOptNonByteCustomType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowThetest
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NinOptNonByteCustomType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NinOptNonByteCustomType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthThetest
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Field1 == nil {
+				m.Field1 = &T{}
+			}
+			if err := m.Field1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipThetest(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthThetest
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *NidRepNonByteCustomType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowThetest
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NidRepNonByteCustomType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NidRepNonByteCustomType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthThetest
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Field1 = append(m.Field1, T{})
+			if err := m.Field1[len(m.Field1)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipThetest(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthThetest
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *NinRepNonByteCustomType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowThetest
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NinRepNonByteCustomType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NinRepNonByteCustomType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field1", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthThetest
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Field1 = append(m.Field1, T{})
+			if err := m.Field1[len(m.Field1)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipThetest(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthThetest
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ProtoType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowThetest
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProtoType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProtoType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field2", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowThetest
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthThetest
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			s := string(dAtA[iNdEx:postIndex])
+			m.Field2 = &s
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipThetest(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthThetest
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func skipThetest(dAtA []byte) (n int, err error) {
+	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
 		var wire uint64
@@ -32735,7 +39920,7 @@ func skipThetest(data []byte) (n int, err error) {
 			if iNdEx >= l {
 				return 0, io.ErrUnexpectedEOF
 			}
-			b := data[iNdEx]
+			b := dAtA[iNdEx]
 			iNdEx++
 			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
@@ -32753,7 +39938,7 @@ func skipThetest(data []byte) (n int, err error) {
 					return 0, io.ErrUnexpectedEOF
 				}
 				iNdEx++
-				if data[iNdEx-1] < 0x80 {
+				if dAtA[iNdEx-1] < 0x80 {
 					break
 				}
 			}
@@ -32770,7 +39955,7 @@ func skipThetest(data []byte) (n int, err error) {
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
-				b := data[iNdEx]
+				b := dAtA[iNdEx]
 				iNdEx++
 				length |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
@@ -32793,7 +39978,7 @@ func skipThetest(data []byte) (n int, err error) {
 					if iNdEx >= l {
 						return 0, io.ErrUnexpectedEOF
 					}
-					b := data[iNdEx]
+					b := dAtA[iNdEx]
 					iNdEx++
 					innerWire |= (uint64(b) & 0x7F) << shift
 					if b < 0x80 {
@@ -32804,7 +39989,7 @@ func skipThetest(data []byte) (n int, err error) {
 				if innerWireType == 4 {
 					break
 				}
-				next, err := skipThetest(data[start:])
+				next, err := skipThetest(dAtA[start:])
 				if err != nil {
 					return 0, err
 				}
@@ -32827,3 +40012,202 @@ var (
 	ErrInvalidLengthThetest = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowThetest   = fmt.Errorf("proto: integer overflow")
 )
+
+func init() { proto.RegisterFile("combos/unmarshaler/thetest.proto", fileDescriptorThetest) }
+
+var fileDescriptorThetest = []byte{
+	// 3085 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x5a, 0x4f, 0x6c, 0x1b, 0xc7,
+	0xd5, 0xe7, 0xec, 0x50, 0x0e, 0xf5, 0x24, 0x4b, 0xf4, 0x26, 0x56, 0x16, 0x8c, 0xbe, 0x15, 0xbd,
+	0x91, 0xf5, 0x31, 0x44, 0x2c, 0x51, 0x14, 0x25, 0xcb, 0x4c, 0x93, 0x42, 0xfc, 0xe3, 0x46, 0x6e,
+	0x44, 0x19, 0x8c, 0xdc, 0xd6, 0x40, 0x81, 0x82, 0x16, 0xd7, 0x12, 0x51, 0x69, 0x29, 0x90, 0xab,
+	0x34, 0xee, 0xa1, 0x08, 0x72, 0x28, 0x82, 0x5e, 0x8b, 0x1e, 0xdb, 0xb8, 0x28, 0x0a, 0xa4, 0xb7,
+	0x1c, 0x8a, 0xa2, 0x28, 0x8a, 0xc6, 0x97, 0x02, 0xea, 0xcd, 0xe8, 0xa9, 0x08, 0x0a, 0x21, 0x62,
+	0x2e, 0x39, 0xa6, 0xa7, 0xe6, 0x90, 0x43, 0xb1, 0xbb, 0xb3, 0xb3, 0x33, 0xb3, 0xbb, 0xdc, 0xa5,
+	0xe5, 0xb4, 0xb9, 0xd8, 0xe2, 0xbc, 0xf7, 0x66, 0xde, 0xbe, 0xdf, 0xef, 0xbd, 0x7d, 0x3b, 0x33,
+	0x90, 0xdd, 0xed, 0x1e, 0xde, 0xeb, 0xf6, 0x97, 0x8e, 0x8d, 0xc3, 0x56, 0xaf, 0xbf, 0xdf, 0x3a,
+	0xd0, 0x7b, 0x4b, 0xe6, 0xbe, 0x6e, 0xea, 0x7d, 0x73, 0xf1, 0xa8, 0xd7, 0x35, 0xbb, 0x72, 0xd2,
+	0xfa, 0x3b, 0x73, 0x6d, 0xaf, 0x63, 0xee, 0x1f, 0xdf, 0x5b, 0xdc, 0xed, 0x1e, 0x2e, 0xed, 0x75,
+	0xf7, 0xba, 0x4b, 0xb6, 0xf0, 0xde, 0xf1, 0x7d, 0xfb, 0x97, 0xfd, 0xc3, 0xfe, 0xcb, 0x31, 0xd2,
+	0xfe, 0x89, 0x61, 0xb2, 0xd1, 0x69, 0x6f, 0x1f, 0x99, 0x8d, 0x96, 0xd9, 0x79, 0x4b, 0x97, 0x67,
+	0xe1, 0xc2, 0xcd, 0x8e, 0x7e, 0xd0, 0x5e, 0x56, 0x50, 0x16, 0xe5, 0x50, 0x25, 0x79, 0x72, 0x3a,
+	0x97, 0x68, 0x92, 0x31, 0x2a, 0x2d, 0x2a, 0x52, 0x16, 0xe5, 0x24, 0x4e, 0x5a, 0xa4, 0xd2, 0x15,
+	0x05, 0x67, 0x51, 0x6e, 0x8c, 0x93, 0xae, 0x50, 0x69, 0x49, 0x49, 0x66, 0x51, 0x0e, 0x73, 0xd2,
+	0x12, 0x95, 0xae, 0x2a, 0x63, 0x59, 0x94, 0xbb, 0xc8, 0x49, 0x57, 0xa9, 0x74, 0x4d, 0xb9, 0x90,
+	0x45, 0xb9, 0x24, 0x27, 0x5d, 0xa3, 0xd2, 0xeb, 0xca, 0x33, 0x59, 0x94, 0xbb, 0xc4, 0x49, 0xaf,
+	0x53, 0xe9, 0xba, 0x92, 0xca, 0xa2, 0x9c, 0xcc, 0x49, 0xd7, 0xa9, 0xf4, 0x86, 0x32, 0x9e, 0x45,
+	0xb9, 0x67, 0x38, 0xe9, 0x0d, 0x59, 0x85, 0x67, 0x9c, 0x27, 0x2f, 0x28, 0x90, 0x45, 0xb9, 0x69,
+	0x22, 0x76, 0x07, 0x3d, 0xf9, 0xb2, 0x32, 0x91, 0x45, 0xb9, 0x0b, 0xbc, 0x7c, 0xd9, 0x93, 0x17,
+	0x95, 0xc9, 0x2c, 0xca, 0xa5, 0x79, 0x79, 0xd1, 0x93, 0xaf, 0x28, 0x17, 0xb3, 0x28, 0x97, 0xe2,
+	0xe5, 0x2b, 0x9e, 0xbc, 0xa4, 0x4c, 0x65, 0x51, 0x6e, 0x9c, 0x97, 0x97, 0x3c, 0xf9, 0xaa, 0x32,
+	0x9d, 0x45, 0xb9, 0x49, 0x5e, 0xbe, 0xaa, 0xbd, 0x6b, 0xc3, 0x6b, 0x78, 0xf0, 0xce, 0xf0, 0xf0,
+	0x52, 0x60, 0x67, 0x78, 0x60, 0x29, 0xa4, 0x33, 0x3c, 0xa4, 0x14, 0xcc, 0x19, 0x1e, 0x4c, 0x0a,
+	0xe3, 0x0c, 0x0f, 0x23, 0x05, 0x70, 0x86, 0x07, 0x90, 0x42, 0x37, 0xc3, 0x43, 0x47, 0x41, 0x9b,
+	0xe1, 0x41, 0xa3, 0x70, 0xcd, 0xf0, 0x70, 0x51, 0xa0, 0x14, 0x01, 0x28, 0x0f, 0x22, 0x45, 0x80,
+	0xc8, 0x03, 0x47, 0x11, 0xc0, 0xf1, 0x60, 0x51, 0x04, 0x58, 0x3c, 0x40, 0x14, 0x01, 0x10, 0x0f,
+	0x0a, 0x45, 0x80, 0xc2, 0x03, 0x81, 0xe4, 0x58, 0x53, 0x3f, 0x0a, 0xc8, 0x31, 0x3c, 0x34, 0xc7,
+	0xf0, 0xd0, 0x1c, 0xc3, 0x43, 0x73, 0x0c, 0x0f, 0xcd, 0x31, 0x3c, 0x34, 0xc7, 0xf0, 0xd0, 0x1c,
+	0xc3, 0x43, 0x73, 0x0c, 0x0f, 0xcd, 0x31, 0x3c, 0x3c, 0xc7, 0x70, 0x44, 0x8e, 0xe1, 0x88, 0x1c,
+	0xc3, 0x11, 0x39, 0x86, 0x23, 0x72, 0x0c, 0x47, 0xe4, 0x18, 0x0e, 0xcd, 0x31, 0x0f, 0xde, 0x19,
+	0x1e, 0xde, 0xc0, 0x1c, 0xc3, 0x21, 0x39, 0x86, 0x43, 0x72, 0x0c, 0x87, 0xe4, 0x18, 0x0e, 0xc9,
+	0x31, 0x1c, 0x92, 0x63, 0x38, 0x24, 0xc7, 0x70, 0x48, 0x8e, 0xe1, 0xb0, 0x1c, 0xc3, 0xa1, 0x39,
+	0x86, 0x43, 0x73, 0x0c, 0x87, 0xe6, 0x18, 0x0e, 0xcd, 0x31, 0x1c, 0x9a, 0x63, 0x98, 0xcd, 0xb1,
+	0x3f, 0x63, 0x90, 0x9d, 0x1c, 0xbb, 0xdd, 0xda, 0xfd, 0xa1, 0xde, 0x26, 0x50, 0xa8, 0x42, 0xa6,
+	0x5d, 0xb0, 0xa0, 0x4b, 0x7b, 0x90, 0xa8, 0x42, 0xae, 0xf1, 0xf2, 0x22, 0x95, 0xbb, 0xd9, 0xc6,
+	0xcb, 0x57, 0xa8, 0xdc, 0xcd, 0x37, 0x5e, 0x5e, 0xa2, 0x72, 0x37, 0xe3, 0x78, 0xf9, 0x2a, 0x95,
+	0xbb, 0x39, 0xc7, 0xcb, 0xd7, 0xa8, 0xdc, 0xcd, 0x3a, 0x5e, 0x7e, 0x9d, 0xca, 0xdd, 0xbc, 0xe3,
+	0xe5, 0xeb, 0x54, 0xee, 0x66, 0x1e, 0x2f, 0xbf, 0x21, 0x67, 0xc5, 0xdc, 0x73, 0x15, 0x28, 0xb4,
+	0x59, 0x31, 0xfb, 0x04, 0x8d, 0x65, 0x4f, 0xc3, 0xcd, 0x3f, 0x41, 0xa3, 0xe8, 0x69, 0xb8, 0x19,
+	0x28, 0x68, 0xac, 0x68, 0xef, 0xd9, 0xf0, 0x19, 0x22, 0x7c, 0x19, 0x01, 0x3e, 0x89, 0x81, 0x2e,
+	0x23, 0x40, 0x27, 0x31, 0xb0, 0x65, 0x04, 0xd8, 0x24, 0x06, 0xb2, 0x8c, 0x00, 0x99, 0xc4, 0xc0,
+	0x95, 0x11, 0xe0, 0x92, 0x18, 0xa8, 0x32, 0x02, 0x54, 0x12, 0x03, 0x53, 0x46, 0x80, 0x49, 0x62,
+	0x20, 0xca, 0x08, 0x10, 0x49, 0x0c, 0x3c, 0x19, 0x01, 0x1e, 0x89, 0x81, 0x66, 0x56, 0x84, 0x46,
+	0x62, 0x61, 0x99, 0x15, 0x61, 0x91, 0x58, 0x48, 0x66, 0x45, 0x48, 0x24, 0x16, 0x8e, 0x59, 0x11,
+	0x0e, 0x89, 0x85, 0xe2, 0x4b, 0xc9, 0xed, 0x08, 0xdf, 0x34, 0x7b, 0xc7, 0xbb, 0xe6, 0xb9, 0x3a,
+	0xc2, 0x02, 0xd7, 0x3e, 0x4c, 0x14, 0xe5, 0x45, 0xbb, 0x61, 0x65, 0x3b, 0x4e, 0xe1, 0x0d, 0x56,
+	0xe0, 0x1a, 0x0b, 0xc6, 0xc2, 0x08, 0xb6, 0x28, 0x9d, 0xab, 0x37, 0x2c, 0x70, 0x6d, 0x46, 0xb4,
+	0x7f, 0xeb, 0x5f, 0x79, 0xc7, 0xf6, 0x48, 0x72, 0x3b, 0x36, 0x12, 0xfe, 0x51, 0x3b, 0xb6, 0x7c,
+	0x74, 0xc8, 0x69, 0xb0, 0xf3, 0xd1, 0xc1, 0xf6, 0xbd, 0x75, 0xe2, 0x76, 0x70, 0xf9, 0xe8, 0xd0,
+	0xd2, 0xa0, 0x3e, 0xdd, 0x7e, 0x8b, 0x30, 0xb8, 0xa9, 0x1f, 0x05, 0x30, 0x78, 0xd4, 0x7e, 0xab,
+	0xc0, 0x95, 0x92, 0x51, 0x19, 0x8c, 0x47, 0x66, 0xf0, 0xa8, 0x9d, 0x57, 0x81, 0x2b, 0x2f, 0x23,
+	0x33, 0xf8, 0x2b, 0xe8, 0x87, 0x08, 0x83, 0xbd, 0xf0, 0x8f, 0xda, 0x0f, 0xe5, 0xa3, 0x43, 0x1e,
+	0xc8, 0x60, 0x3c, 0x02, 0x83, 0xe3, 0xf4, 0x47, 0xf9, 0xe8, 0xd0, 0x06, 0x33, 0xf8, 0xdc, 0xdd,
+	0xcc, 0xfb, 0x08, 0x2e, 0x35, 0x3a, 0xed, 0xfa, 0xe1, 0x3d, 0xbd, 0xdd, 0xd6, 0xdb, 0x24, 0x8e,
+	0x05, 0xae, 0x12, 0x84, 0x40, 0xfd, 0xf8, 0x74, 0xce, 0x8b, 0xf0, 0x2a, 0xa4, 0x9c, 0x98, 0x16,
+	0x0a, 0xca, 0x09, 0x8a, 0xa8, 0x70, 0x54, 0x55, 0xbe, 0xe2, 0x9a, 0x2d, 0x17, 0x94, 0xbf, 0x23,
+	0xa6, 0xca, 0xd1, 0x61, 0xed, 0xe7, 0xb6, 0x87, 0xc6, 0xb9, 0x3d, 0x5c, 0x8a, 0xe5, 0x21, 0xe3,
+	0xdb, 0x0b, 0x3e, 0xdf, 0x18, 0xaf, 0x8e, 0x61, 0xba, 0xd1, 0x69, 0x37, 0xf4, 0xbe, 0x19, 0xcf,
+	0x25, 0x47, 0x47, 0xa8, 0x07, 0x05, 0x8e, 0x96, 0xac, 0x05, 0xa5, 0x34, 0x5f, 0x23, 0xb4, 0x8e,
+	0xb5, 0xac, 0xc1, 0x2d, 0x9b, 0x0f, 0x5b, 0xd6, 0xab, 0xec, 0x74, 0xc1, 0x7c, 0xd8, 0x82, 0x5e,
+	0x0e, 0xd1, 0xa5, 0xde, 0x76, 0x5f, 0xce, 0xd5, 0xe3, 0xbe, 0xd9, 0x3d, 0x94, 0x67, 0x41, 0xda,
+	0x6c, 0xdb, 0x6b, 0x4c, 0x56, 0x26, 0x2d, 0xa7, 0x3e, 0x3e, 0x9d, 0x4b, 0xde, 0x39, 0xee, 0xb4,
+	0x9b, 0xd2, 0x66, 0x5b, 0xbe, 0x05, 0x63, 0xdf, 0x69, 0x1d, 0x1c, 0xeb, 0xf6, 0x2b, 0x62, 0xb2,
+	0x52, 0x22, 0x0a, 0x2f, 0x87, 0xee, 0x11, 0x59, 0x0b, 0x2f, 0xed, 0xda, 0x53, 0x2f, 0xde, 0xe9,
+	0x18, 0xe6, 0x72, 0x71, 0xbd, 0xe9, 0x4c, 0xa1, 0x7d, 0x1f, 0xc0, 0x59, 0xb3, 0xd6, 0xea, 0xef,
+	0xcb, 0x0d, 0x77, 0x66, 0x67, 0xe9, 0xf5, 0x8f, 0x4f, 0xe7, 0x4a, 0x71, 0x66, 0xbd, 0xd6, 0x6e,
+	0xf5, 0xf7, 0xaf, 0x99, 0x0f, 0x8e, 0xf4, 0xc5, 0xca, 0x03, 0x53, 0xef, 0xbb, 0xb3, 0x1f, 0xb9,
+	0x6f, 0x3d, 0xf2, 0x5c, 0x0a, 0xf3, 0x5c, 0x29, 0xee, 0x99, 0x6e, 0xf2, 0xcf, 0x54, 0x78, 0xd2,
+	0xe7, 0x79, 0xdb, 0x7d, 0x49, 0x08, 0x91, 0xc4, 0x51, 0x91, 0xc4, 0xe7, 0x8d, 0xe4, 0x91, 0x5b,
+	0x1f, 0x85, 0x67, 0xc5, 0xc3, 0x9e, 0x15, 0x9f, 0xe7, 0x59, 0xff, 0xed, 0x64, 0x2b, 0xcd, 0xa7,
+	0x3b, 0x46, 0xa7, 0x6b, 0x7c, 0xed, 0xf6, 0x82, 0x9e, 0x6a, 0x17, 0x50, 0x4e, 0x9e, 0x3c, 0x9c,
+	0x43, 0xda, 0xfb, 0x92, 0xfb, 0xe4, 0x4e, 0x22, 0x3d, 0xd9, 0x93, 0x7f, 0x5d, 0x7a, 0xaa, 0xaf,
+	0x22, 0x42, 0xbf, 0x42, 0x30, 0xe3, 0xab, 0xe4, 0x4e, 0x98, 0x9e, 0x6e, 0x39, 0x37, 0x46, 0x2d,
+	0xe7, 0xc4, 0xc1, 0xdf, 0x23, 0x78, 0x4e, 0x28, 0xaf, 0x8e, 0x7b, 0x4b, 0x82, 0x7b, 0xcf, 0xfb,
+	0x57, 0xb2, 0x15, 0x19, 0xef, 0x58, 0x78, 0x05, 0x03, 0x66, 0x66, 0x8a, 0x7b, 0x49, 0xc0, 0x7d,
+	0x96, 0x1a, 0x04, 0x84, 0xcb, 0x65, 0x00, 0x71, 0xbb, 0x0b, 0xc9, 0x9d, 0x9e, 0xae, 0xcb, 0x2a,
+	0x48, 0xdb, 0x3d, 0xe2, 0xe1, 0x94, 0x63, 0xbf, 0xdd, 0xab, 0xf4, 0x5a, 0xc6, 0xee, 0x7e, 0x53,
+	0xda, 0xee, 0xc9, 0x57, 0x00, 0x6f, 0x18, 0x6d, 0xe2, 0xd1, 0xb4, 0xa3, 0xb0, 0x61, 0xb4, 0x89,
+	0x86, 0x25, 0x93, 0x55, 0x48, 0xbe, 0xa1, 0xb7, 0xee, 0x13, 0x27, 0xc0, 0xd1, 0xb1, 0x46, 0x9a,
+	0xf6, 0x38, 0x59, 0xf0, 0x7b, 0x90, 0x72, 0x27, 0x96, 0xe7, 0x2d, 0x8b, 0xfb, 0x26, 0x59, 0x96,
+	0x58, 0x58, 0xee, 0x90, 0x37, 0x97, 0x2d, 0x95, 0x17, 0x60, 0xac, 0xd9, 0xd9, 0xdb, 0x37, 0xc9,
+	0xe2, 0x7e, 0x35, 0x47, 0xac, 0xdd, 0x85, 0x71, 0xea, 0xd1, 0x53, 0x9e, 0xba, 0xe6, 0x3c, 0x9a,
+	0x9c, 0x61, 0xdf, 0x27, 0xee, 0xbe, 0xa5, 0x33, 0x24, 0x67, 0x21, 0xf5, 0xa6, 0xd9, 0xf3, 0x8a,
+	0xbe, 0xdb, 0x91, 0xd2, 0x51, 0xed, 0x5d, 0x04, 0xa9, 0x9a, 0xae, 0x1f, 0xd9, 0x01, 0xbf, 0x0a,
+	0xc9, 0x5a, 0xf7, 0x47, 0x06, 0x71, 0xf0, 0x12, 0x89, 0xa8, 0x25, 0x26, 0x31, 0xb5, 0xc5, 0xf2,
+	0x55, 0x36, 0xee, 0xcf, 0xd2, 0xb8, 0x33, 0x7a, 0x76, 0xec, 0x35, 0x2e, 0xf6, 0x04, 0x40, 0x4b,
+	0xc9, 0x17, 0xff, 0xeb, 0x30, 0xc1, 0xac, 0x22, 0xe7, 0x88, 0x1b, 0x92, 0x68, 0xc8, 0xc6, 0xca,
+	0xd2, 0xd0, 0x74, 0xb8, 0xc8, 0x2d, 0x6c, 0x99, 0x32, 0x21, 0x0e, 0x31, 0xb5, 0xc3, 0x9c, 0xe7,
+	0xc3, 0x1c, 0xac, 0x4a, 0x42, 0x5d, 0x70, 0x62, 0x64, 0x87, 0x7b, 0xde, 0x21, 0x67, 0x38, 0x88,
+	0xd6, 0xdf, 0xda, 0x18, 0xe0, 0x46, 0xe7, 0x40, 0x7b, 0x15, 0xc0, 0x49, 0xf9, 0xba, 0x71, 0x7c,
+	0x28, 0x64, 0xdd, 0x94, 0x1b, 0xe0, 0x9d, 0x7d, 0x7d, 0x47, 0xef, 0xdb, 0x2a, 0x7c, 0x3f, 0x65,
+	0x15, 0x18, 0x70, 0x52, 0xcc, 0xb6, 0x7f, 0x29, 0xd2, 0x3e, 0xb0, 0x13, 0xb3, 0x54, 0x15, 0x47,
+	0xf5, 0xae, 0x6e, 0x6e, 0x18, 0x5d, 0x73, 0x5f, 0xef, 0x09, 0x16, 0x45, 0x79, 0x85, 0x4b, 0xd8,
+	0xa9, 0xe2, 0x0b, 0xd4, 0x22, 0xd4, 0x68, 0x45, 0xfb, 0xd0, 0x76, 0xd0, 0x6a, 0x05, 0x7c, 0x0f,
+	0x88, 0x63, 0x3c, 0xa0, 0xbc, 0xc6, 0xf5, 0x6f, 0x43, 0xdc, 0x14, 0x3e, 0x2d, 0x6f, 0x70, 0xdf,
+	0x39, 0xc3, 0x9d, 0xe5, 0xbf, 0x31, 0xdd, 0x98, 0xba, 0x2e, 0xbf, 0x14, 0xe9, 0x72, 0x48, 0x77,
+	0x3b, 0x6a, 0x4c, 0x71, 0xdc, 0x98, 0xfe, 0x89, 0x76, 0x1c, 0xd6, 0x70, 0x4d, 0xbf, 0xdf, 0x3a,
+	0x3e, 0x30, 0xe5, 0x97, 0x23, 0xb1, 0x2f, 0xa3, 0x2a, 0x75, 0xb5, 0x14, 0x17, 0xfe, 0xb2, 0x54,
+	0xa9, 0x50, 0x77, 0xaf, 0x8f, 0x40, 0x81, 0xb2, 0x54, 0xad, 0xd2, 0xb2, 0x9d, 0x7a, 0xef, 0xe1,
+	0x1c, 0xfa, 0xe0, 0xe1, 0x5c, 0x42, 0xfb, 0x1d, 0x82, 0x4b, 0x44, 0x93, 0x21, 0xee, 0x35, 0xc1,
+	0xf9, 0xcb, 0x6e, 0xcd, 0x08, 0x8a, 0xc0, 0x7f, 0x8d, 0xbc, 0x7f, 0x45, 0xa0, 0xf8, 0x7c, 0x75,
+	0xe3, 0x5d, 0x88, 0xe5, 0x72, 0x19, 0xd5, 0xff, 0xf7, 0x31, 0xbf, 0x0b, 0x63, 0x3b, 0x9d, 0x43,
+	0xbd, 0x67, 0xbd, 0x09, 0xac, 0x3f, 0x1c, 0x97, 0xdd, 0xc3, 0x1c, 0x67, 0xc8, 0x95, 0x39, 0xce,
+	0x71, 0xb2, 0xa2, 0xac, 0x40, 0xb2, 0xd6, 0x32, 0x5b, 0xb6, 0x07, 0x93, 0xb4, 0xbe, 0xb6, 0xcc,
+	0x96, 0xb6, 0x02, 0x93, 0x5b, 0x0f, 0xea, 0x6f, 0x9b, 0xba, 0xd1, 0x6e, 0xdd, 0x3b, 0x10, 0xcf,
+	0x40, 0xdd, 0x7e, 0x75, 0x39, 0x3f, 0x96, 0x6a, 0xa7, 0x4f, 0x50, 0x39, 0x69, 0xfb, 0xf3, 0x16,
+	0x4c, 0x6d, 0x5b, 0x6e, 0xdb, 0x76, 0x9c, 0x99, 0xb3, 0x3a, 0xa6, 0x0f, 0x2f, 0x34, 0x65, 0xd8,
+	0x6b, 0xca, 0xb2, 0x80, 0xb6, 0xf8, 0xd6, 0x89, 0xf5, 0xa3, 0x89, 0xb6, 0xf2, 0xc9, 0xd4, 0x54,
+	0xfa, 0x52, 0x3e, 0x99, 0x82, 0xf4, 0x45, 0xb2, 0xee, 0xdf, 0x30, 0xa4, 0x9d, 0x56, 0xa7, 0xa6,
+	0xdf, 0xef, 0x18, 0x1d, 0xd3, 0xdf, 0xaf, 0x52, 0x8f, 0xe5, 0x6f, 0xc2, 0xb8, 0x15, 0x52, 0xfb,
+	0x17, 0x01, 0xec, 0x0a, 0x69, 0x51, 0x84, 0x29, 0xc8, 0x80, 0x4d, 0x1d, 0xcf, 0x46, 0xbe, 0x09,
+	0xb8, 0xd1, 0xd8, 0x22, 0x2f, 0xb7, 0xd2, 0x50, 0xd3, 0x2d, 0xbd, 0xdf, 0x6f, 0xed, 0xe9, 0xe4,
+	0x17, 0x19, 0xeb, 0xef, 0x35, 0xad, 0x09, 0xe4, 0x12, 0x48, 0x8d, 0x2d, 0xd2, 0xf0, 0xce, 0xc7,
+	0x99, 0xa6, 0x29, 0x35, 0xb6, 0x32, 0x7f, 0x41, 0x70, 0x91, 0x1b, 0x95, 0x35, 0x98, 0x74, 0x06,
+	0x98, 0xc7, 0xbd, 0xd0, 0xe4, 0xc6, 0x5c, 0x9f, 0xa5, 0x73, 0xfa, 0x9c, 0xd9, 0x80, 0x69, 0x61,
+	0x5c, 0x5e, 0x04, 0x99, 0x1d, 0x22, 0x4e, 0x80, 0xdd, 0x50, 0x07, 0x48, 0xb4, 0xff, 0x03, 0xf0,
+	0xe2, 0x2a, 0x4f, 0xc3, 0xc4, 0xce, 0xdd, 0xdb, 0xf5, 0x1f, 0x34, 0xea, 0x6f, 0xee, 0xd4, 0x6b,
+	0x69, 0xa4, 0xfd, 0x01, 0xc1, 0x04, 0x69, 0x5b, 0x77, 0xbb, 0x47, 0xba, 0x5c, 0x01, 0xb4, 0x41,
+	0xf8, 0xf0, 0x64, 0x7e, 0xa3, 0x0d, 0x79, 0x09, 0x50, 0x25, 0x3e, 0xd4, 0xa8, 0x22, 0x17, 0x01,
+	0x55, 0x09, 0xc0, 0xf1, 0x90, 0x41, 0x55, 0xed, 0x5f, 0x18, 0x9e, 0x65, 0xdb, 0x68, 0xb7, 0x9e,
+	0x5c, 0xe1, 0xbf, 0x9b, 0xca, 0xe3, 0xcb, 0xc5, 0x95, 0xd2, 0xa2, 0xf5, 0x0f, 0xa5, 0xe4, 0x15,
+	0xfe, 0x13, 0xca, 0xaf, 0xe2, 0xbb, 0x26, 0x52, 0x4e, 0x32, 0x52, 0xdf, 0x35, 0x11, 0x4e, 0xea,
+	0xbb, 0x26, 0xc2, 0x49, 0x7d, 0xd7, 0x44, 0x38, 0xa9, 0xef, 0x28, 0x80, 0x93, 0xfa, 0xae, 0x89,
+	0x70, 0x52, 0xdf, 0x35, 0x11, 0x4e, 0xea, 0xbf, 0x26, 0x42, 0xc4, 0xa1, 0xd7, 0x44, 0x78, 0xb9,
+	0xff, 0x9a, 0x08, 0x2f, 0xf7, 0x5f, 0x13, 0x29, 0x27, 0xcd, 0xde, 0xb1, 0x1e, 0x7e, 0xe8, 0xc0,
+	0xdb, 0x0f, 0xfb, 0x06, 0xf4, 0x0a, 0xf0, 0x36, 0x4c, 0x3b, 0xfb, 0x11, 0xd5, 0xae, 0x61, 0xb6,
+	0x3a, 0x86, 0xde, 0x93, 0xbf, 0x01, 0x93, 0xce, 0x90, 0xf3, 0x95, 0x13, 0xf4, 0x15, 0xe8, 0xc8,
+	0x49, 0xb9, 0xe5, 0xb4, 0xb5, 0x2f, 0x93, 0x30, 0xe3, 0x0c, 0x34, 0x5a, 0x87, 0x3a, 0x77, 0xc9,
+	0x68, 0x41, 0x38, 0x52, 0x9a, 0xb2, 0xcc, 0x07, 0xa7, 0x73, 0xce, 0xe8, 0x06, 0x25, 0xd3, 0x82,
+	0x70, 0xb8, 0xc4, 0xeb, 0x79, 0xef, 0x9f, 0x05, 0xe1, 0xe2, 0x11, 0xaf, 0x47, 0x5f, 0x37, 0x54,
+	0xcf, 0xbd, 0x82, 0xc4, 0xeb, 0xd5, 0x28, 0xcb, 0x16, 0x84, 0xcb, 0x48, 0xbc, 0x5e, 0x9d, 0xf2,
+	0x6d, 0x41, 0x38, 0x7a, 0xe2, 0xf5, 0x6e, 0x52, 0xe6, 0x2d, 0x08, 0x87, 0x50, 0xbc, 0xde, 0xb7,
+	0x28, 0x07, 0x17, 0x84, 0xab, 0x4a, 0xbc, 0xde, 0xeb, 0x94, 0x8d, 0x0b, 0xc2, 0xa5, 0x25, 0x5e,
+	0x6f, 0x93, 0xf2, 0x32, 0x27, 0x5e, 0x5f, 0xe2, 0x15, 0x6f, 0x79, 0x0c, 0xcd, 0x89, 0x17, 0x99,
+	0x78, 0xcd, 0x6f, 0x7b, 0x5c, 0xcd, 0x89, 0x57, 0x9a, 0x78, 0xcd, 0x37, 0x3c, 0xd6, 0xe6, 0xc4,
+	0xa3, 0x32, 0x5e, 0x73, 0xcb, 0xe3, 0x6f, 0x4e, 0x3c, 0x34, 0xe3, 0x35, 0x1b, 0x1e, 0x93, 0x73,
+	0xe2, 0xf1, 0x19, 0xaf, 0xb9, 0xed, 0xed, 0xa1, 0x7f, 0x24, 0xd0, 0x8f, 0xb9, 0x04, 0xa5, 0x09,
+	0xf4, 0x83, 0x00, 0xea, 0x69, 0x02, 0xf5, 0x20, 0x80, 0x76, 0x9a, 0x40, 0x3b, 0x08, 0xa0, 0x9c,
+	0x26, 0x50, 0x0e, 0x02, 0xe8, 0xa6, 0x09, 0x74, 0x83, 0x00, 0xaa, 0x69, 0x02, 0xd5, 0x20, 0x80,
+	0x66, 0x9a, 0x40, 0x33, 0x08, 0xa0, 0x98, 0x26, 0x50, 0x0c, 0x02, 0xe8, 0xa5, 0x09, 0xf4, 0x82,
+	0x00, 0x6a, 0xcd, 0x8b, 0xd4, 0x82, 0x20, 0x5a, 0xcd, 0x8b, 0xb4, 0x82, 0x20, 0x4a, 0xbd, 0x28,
+	0x52, 0x6a, 0x7c, 0x70, 0x3a, 0x37, 0x66, 0x0d, 0x31, 0x6c, 0x9a, 0x17, 0xd9, 0x04, 0x41, 0x4c,
+	0x9a, 0x17, 0x99, 0x04, 0x41, 0x2c, 0x9a, 0x17, 0x59, 0x04, 0x41, 0x0c, 0x7a, 0x24, 0x32, 0xc8,
+	0xbb, 0xe2, 0xa3, 0x09, 0x27, 0x8a, 0x51, 0x0c, 0xc2, 0x31, 0x18, 0x84, 0x63, 0x30, 0x08, 0xc7,
+	0x60, 0x10, 0x8e, 0xc1, 0x20, 0x1c, 0x83, 0x41, 0x38, 0x06, 0x83, 0x70, 0x0c, 0x06, 0xe1, 0x38,
+	0x0c, 0xc2, 0xb1, 0x18, 0x84, 0xc3, 0x18, 0x34, 0x2f, 0x5e, 0x78, 0x80, 0xa0, 0x82, 0x34, 0x2f,
+	0x9e, 0x7c, 0x46, 0x53, 0x08, 0xc7, 0xa2, 0x10, 0x0e, 0xa3, 0xd0, 0x47, 0x18, 0x9e, 0xe5, 0x28,
+	0x44, 0x8e, 0x87, 0x9e, 0x56, 0x05, 0x5a, 0x8b, 0x71, 0xbf, 0x22, 0x88, 0x53, 0x6b, 0x31, 0xce,
+	0xa8, 0x87, 0xf1, 0xcc, 0x5f, 0x85, 0xea, 0x31, 0xaa, 0xd0, 0x4d, 0xca, 0xa1, 0xb5, 0x18, 0xf7,
+	0x2e, 0xfc, 0xdc, 0x5b, 0x1f, 0x56, 0x04, 0x5e, 0x8f, 0x55, 0x04, 0x36, 0x63, 0x15, 0x81, 0x5b,
+	0x1e, 0x82, 0x3f, 0x95, 0xe0, 0x39, 0x0f, 0x41, 0xe7, 0xaf, 0x9d, 0x07, 0x47, 0x56, 0x09, 0xf0,
+	0x4e, 0xa8, 0x64, 0xf7, 0xd4, 0x86, 0x81, 0x51, 0xda, 0x6c, 0xcb, 0xb7, 0xf9, 0xb3, 0xaa, 0xf2,
+	0xa8, 0xe7, 0x37, 0x0c, 0xe2, 0x64, 0x2f, 0x74, 0x1e, 0xf0, 0x66, 0xbb, 0x6f, 0x57, 0x8b, 0xa0,
+	0x65, 0xab, 0x4d, 0x4b, 0x2c, 0x37, 0xe1, 0x82, 0xad, 0xde, 0xb7, 0xe1, 0x3d, 0xcf, 0xc2, 0xb5,
+	0x26, 0x99, 0x49, 0x7b, 0x84, 0x20, 0xcb, 0x51, 0xf9, 0xe9, 0x9c, 0x18, 0xbc, 0x12, 0xeb, 0xc4,
+	0x80, 0x4b, 0x10, 0xef, 0xf4, 0xe0, 0xff, 0xfd, 0x07, 0xd5, 0x6c, 0x96, 0x88, 0x27, 0x09, 0x3f,
+	0x81, 0x29, 0xef, 0x09, 0xec, 0x4f, 0xb6, 0xd5, 0xe8, 0xcd, 0xcc, 0xa0, 0xd4, 0x5c, 0x15, 0x36,
+	0xd1, 0x86, 0x9a, 0xd1, 0x6c, 0xd5, 0xca, 0x30, 0xdd, 0xe8, 0xda, 0x1b, 0x00, 0xfd, 0x4e, 0xd7,
+	0xe8, 0x6f, 0xb5, 0x8e, 0xa2, 0xf6, 0x22, 0x52, 0x56, 0x6b, 0x7e, 0xf2, 0xeb, 0xb9, 0x84, 0xf6,
+	0x32, 0x4c, 0xde, 0x31, 0x7a, 0xfa, 0x6e, 0x77, 0xcf, 0xe8, 0xfc, 0x58, 0x6f, 0x0b, 0x86, 0xe3,
+	0xae, 0x61, 0x39, 0xf9, 0xd8, 0xd2, 0xfe, 0x05, 0x82, 0xcb, 0xac, 0xfa, 0x77, 0x3b, 0xe6, 0xfe,
+	0xa6, 0x61, 0xf5, 0xf4, 0xaf, 0x42, 0x4a, 0x27, 0xc0, 0xd9, 0xef, 0xae, 0x09, 0xf7, 0x33, 0x32,
+	0x50, 0x7d, 0xd1, 0xfe, 0xb7, 0x49, 0x4d, 0x84, 0x4d, 0x10, 0x77, 0xd9, 0x62, 0xe6, 0x2a, 0x8c,
+	0x39, 0xf3, 0xf3, 0x7e, 0x5d, 0x14, 0xfc, 0xfa, 0x6d, 0x80, 0x5f, 0x36, 0x8f, 0xe4, 0x5b, 0x9c,
+	0x5f, 0xcc, 0xd7, 0x6a, 0xa0, 0xfa, 0xa2, 0x4b, 0xbe, 0x4a, 0xca, 0xea, 0xff, 0x6c, 0x46, 0x45,
+	0x3b, 0x99, 0x83, 0x54, 0x5d, 0xd4, 0x09, 0xf6, 0xb3, 0x06, 0xc9, 0x46, 0xb7, 0xad, 0xcb, 0xcf,
+	0xc1, 0xd8, 0x1b, 0xad, 0x7b, 0xfa, 0x01, 0x09, 0xb2, 0xf3, 0x43, 0x5e, 0x80, 0x54, 0x75, 0xbf,
+	0x73, 0xd0, 0xee, 0xe9, 0x06, 0x39, 0xb2, 0x27, 0x3b, 0xe8, 0x96, 0x4d, 0x93, 0xca, 0xb4, 0x2a,
+	0x5c, 0x6a, 0x74, 0x8d, 0xca, 0x03, 0x93, 0xad, 0x1b, 0x8b, 0x42, 0x8a, 0x90, 0x23, 0x9f, 0xdb,
+	0x56, 0x36, 0x5a, 0x0a, 0x95, 0xb1, 0x8f, 0x4f, 0xe7, 0xd0, 0x0e, 0xdd, 0x3e, 0xdf, 0x82, 0xe7,
+	0x49, 0xfa, 0xf8, 0xa6, 0x2a, 0x46, 0x4d, 0x35, 0x4e, 0x8e, 0xa9, 0x99, 0xe9, 0x36, 0xad, 0xe9,
+	0x8c, 0xc0, 0xe9, 0x9e, 0xcc, 0x33, 0xab, 0x29, 0x1a, 0xea, 0x19, 0x1e, 0xc9, 0xb3, 0xc0, 0xe9,
+	0x16, 0xa3, 0xa6, 0x13, 0x3c, 0x7b, 0x11, 0xc6, 0xa9, 0x8c, 0x61, 0x03, 0x9b, 0x29, 0xc5, 0xbc,
+	0x06, 0x13, 0x4c, 0xc2, 0xca, 0x63, 0x80, 0x36, 0xd2, 0x09, 0xeb, 0xbf, 0x4a, 0x1a, 0x59, 0xff,
+	0x55, 0xd3, 0x52, 0xfe, 0x2a, 0x4c, 0x0b, 0xdb, 0x97, 0x96, 0xa4, 0x96, 0x06, 0xeb, 0xbf, 0x7a,
+	0x7a, 0x22, 0x93, 0x7c, 0xef, 0x37, 0x6a, 0x22, 0xff, 0x0a, 0xc8, 0xfe, 0x8d, 0x4e, 0xf9, 0x02,
+	0x48, 0x1b, 0xd6, 0x94, 0xcf, 0x83, 0x54, 0xa9, 0xa4, 0x51, 0x66, 0xfa, 0x67, 0xbf, 0xcc, 0x4e,
+	0x54, 0x74, 0xd3, 0xd4, 0x7b, 0x77, 0x75, 0xb3, 0x52, 0x21, 0xc6, 0xaf, 0xc1, 0xe5, 0xc0, 0x8d,
+	0x52, 0xcb, 0xbe, 0x5a, 0x75, 0xec, 0x6b, 0x35, 0x9f, 0x7d, 0xad, 0x66, 0xdb, 0xa3, 0xb2, 0x7b,
+	0xe0, 0xbc, 0x21, 0x07, 0x6c, 0x32, 0x2a, 0x6d, 0xe6, 0x80, 0x7b, 0xa3, 0xfc, 0x1a, 0xd1, 0xad,
+	0x04, 0xea, 0xea, 0x11, 0x07, 0xd6, 0x95, 0x72, 0x95, 0xd8, 0x57, 0x03, 0xed, 0xef, 0x0b, 0xa7,
+	0xaa, 0xfc, 0x1b, 0x82, 0x4c, 0x52, 0xa5, 0x0e, 0xd7, 0x02, 0x27, 0xd9, 0x67, 0xee, 0xba, 0xd7,
+	0xa8, 0xc3, 0xf5, 0x40, 0xdd, 0x4e, 0xc4, 0x9d, 0xaf, 0x7a, 0x79, 0x89, 0xbc, 0xe4, 0x37, 0x96,
+	0xe5, 0xcb, 0x6e, 0x8e, 0x72, 0x15, 0x98, 0x04, 0xc8, 0xd5, 0x2a, 0x57, 0x89, 0x41, 0x25, 0xd4,
+	0x20, 0x3c, 0x4a, 0xae, 0x65, 0xf9, 0x75, 0x32, 0x49, 0x35, 0x74, 0x92, 0x88, 0x50, 0xb9, 0xe6,
+	0x95, 0x9d, 0x93, 0x33, 0x35, 0xf1, 0xf8, 0x4c, 0x4d, 0xfc, 0xe3, 0x4c, 0x4d, 0x7c, 0x72, 0xa6,
+	0xa2, 0xcf, 0xce, 0x54, 0xf4, 0xf9, 0x99, 0x8a, 0xbe, 0x38, 0x53, 0xd1, 0x3b, 0x03, 0x15, 0x7d,
+	0x30, 0x50, 0xd1, 0x87, 0x03, 0x15, 0xfd, 0x71, 0xa0, 0xa2, 0x47, 0x03, 0x15, 0x9d, 0x0c, 0xd4,
+	0xc4, 0xe3, 0x81, 0x8a, 0x3e, 0x19, 0xa8, 0xe8, 0xb3, 0x81, 0x9a, 0xf8, 0x7c, 0xa0, 0xa2, 0x2f,
+	0x06, 0x6a, 0xe2, 0x9d, 0x4f, 0xd5, 0xc4, 0xc3, 0x4f, 0xd5, 0xc4, 0x07, 0x9f, 0xaa, 0xe8, 0x3f,
+	0x01, 0x00, 0x00, 0xff, 0xff, 0x73, 0x0f, 0x9e, 0x30, 0x4d, 0x36, 0x00, 0x00,
+}
