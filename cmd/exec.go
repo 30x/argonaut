@@ -15,24 +15,26 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"io"
-	"strings"
-	"sync"
 	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"sync"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/client/unversioned"
-	remote "k8s.io/kubernetes/pkg/client/unversioned/remotecommand"
-	remoteServer "k8s.io/kubernetes/pkg/kubelet/server/remotecommand"
-	"k8s.io/kubernetes/pkg/fields"
-	"k8s.io/kubernetes/pkg/labels"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/labels"
+	remoteUtils "k8s.io/apimachinery/pkg/util/remotecommand"
+	"k8s.io/client-go/kubernetes"
+	api "k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/tools/remotecommand"
 
-	"github.com/spf13/cobra"
+	"strconv"
+
 	"github.com/30x/argonaut/utils"
 	"github.com/fatih/color"
 	"github.com/lunixbochs/vtclean"
+	"github.com/spf13/cobra"
 )
 
 var execContainerFlag string
@@ -95,7 +97,7 @@ func init() {
 }
 
 // MultiExec applies the
-func MultiExec(client *unversioned.Client, labelSelector string, command string, namespace string, container string, stdin bool, tty bool, useColor bool) (err error) {
+func MultiExec(client *kubernetes.Clientset, labelSelector string, command string, namespace string, container string, stdin bool, tty bool, useColor bool) (err error) {
 	// parse given label selector
 	selector, err := labels.Parse(labelSelector)
 	if err != nil {
@@ -110,9 +112,9 @@ func MultiExec(client *unversioned.Client, labelSelector string, command string,
 	podIntr := client.Pods(namespace)
 
 	// retrieve all pods by label selector
-	pods, err := podIntr.List(api.ListOptions{
-		FieldSelector: fields.Everything(),
-		LabelSelector: selector,
+	pods, err := podIntr.List(metav1.ListOptions{
+		FieldSelector: fields.Everything().String(),
+		LabelSelector: selector.String(),
 	})
 	if err != nil {
 		return
@@ -129,7 +131,6 @@ func MultiExec(client *unversioned.Client, labelSelector string, command string,
 	var col *color.Color
 	var writes []*io.PipeWriter
 	colorLen := len(colors)
-	suptProto := []string{remoteServer.StreamProtocolV1Name, remoteServer.StreamProtocolV2Name}
 
 	if stdin {
 		stdinIO = os.Stdin
@@ -140,27 +141,34 @@ func MultiExec(client *unversioned.Client, labelSelector string, command string,
 		return err
 	}
 
-	podExecOpts := &api.PodExecOptions{
-		Container: container,
-		Command: strings.Split(command, " "),
-		Stdin: stdin, // let stdin flag decide
-		Stdout: true,
-		Stderr: true,
-		TTY: tty, // let tty flag decide
-	}
+	// podExecOpts := &api.PodExecOptions{
+	// 	Container: container,
+	// 	Command:   strings.Split(command, " "),
+	// 	Stdin:     stdin, // let stdin flag decide
+	// 	Stdout:    true,
+	// 	Stderr:    true,
+	// 	TTY:       tty, // let tty flag decide
+	// }
 
 	// start exec'ing on these pods
 	for ndx, pod := range pods.Items {
-		req := client.RESTClient.Post().
+		req := client.CoreV1().RESTClient().Post().
 			Resource(api.ResourcePods.String()).
 			Name(pod.Name).
 			Namespace(pod.Namespace).
 			SubResource("exec").
-			Param("container", container)
+			Param("container", container).
+			Param("command", command).
+			Param("stdin", strconv.FormatBool(stdin)).
+			Param("stdout", strconv.FormatBool(true)).
+			Param("stderr", strconv.FormatBool(true)).
+			Param("tty", strconv.FormatBool(tty))
 
-		req.VersionedParams(podExecOpts, api.ParameterCodec)
+		// VersionedParams(podExecOpts, metav1.ParameterCodec)
 
-		rmtCmd, err := remote.NewExecutor(restConf, "POST", req.URL())
+		// fmt.Printf("Request: %+v\n", req)
+
+		streamExec, err := remotecommand.NewExecutor(restConf, "POST", req.URL())
 		if err != nil {
 			return err
 		}
@@ -168,26 +176,41 @@ func MultiExec(client *unversioned.Client, labelSelector string, command string,
 		if useColor {
 			col = colors[ndx%colorLen] // give this stream one of the set colors
 		} else {
-			color.NoColor = true // turn off all colors
+			color.NoColor = true           // turn off all colors
 			col = color.New(color.FgWhite) // set color to white to be safe
 		}
 
 		if tty || stdin {
 			wg.Add(2)
 
-			rtRead, mainWrite := io.Pipe() // create main->routine pipe
+			rtRead, mainWrite := io.Pipe()     // create main->routine pipe
 			writes = append(writes, mainWrite) // keep track of main's writing end
 
 			mainRead, rtWrite := io.Pipe() // create routine->main pipe
 
+			opts := remotecommand.StreamOptions{
+				SupportedProtocols: remoteUtils.SupportedStreamingProtocols,
+				Stdin:              rtRead,
+				Stdout:             rtWrite,
+				Stderr:             os.Stderr,
+				Tty:                tty,
+			}
+
 			// start threads
-			go openPodSession(rmtCmd, suptProto, rtRead, rtWrite, os.Stderr, tty, pod.Name, &wg, col)
+			go openPodSession(streamExec, opts, pod.Name, &wg, col)
 			go readRoutineToStdout(pod.Name, mainRead, &wg, col, &printLock)
 		} else {
 			col.Printf("\"%s\" for pod %s:\n", command, pod.Name)
 
+			opts := remotecommand.StreamOptions{
+				SupportedProtocols: remoteUtils.SupportedStreamingProtocols,
+				Stdin:              stdinIO,
+				Stdout:             os.Stdout,
+				Stderr:             os.Stderr,
+				Tty:                false,
+			}
 			// this shouldn't have tty == true, b.c it should be a one-off command
-			err = rmtCmd.Stream(suptProto, stdinIO, os.Stdout, os.Stderr, tty)
+			err = streamExec.Stream(opts)
 			if err != nil {
 				return err
 			}
@@ -209,11 +232,11 @@ func MultiExec(client *unversioned.Client, labelSelector string, command string,
 }
 
 // opens a stream with a pod as configured  by the given remote command, should be run in a go routine
-func openPodSession(rmtCmd remote.StreamExecutor, supportedProtocols []string, in io.Reader, out io.Writer, rtErr io.Writer, tty bool, podName string, wg *sync.WaitGroup, col *color.Color) {
+func openPodSession(rmtCmd remotecommand.StreamExecutor, opts remotecommand.StreamOptions, podName string, wg *sync.WaitGroup, col *color.Color) {
 	defer wg.Done()
 
 	col.Printf("session for pod %s active\n", podName)
-	err := rmtCmd.Stream(supportedProtocols, in, out, rtErr, tty)
+	err := rmtCmd.Stream(opts)
 	if err != nil {
 		fmt.Println("Error from routine for", podName, ":", err)
 		return
@@ -245,38 +268,40 @@ func stdinToPods(writes []*io.PipeWriter) error {
 
 // writes given data (usually from stdin) to each consumer pipe
 func writeToPods(writes []*io.PipeWriter, input string) error {
-  for _, pipe := range writes {
-    _, err := pipe.Write([]byte(input+"\n")) // add newline to flush writer
-    if err != nil { return err }
-  }
+	for _, pipe := range writes {
+		_, err := pipe.Write([]byte(input + "\n")) // add newline to flush writer
+		if err != nil {
+			return err
+		}
+	}
 
-  return nil
+	return nil
 }
 
 // reads data from given read-in pipe, writes it stdout with a buffer
 func readRoutineToStdout(name string, read *io.PipeReader, wg *sync.WaitGroup, col *color.Color, printLock *sync.Mutex) {
-  defer wg.Done()
+	defer wg.Done()
 
-  // buffer each line before writing to stdout
-  scanner := bufio.NewScanner(read)
-  for scanner.Scan() {
+	// buffer each line before writing to stdout
+	scanner := bufio.NewScanner(read)
+	for scanner.Scan() {
 		printLock.Lock() // request printing lock
 		col.Printf("%s: ", name)
 		fmt.Println(vtclean.Clean(scanner.Text(), false))
 		printLock.Unlock() // unlock printing lock so other threads can print
-  }
+	}
 
-  if err := scanner.Err(); err != nil {
-    fmt.Fprintf(os.Stderr, "There was an error with the scanner in pod %s: %v\n", name, err)
-    read.CloseWithError(err)
-  }
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "There was an error with the scanner in pod %s: %v\n", name, err)
+		read.CloseWithError(err)
+	}
 }
 
 func closePipes(writes []*io.PipeWriter) {
-  for _, pipe := range writes {
-    err := pipe.Close()
-    if err != nil {
-      fmt.Fprintln(os.Stderr, "closing write pipes:", err)
-    }
-  }
+	for _, pipe := range writes {
+		err := pipe.Close()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "closing write pipes:", err)
+		}
+	}
 }

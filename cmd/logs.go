@@ -15,20 +15,21 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
 	"sync"
-	"bufio"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/client/unversioned"
-	"k8s.io/kubernetes/pkg/fields"
-	"k8s.io/kubernetes/pkg/labels"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/kubernetes"
+	api "k8s.io/client-go/pkg/api/v1"
 
-	"github.com/spf13/cobra"
-	"github.com/fatih/color"
 	"github.com/30x/argonaut/utils"
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 var containerFlag string
@@ -73,7 +74,7 @@ argonaut logs "app=hello" -c ingress`,
 }
 
 // GetMultiLogs retrieves all logs for the given label selector
-func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace string, container string, tail int, follow bool, useColor bool) error {
+func GetMultiLogs(client *kubernetes.Clientset, labelSelector string, namespace string, container string, tail int, follow bool, useColor bool) error {
 	// parse given label selector
 	selector, err := labels.Parse(labelSelector)
 	if err != nil {
@@ -88,9 +89,9 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 	podIntr := client.Pods(namespace)
 
 	// retrieve all pods by label selector
-	pods, err := podIntr.List(api.ListOptions{
-		FieldSelector: fields.Everything(),
-		LabelSelector: selector,
+	pods, err := podIntr.List(metav1.ListOptions{
+		FieldSelector: fields.Everything().String(),
+		LabelSelector: selector.String(),
 	})
 	if err != nil {
 		return err
@@ -125,7 +126,7 @@ func GetMultiLogs(client *unversioned.Client, labelSelector string, namespace st
 		if useColor {
 			col = colors[ndx%colorLen] // give this stream one of the set colors
 		} else {
-			color.NoColor = true // turn off all colors
+			color.NoColor = true           // turn off all colors
 			col = color.New(color.FgWhite) // set color to white to be safe
 		}
 
